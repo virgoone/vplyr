@@ -16,7 +16,7 @@ let NODE_PATH = path.join(__dirname, 'node_modules');
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
 gulp.task('scss', [], () => {
-  return gulp.src(['client/asset/scss/*.scss'])
+  return gulp.src(['./sass/*.scss'])
     .pipe($.changed('.tmp/', {
       extension: '.css'
     }))
@@ -46,7 +46,7 @@ gulp.task('jade', [], () => {
     .pipe($.notify('Views refresh'));
 })
 gulp.task('scripts', [], () => {
-  return gulp.src('client/asset/ts/*.ts')
+  return gulp.src('./ts/*.ts')
     .pipe($.changed('.tmp/', {
       extension: '.js'
     }))
@@ -63,21 +63,7 @@ gulp.task('scripts', [], () => {
 })
 gulp.task('serve', ['scss', 'jade'], () => {
   $.livereload.listen()
-  $.nodemon({
-      exec: './node_modules/.bin/babel-node --harmony',
-      script: 'server/app.js',
-      ext: 'js',
-      watch: 'server',
-      delay: 1.5,
-      nodeArgs: ['--debug']
-    })
-    .on("start", function() {
-      console.log('nodemon server started!');
-    })
-    .on('restart', function() {
-      console.log('server restarted!');
 
-    });
   gulp.watch(['client/asset/scss/*.scss'], ['scss'])
   gulp.watch(['client/**/*.jade'], ['jade'])
 
