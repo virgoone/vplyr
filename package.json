@@ -1,0 +1,68 @@
+{
+  "name": "innotopia",
+  "version": "1.0.0",
+  "description": "innotopia frontend ",
+  "main": "server/app.js",
+  "scripts": {
+    "start": "NODE_ENV=development nodemon --exec babel-node --harmony server/app.js",
+    "build": "rm -rf dist && ./node_modules/babel-cli/bin/babel.js ./server -d ./dist/server -D"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/vvvirgo/innotopia.git"
+  },
+  "keywords": [
+    "innotopia",
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=5.4.1"
+  },
+  "private": true,
+  "author": "virgo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://gitlab.com/vvvirgo/innotopia/issues"
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "homepage": "https://gitlab.com/vvvirgo/innotopia#README",
+  "dependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-core": "^6.13.2",
+    "babel-preset-es2015": "^6.13.2",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-preset-stage-1": "^6.13.0",
+    "del": "^2.2.2",
+    "fs": "0.0.2",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-changed": "^1.3.2",
+    "gulp-jade": "^1.1.0",
+    "gulp-livereload": "^3.8.1",
+    "gulp-load-plugins": "^1.2.4",
+    "gulp-nodemon": "^2.1.0",
+    "gulp-notify": "^2.2.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-sass": "^2.3.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-typescript": "^2.13.6",
+    "gulp-util": "^3.0.7",
+    "koa": "^2.0.0-alpha.5",
+    "koa-bodyparser": "^2.2.0",
+    "koa-etag": "^2.1.1",
+    "koa-json": "^1.1.3",
+    "koa-logger": "^1.3.0",
+    "koa-router": "^7.0.1",
+    "koa-static": "^2.0.0",
+    "koa-views": "^5.0.2",
+    "nodemon": "^1.10.0",
+    "path": "^0.12.7",
+    "run-sequence": "^1.2.2"
+  },
+  "devDependencies": {
+    "bootstrap-sass": "^3.3.7"
+  }
+}
