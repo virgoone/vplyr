@@ -1,0 +1,43 @@
+// Settings
+$plyr-border-box:                       true !default;
+$plyr-touch-action:                     true !default;
+$plyr-sr-only-important:                true !default;
+
+// Colors
+$plyr-color-main:                       rgba(255,53,127,1) !default;
+
+//font settings
+$vplyr-font-family:-apple-system,BlinkMacSystemFont,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Hiragino Sans GB,Microsoft Yahei,Microsoft Jhenghei,sans-serif;
+
+// Breakpoints
+$vplyr-screen-sm: 480px !default;
+$vplyr-screen-md: 768px !default;
+$vplyr-screen-lg: 1024px !default;
+
+// Progress
+$plyr-progress-loading-size:            25px !default;
+$plyr-progress-loading-bg:              transparentize(#000, .85) !default;
+$plyr-video-progress-bg:                transparentize(#fff, .75) !default;
+$plyr-video-progress-buffered-bg:       $plyr-video-progress-bg !default;
+
+// Controls
+$plyr-control-icon-size:                18px !default;
+$plyr-control-spacing:                  10px !default;
+$plyr-control-padding:                  ($plyr-control-spacing * .7) !default;
+$plyr-video-controls-bg:                #000 !default;
+$plyr-video-control-color:              #fff !default;
+$plyr-video-control-color-hover:        #fff !default;
+$plyr-video-control-bg-hover:           $plyr-color-main !default;
+
+// Range sliders
+$plyr-range-track-height:               8px !default;
+$plyr-range-thumb-height:               floor($plyr-range-track-height * 2) !default;
+$plyr-range-thumb-width:                floor($plyr-range-track-height * 2) !default;
+$plyr-range-thumb-bg:                   #fff !default;
+$plyr-range-thumb-border:               2px solid transparent !default;
+$plyr-range-thumb-shadow:               0 1px 1px transparentize($plyr-video-controls-bg, .85), 0 0 0 1px transparentize(#000, .85) !default;
+$plyr-range-thumb-active-border-color:  #fff !default;
+$plyr-range-thumb-active-bg:            $plyr-video-control-bg-hover !default;
+$plyr-range-thumb-active-scale:         1.25 !default;
+$plyr-video-range-track-bg:             $plyr-video-progress-buffered-bg !default;
+$plyr-range-selected-bg:                $plyr-color-main !default;

@@ -1,23 +1,24 @@
 'use strict';
-import gulp from 'gulp';
-import fs from "fs";
-import gulpLoadPlugins from 'gulp-load-plugins';
-import del from 'del';
-import path from "path";
-import es from "event-stream";
-import runSequence from 'run-sequence';
+const gulp = require('gulp');
+const fs = require('fs');
+const gulpLoadPlugins = require('gulp-load-plugins');
+const del = require('del');
+const path = require('path');
+const runSequence = require('run-sequence');
+const babelify = require('babelify');
+const connect = require('gulp-connect');
+const browserify = require('browserify');
+const source = require('vinyl-source-stream');
+const buffer = require('vinyl-buffer');
 const $ = gulpLoadPlugins();
-const clientDistFolder = 'dist/public';
-const serverDistFolder = 'dist/server';
-let NODE_ENV = "development";
 
-let NODE_PATH = path.join(__dirname, 'node_modules');
+const clientDistFolder = 'dist/';
 
-gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
+gulp.task('clean', del.bind(null, ['dist/*']));
 
 gulp.task('scss', [], () => {
-  return gulp.src(['./sass/*.scss'])
-    .pipe($.changed('.tmp/', {
+  return gulp.src(['./src/scss/vplyr.scss'])
+    .pipe($.changed('dist/', {
       extension: '.css'
     }))
     .pipe($.plumber())
@@ -27,47 +28,36 @@ gulp.task('scss', [], () => {
       browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']
     }))
     .pipe($.sourcemaps.write())
-    .pipe(gulp.dest('.tmp/static/css/'))
-    .pipe($.livereload())
-    .pipe($.notify('Css refresh'));
-
-
+    .pipe(gulp.dest(clientDistFolder))
+    .pipe($.connect.reload());
 })
-gulp.task('jade', [], () => {
-  return gulp.src(['client/**/*.jade', '!client/includes/**/*.jade'])
-    .pipe($.changed('.tmp/', {
-      extension: '.html'
-    }))
-    .pipe($.jade({
-      client: false
-    }))
-    .pipe(gulp.dest('.tmp/'))
-    .pipe($.livereload())
-    .pipe($.notify('Views refresh'));
-})
-gulp.task('scripts', [], () => {
-  return gulp.src('./ts/*.ts')
-    .pipe($.changed('.tmp/', {
-      extension: '.js'
-    }))
-    .pipe($.sourcemaps.init())
-    .pipe($.ts({
-      declaration: true,
-      noExternalResolve: true
-    }))
-    .pipe($.sourcemaps.write())
-    .pipe(gulp.dest('.tmp/static/js/'))
-    .pipe($.livereload())
-    .pipe($.notify('Scripts refresh'));
-
-})
-gulp.task('serve', ['scss', 'jade'], () => {
-  $.livereload.listen()
-
-  gulp.watch(['client/asset/scss/*.scss'], ['scss'])
-  gulp.watch(['client/**/*.jade'], ['jade'])
-
-})
-gulp.task('default', ['clean'], () => {
-  gulp.start('serve');
+function doBundle(b) {
+  return b.bundle()
+    .on('error', console.error.bind(console))
+    .pipe(source('vplyr.js')) //将常规流转换为包含Stream的vinyl对象，并且重命名
+    .pipe(buffer())
+    .pipe($.sourcemaps.init({loadMaps: true}))
+    .pipe($.sourcemaps.write('./'))
+    .pipe(gulp.dest(clientDistFolder))
+    .pipe($.connect.reload())
+}
+gulp.task('scripts', [], function () {
+  let b = browserify({
+    entries: './src/js/vplyr.js',
+    standalone: 'vplyr.js',
+    debug: true,
+    transform: ['babelify', 'browserify-versionify'],
+    plugin: ['browserify-derequire']
+  });
+  return doBundle(b);
 });
+gulp.task('watch', [], () => {
+  connect.server({
+    livereload: true,
+    port: 8088
+  });
+  gulp.watch(['src/js/**/*.js'], ['scripts'])
+  gulp.watch(['src/scss/**/*.scss'], ['scss'])
+
+})
+gulp.task('default', ['clean','scss','scripts', 'watch']);

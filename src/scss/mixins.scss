@@ -1,0 +1,59 @@
+@charset "UTF-8";
+// Adds a browser prefix to the property
+/// @param {*} $property Property
+/// @param {*} $value Value
+@mixin css3-prefix($property, $value) {
+  -webkit-#{$property}: #{$value};
+  -khtml-#{$property}: #{$value};
+  -moz-#{$property}: #{$value};
+  -ms-#{$property}: #{$value};
+  -o-#{$property}: #{$value};
+  #{$property}: #{$value};
+}
+/// Transition
+/// @param {List} $properties - Properties
+/// @require {mixin} css3-prefix
+@mixin transition($properties...) {
+   @if length($properties) >= 1{
+    @include css3-prefix( 'transition', $properties);
+  }
+  @else {
+     @include css3-prefix('transition',  "all 0.35s ease-in-out 0s");
+  }
+}
+@mixin transition-property($property...) {
+   @include css3-prefix( 'property',$property);
+}
+@mixin transition-duration($duration...) {
+   @include css3-prefix( 'duration',$duration);
+}
+@mixin transition-timing-function($timing...) {
+   @include css3-prefix( 'timing-function',$timing);
+}
+@mixin transition-delay($delay...) {
+   @include css3-prefix( 'delay',$delay);
+}
+
+// <input type="range"> styling
+@mixin plyr-range-track() {
+  height: $plyr-range-track-height;
+  background: transparent;
+  border: 0;
+  border-radius: ($plyr-range-track-height / 2);
+  user-select: none;
+}
+@mixin plyr-range-thumb() {
+  position: relative;
+  height: $plyr-range-thumb-height;
+  width: $plyr-range-thumb-width;
+  background: $plyr-range-thumb-bg;
+  border: $plyr-range-thumb-border;
+  border-radius: 100%;
+  transition: background .2s ease, border .2s ease, transform .2s ease;
+  box-shadow: $plyr-range-thumb-shadow;
+}
+@mixin plyr-range-thumb-active() {
+  background: $plyr-range-thumb-active-bg;
+  border-color: $plyr-range-thumb-active-border-color;
+  transform: scale($plyr-range-thumb-active-scale);
+}

@@ -1,19 +1,17 @@
 {
   "name": "vplyr",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "vplyr frontend ",
-  "main": "server/app.js",
+  "main": "src/js/vplyr.js",
   "scripts": {
-    "start": "NODE_ENV=development nodemon --exec babel-node --harmony server/app.js",
-    "build": "rm -rf dist && ./node_modules/babel-cli/bin/babel.js ./server -d ./dist/server -D"
+    "build": "gulp"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@gitlab.com/vvvirgo/innotopia.git"
+    "url": "https://github.com/virgoone/vplyr.git"
   },
   "keywords": [
-    "innotopia",
-    "frontend"
+    "html player"
   ],
   "engines": {
     "node": ">=5.4.1"
@@ -22,36 +20,35 @@
   "author": "virgo",
   "license": "MIT",
   "bugs": {
-    "url": "https://gitlab.com/vvvirgo/innotopia/issues"
+    "url": "https://github.com/virgoone/vplyr/issues"
   },
   "env": {
     "node": true,
     "es6": true
   },
-  "homepage": "https://gitlab.com/vvvirgo/innotopia#README",
+  "homepage": "https://github.com/virgoone/vplyr#README",
   "dependencies": {
-    "babel-cli": "^6.11.4",
-    "babel-core": "^6.13.2",
-    "babel-preset-es2015": "^6.13.2",
-    "babel-preset-stage-0": "^6.5.0",
-    "babel-preset-stage-1": "^6.13.0",
+    "babel-preset-es2015": "^6.24.0",
+    "browserify-derequire": "^0.9.4",
+    "browserify-versionify": "^1.0.6",
     "del": "^2.2.2",
     "fs": "0.0.2",
     "gulp": "^3.9.1",
     "gulp-autoprefixer": "^3.1.1",
     "gulp-changed": "^1.3.2",
-    "gulp-jade": "^1.1.0",
-    "gulp-livereload": "^3.8.1",
+    "gulp-connect": "^5.0.0",
     "gulp-load-plugins": "^1.2.4",
-    "gulp-notify": "^2.2.0",
     "gulp-plumber": "^1.1.0",
     "gulp-sass": "^2.3.2",
     "gulp-sourcemaps": "^1.6.0",
-    "gulp-typescript": "^2.13.6",
     "gulp-util": "^3.0.7",
     "path": "^0.12.7",
     "run-sequence": "^1.2.2"
   },
   "devDependencies": {
+    "babelify": "^7.3.0",
+    "browserify": "^14.1.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
   }
 }
