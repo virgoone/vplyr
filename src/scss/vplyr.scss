@@ -1,5 +1,7 @@
 @import 'variables.scss';
 @import 'mixins.scss';
+@import 'range.scss';
+@import 'progress.scss';
 
 .vplyr{
   position: relative;
@@ -7,6 +9,12 @@
   font-family: $vplyr-font-family;
   max-width: 100%;
   min-width: 200px;
+  overflow: hidden;
+  .vplyr-video-container{
+    position: relative;
+    background: #000;
+    border-radius: inherit;
+  }
   & ::-webkit-media-controls {
     display: none;
   }
@@ -28,12 +36,6 @@
   & , & *, & ::after,& ::before{
     box-sizing: border-box;
   }
-  .vplyr-controls{
-    display: flex;
-    align-items: center;
-    line-height: 1;
-    text-align: center;
-  }
   input[type=range] {
     display: block;
     height: 20px;
@@ -47,82 +49,7 @@
     border: none;
     background: 0 0;
   }
-  .vplyr-progress-bar-container{
-    input[type=range]{
-      position: relative;
-      z-index: 2;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      height: 5px;
-      background: 0,0;
-      // WebKit
-      &::-webkit-slider-runnable-track {
-          @include plyr-range-track();
-      }
-      &::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          margin-top: -(($plyr-range-thumb-height - $plyr-range-track-height) / 2);
-          @include plyr-range-thumb();
-      }
-
-      // Mozilla
-      &::-moz-range-track {
-          @include plyr-range-track();
-      }
-      &::-moz-range-thumb {
-          @include plyr-range-thumb();
-      }
-
-      // Microsoft
-      &::-ms-track {
-          height: $plyr-range-track-height;
-          background: transparent;
-          border: 0;
-          color: transparent;
-      }
-      &::-ms-fill-upper {
-          @include plyr-range-track();
-      }
-      &::-ms-fill-lower {
-          @include plyr-range-track();
-          background: $plyr-range-selected-bg;
-      }
-      &::-ms-thumb {
-          @include plyr-range-thumb();
-          // For some reason, Edge uses the -webkit margin above
-          margin-top: 0;
-      }
-      &::-ms-tooltip {
-          display: none;
-      }
-
-      // Focus styles
-      &:focus {
-          outline: 0;
-      }
-      &::-moz-focus-outer {
-          border: 0;
-      }
-      &.tab-focus:focus {
-          outline-offset: 3px;
-      }
-
-      // Pressed styles
-      &:active {
-        &::-webkit-slider-thumb {
-            @include plyr-range-thumb-active();
-        }
-        &::-moz-range-thumb {
-            @include plyr-range-thumb-active();
-        }
-        &::-ms-thumb {
-            @include plyr-range-thumb-active();
-        }
-      }
-      // background-color: rgba(255,53,127,1);
-
-    }
-  }
+  
 }
 
 .vplyr-controls{
@@ -138,11 +65,11 @@
     width: 100%;
     position: absolute;
     background-repeat: repeat-x;
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAADGCAYAAAAT+OqFAAAAdklEQ…JSCY2dEstQY7AuxahwXFrvZmWl2rh4JZ07z9dLtesfNj5q0FU3A5ObbwAAAABJRU5ErkJggg==');
+    background-image: dataShape();
     @include transition(opacity .25s cubic-bezier(0.0,0.0,0.2,1));
   }
   .vplyr-controls{
-    max-width: 99%;
+    width: 99%;
     height: 36px;
     line-height: 36px;
     font-size: 109%;
@@ -168,7 +95,6 @@
     position: absolute;
     width: 100%;
     bottom: 35px;
-    height: 5px;
   }
   &.active{
     .vplyr-gradient-bottom{

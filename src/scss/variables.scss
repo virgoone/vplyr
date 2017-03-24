@@ -1,10 +1,10 @@
 // Settings
-$plyr-border-box:                       true !default;
-$plyr-touch-action:                     true !default;
-$plyr-sr-only-important:                true !default;
+$vplyr-border-box:                       true !default;
+$vplyr-touch-action:                     true !default;
+$vplyr-sr-only-important:                true !default;
 
 // Colors
-$plyr-color-main:                       rgba(255,53,127,1) !default;
+$vplyr-color-main:                       rgba(255,53,127,1) !default;
 
 //font settings
 $vplyr-font-family:-apple-system,BlinkMacSystemFont,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Hiragino Sans GB,Microsoft Yahei,Microsoft Jhenghei,sans-serif;
@@ -15,29 +15,30 @@ $vplyr-screen-md: 768px !default;
 $vplyr-screen-lg: 1024px !default;
 
 // Progress
-$plyr-progress-loading-size:            25px !default;
-$plyr-progress-loading-bg:              transparentize(#000, .85) !default;
-$plyr-video-progress-bg:                transparentize(#fff, .75) !default;
-$plyr-video-progress-buffered-bg:       $plyr-video-progress-bg !default;
+$vplyr-progress-loading-size:            25px !default;
+$vplyr-progress-loading-bg:              transparentize(#000, .85) !default;
+$vplyr-video-progress-bg:                transparentize(#fff, .75) !default;
+$vplyr-video-progress-buffered-bg:       $vplyr-video-progress-bg !default;
 
 // Controls
-$plyr-control-icon-size:                18px !default;
-$plyr-control-spacing:                  10px !default;
-$plyr-control-padding:                  ($plyr-control-spacing * .7) !default;
-$plyr-video-controls-bg:                #000 !default;
-$plyr-video-control-color:              #fff !default;
-$plyr-video-control-color-hover:        #fff !default;
-$plyr-video-control-bg-hover:           $plyr-color-main !default;
+$vplyr-control-icon-size:                18px !default;
+$vplyr-control-spacing:                  10px !default;
+$vplyr-control-padding:                  ($vplyr-control-spacing * .7) !default;
+$vplyr-video-controls-bg:                #000 !default;
+$vplyr-video-control-color:              #fff !default;
+$vplyr-video-control-color-hover:        #fff !default;
+$vplyr-video-control-bg-hover:           $vplyr-color-main !default;
 
 // Range sliders
-$plyr-range-track-height:               8px !default;
-$plyr-range-thumb-height:               floor($plyr-range-track-height * 2) !default;
-$plyr-range-thumb-width:                floor($plyr-range-track-height * 2) !default;
-$plyr-range-thumb-bg:                   #fff !default;
-$plyr-range-thumb-border:               2px solid transparent !default;
-$plyr-range-thumb-shadow:               0 1px 1px transparentize($plyr-video-controls-bg, .85), 0 0 0 1px transparentize(#000, .85) !default;
-$plyr-range-thumb-active-border-color:  #fff !default;
-$plyr-range-thumb-active-bg:            $plyr-video-control-bg-hover !default;
-$plyr-range-thumb-active-scale:         1.25 !default;
-$plyr-video-range-track-bg:             $plyr-video-progress-buffered-bg !default;
-$plyr-range-selected-bg:                $plyr-color-main !default;
+$vplyr-range-track-height:               5px !default;
+$vplyr-range-thumb-height:               floor($vplyr-range-track-height * 2) !default;
+$vplyr-range-thumb-width:                floor($vplyr-range-track-height * 2) !default;
+$vplyr-range-thumb-bg:                   $vplyr-color-main !default;
+$vplyr-range-thumb-border:               0px solid transparent !default;
+$vplyr-range-thumb-shadow:               0 1px 1px transparentize($vplyr-video-controls-bg, .85), 0 0 0 1px transparentize(#000, .85) !default;
+$vplyr-range-thumb-active-border-color:  $vplyr-color-main !default;
+$vplyr-range-thumb-active-bg:            $vplyr-video-control-bg-hover !default;
+$vplyr-range-thumb-scale: 1.25 !default;
+$vplyr-range-thumb-active-scale:         1.45 !default;
+$vplyr-video-range-track-bg:             $vplyr-video-progress-buffered-bg !default;
+$vplyr-range-selected-bg:                $vplyr-color-main !default;
