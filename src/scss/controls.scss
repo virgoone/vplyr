@@ -1,0 +1,65 @@
+@import 'button.scss';
+
+.vplyr-video{
+  .vplyr-controls{
+    >div{
+      flex:1;
+      position: relative;
+      display: inline-block;
+      height:100%;
+      &.left-controls{
+        .btn-controls{
+          cursor:pointer;
+          height: 100%;
+          float: left;
+          @include vplyr-play-btn();
+        }
+        .time-mod-controls{
+          float: left;
+          @include vplyr-time-mod();
+        }
+      }
+      &.right-controls{
+        svg{
+          width: 20px;
+          height: 20px;
+          display: block;
+          fill: currentColor;
+          cursor: pointer;
+        }
+        .fullscreen-controls{
+          float:right;
+          color: #fff;
+          @include flex();
+          height: 100%;
+          width:40px;
+          >svg{
+           
+            &.icon-exit-fullscreen{
+              display: none;
+            }
+          }
+        }
+        .volume-controls{
+          float:right;
+          color: #fff;
+          @include flex();
+          height: 100%;
+          .vplyr-volume{
+            >svg{
+               &.icon-muted{
+                display: none;
+              }
+            }
+            margin-right: 5px;
+          }
+          .vplyr-volume-progress{
+            max-width: 80px;
+            position: relative;
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+  }
+}

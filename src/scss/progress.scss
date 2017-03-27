@@ -2,7 +2,7 @@
     to { background-position: $vplyr-progress-loading-size 0; }
 }
 .vplyr-progress-buffer,
-.vplyr-progress-played{
+.vplyr-progress-played,.vplyr-volume-display{
     position: absolute;
     left: 0;
     top: 50%;
@@ -42,9 +42,36 @@
       transition: width .2s ease;
   }
 }
-.vplyr-video .plyr-progress--buffer{
-  background: $vplyr-video-range-track-bg;
+.vplyr-video{
+    .plyr-progress--buffer,.vplyr-volume-display{
+        background: $vplyr-video-range-track-bg;
+    }
+    .vplyr-progress-buffer {
+        color: $vplyr-video-progress-buffered-bg;
+    }
 }
-.vplyr-video .vplyr-progress-buffer {
-  color: $vplyr-video-progress-buffered-bg;
+.vplyr-progress-played,
+.vplyr-volume-display {
+    z-index: 1;
+    color: $vplyr-range-selected-bg;
+    background: transparent;
+    transition: none;
+
+    &::-webkit-progress-value {
+        min-width: $vplyr-range-track-height;
+        max-width: 99%;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        transition: none;
+    }
+    &::-moz-progress-bar {
+        min-width: $vplyr-range-track-height;
+        max-width: 99%;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+        transition: none;
+    }
+    &::-ms-fill {
+        display: none;
+    }
 }

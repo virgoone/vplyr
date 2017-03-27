@@ -2,6 +2,8 @@
 @import 'mixins.scss';
 @import 'range.scss';
 @import 'progress.scss';
+@import 'controls.scss';
+@import 'loader.scss';
 
 .vplyr{
   position: relative;
@@ -34,11 +36,11 @@
     touch-action: manipulation;
   } 
   & , & *, & ::after,& ::before{
-    box-sizing: border-box;
+    // box-sizing: border-box;
+    box-sizing: content-box;
   }
   input[type=range] {
     display: block;
-    height: 20px;
     width: 100%;
     margin: 0;
     padding: 0;
@@ -69,7 +71,6 @@
     @include transition(opacity .25s cubic-bezier(0.0,0.0,0.2,1));
   }
   .vplyr-controls{
-    width: 99%;
     height: 36px;
     line-height: 36px;
     font-size: 109%;
@@ -81,20 +82,17 @@
     height: 36px;
     width: 100%;
     z-index: 61;
-    padding-top: 3px;
+    padding-top: 5px;
     text-align: left;
     direction: ltr;
     position: absolute;
     text-shadow: 0 0 2px rgba(0,0,0,.5);
-    display: flex;
-    align-items: center;
   }
   .vplyr-progress-bar-container{
-    max-width: 99%;
     display: block;
-    position: absolute;
     width: 100%;
-    bottom: 35px;
+    position: absolute;
+    bottom:36px;
   }
   &.active{
     .vplyr-gradient-bottom{

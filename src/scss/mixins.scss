@@ -3,12 +3,12 @@
 /// @param {*} $property Property
 /// @param {*} $value Value
 @mixin css3-prefix($property, $value) {
-  -webkit-#{$property}: #{$value};
-  -khtml-#{$property}: #{$value};
-  -moz-#{$property}: #{$value};
-  -ms-#{$property}: #{$value};
-  -o-#{$property}: #{$value};
   #{$property}: #{$value};
+  -o-#{$property}: #{$value};
+  -ms-#{$property}: #{$value};
+  -moz-#{$property}: #{$value};
+  -khtml-#{$property}: #{$value};
+  -webkit-#{$property}: #{$value};
 }
 /// Transition
 /// @param {List} $properties - Properties
@@ -22,16 +22,31 @@
   }
 }
 @mixin transition-property($property...) {
-   @include css3-prefix( 'property',$property);
+   @include css3-prefix( 'transition-property',$property);
 }
 @mixin transition-duration($duration...) {
-   @include css3-prefix( 'duration',$duration);
+   @include css3-prefix( 'transition-duration',$duration);
 }
 @mixin transition-timing-function($timing...) {
-   @include css3-prefix( 'timing-function',$timing);
+   @include css3-prefix( 'transition-timing-function',$timing);
 }
 @mixin transition-delay($delay...) {
-   @include css3-prefix( 'delay',$delay);
+   @include css3-prefix( 'transition-delay',$delay);
+}
+/// Flex
+/// @param {*} $orient [center] - justify
+/// @param {*} $pack [center] - Pack
+/// @param {*} $align [center] - Align
+/// @require {mixin} css3-prefix
+@mixin flex($pack: center, $align: center,$justify:center,$items:center) {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: flex;
+  @include css3-prefix( 'box-pack', $pack);
+  @include css3-prefix( 'box-align', $align);
+  @include css3-prefix( 'justify-content', $justify);
+  @include css3-prefix( 'align-items', $items);
 }
 
 // <input type="range"> styling
