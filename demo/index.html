@@ -62,7 +62,7 @@
                 <div class="vplyr-gradient-bottom"></div>
                 <div class="vplyr-bottom-container">
                     <div class="vplyr-progress-bar-container">
-                        <input type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar"/>
+                        <input type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar" data-video="seek"/>
                         <progress class="vplyr-progress-played" max="100" role="presentation"></progress>
                         <progress class="vplyr-progress-buffer" max="100" value="100">
                          <span>100.00</span>
@@ -72,8 +72,8 @@
                         <div class="left-controls">
                             <div class="btn-controls">
                                 <div class="btn-wrap">
-                                    <div class="play"></div>
-                                    <div class="pause"></div>
+                                    <div class="play" data-video="play"></div>
+                                    <div class="pause" data-video="pause"></div>
                                 </div>
                             </div>
                             <div class="time-mod-controls">
@@ -84,7 +84,7 @@
                         </div>
                         <div class="right-controls">
                             <div class="fullscreen-controls">
-                                <svg class="icon-exit-fullscreen">
+                                <svg class="icon-exit-fullscreen" data-video="fullscreen">
                                     <use xlink:href="#vplyr-exit-fullscreen"></use>
                                 </svg>
                                 <svg class="icon-enter-fullscreen">
@@ -92,7 +92,7 @@
                                 </svg>
                             </div>
                             <div class="volume-controls">
-                                <div class="vplyr-volume">
+                                <div class="vplyr-volume" data-video="mute">
                                     <svg class="icon-muted">
                                         <use xlink:href="#vplyr-muted"></use>
                                     </svg>
@@ -101,7 +101,7 @@
                                     </svg>
                                 </div>
                                 <div class="vplyr-volume-progress">
-                                    <input type="range"  class="vplyr-volume-input"  min="0"  max="10"  value="8">
+                                    <input type="range"  class="vplyr-volume-input"  min="0"  max="10" data-video="volume" value="8">
                                     <progress class="vplyr-volume-display" max="10" role="presentation"></progress>
                                 </div>
                             </div>
