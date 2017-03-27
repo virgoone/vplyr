@@ -1,2 +1,2 @@
-import utils from './util';
-console.log(utils);
+import Player from './player';
+console.log(new Player('.js-player',{}));

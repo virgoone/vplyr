@@ -1,30 +1,64 @@
 class Utils {
   constructor(){
-    this.hasClass = this._hasClass.bind(this);
-    this.browserSniff=this._browserSniff.bind(this);
-    this.is=this._is.bind(this);
-    this.storageSupport = this._storageSupport.bind(this);
-    this.toggleClass  = this._toggleClass.bind(this);
-    this.removeElement  = this._removeElement.bind(this);
+    this.browserSniff=this._browserSniff.bind(this)();
+    this.is = this._is.bind(this)();
+    this.storageSupport = this._storageSupport.bind(this)();
+    this.extend  = this._extend.bind(this);
+    this.matches  = this._matches.bind(this);
+    this.inArray = this._inArray.bind(this);
   }
-  //remove an element
-  _removeElement(element){
-    if (!element) {
+  _inArray(haystack, needle) {
+    return Array.prototype.indexOf && (haystack.indexOf(needle) !== -1);
+  }
+
+  _matches(element, selector) {
+    var p = Element.prototype;
+
+    var f = p.matches || p.webkitMatchesSelector || p.mozMatchesSelector || p.msMatchesSelector || function(s) {
+        return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
+    };
+
+    return f.call(element, selector);
+  }
+  _extend() {
+    // Get arguments
+    let objects = arguments;
+
+    // Bail if nothing to merge
+    if (!objects.length) {
         return;
     }
-    element.parentNode.removeChild(element);
-  }
-  // Toggle class on an element
-  _toggleClass(element, className, state){
-    if (element) {
-      if (element.classList) {
-        element.classList[state ? 'add' : 'remove'](className);
-      } else {
-        let name = (' ' + element.className + ' ').replace(/\s+/g, ' ').replace(' ' + className + ' ', '');
-        element.className = name + (state ? ' ' + className : '');
+
+    // Return first if specified but nothing to merge
+    if (objects.length === 1) {
+        return objects[0];
+    }
+
+    // First object is the destination
+    let destination = Array.prototype.shift.call(objects),
+        length      = objects.length;
+
+    // Loop through all objects to merge
+    for (let i = 0; i < length; i++) {
+        let source = objects[i];
+
+      for (let property in source) {
+        if (source[property] && 
+          source[property].constructor &&
+          source[property].constructor === Object
+        ) {
+          destination[property] = destination[property] || {};
+          this._extend(destination[property], source[property]);
+        } else {
+          destination[property] = source[property];
+        }
       }
     }
+
+    return destination;
   }
+  //remove an element
+  
   _storageSupport(){
     if (!('localStorage' in window)) {
       return false;
@@ -37,7 +71,7 @@ class Utils {
       window.localStorage.setItem('___test', 'OK');
 
       // Get the test item
-      var result = window.localStorage.getItem('___test');
+      let result = window.localStorage.getItem('___test');
 
       // Clean up
       window.localStorage.removeItem('___test');
@@ -51,16 +85,7 @@ class Utils {
 
     return false;
   }
-  _hasClass(element, className) {
-    if (element) {
-      if (element.classList) {
-          return element.classList.contains(className);
-      } else {
-          return new RegExp('(\\s|^)' + className + '(\\s|$)').test(element.className);
-      }
-    }
-    return false;
-  }
+  
   _browserSniff(){
     let ua = navigator.userAgent,
       name = navigator.appName,
@@ -141,7 +166,7 @@ class Utils {
       isFirefox:  isFirefox,
       isChrome:   isChrome,
       isSafari:   isSafari,
-      isWeChat:   isWeChat,
+      isWeChat:   isWechat,
       isIos:      /(iPad|iPhone|iPod)/g.test(navigator.platform),
       isIphone:   /(iPhone|iPod)/g.test(navigator.userAgent),
       isTouch:    'ontouchstart' in document.documentElement

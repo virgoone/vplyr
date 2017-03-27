@@ -1,6 +1,6 @@
 export const defaultConfig = {
-  enable:                 true,
-  debug:                  false,
+  enabled:                 true,
+  debug:                  true,
   autoplay:               false,
   loop:                   false,
   seekTime:               10,
@@ -50,6 +50,9 @@ export const defaultConfig = {
       volume:             null,
       captions:           null,
       fullscreen:         null
+  },
+  classes:{
+
   },
   events:                 ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
   // Logging
