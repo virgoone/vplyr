@@ -43,7 +43,7 @@ function doBundle(b) {
 }
 gulp.task('scripts', [], function () {
   let b = browserify({
-    entries: './src/js/vplyr.js',
+    entries: './src/js/index.js',
     standalone: 'vplyr.js',
     debug: true,
     transform: ['babelify', 'browserify-versionify'],

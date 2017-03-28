@@ -7,7 +7,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    .play{
+    [data-video='play']{
       background: #f8f8f8;
       display: block;
       height: 20px;
@@ -17,7 +17,7 @@
       @include css3-prefix('clip-path',polygon(100% 50%, 0% 0%, 0% 100%, 100% 50%));
       @include transition-delay(0.1s);
     }
-    .pause{
+    [data-video='pause']{
       background: #1d1f20;
       height: 20px;
       right: 46%;
@@ -28,14 +28,14 @@
       @include transition(all 0.1s cubic-bezier(0.5, 0.55, 0.5, 1));
     }
   }
-  &:hover{
-    .btn-wrap{
-      .play{
-        @include css3-prefix('clip-path',polygon(100% 0%, 0% 0%, 0% 100%, 100% 100%));
-      }
-      .pause{
-        opacity: 1;
-      }
+}
+@mixin vplyr-play-btn-plying{
+  .btn-wrap{
+    [data-video='play']{
+      @include css3-prefix('clip-path',polygon(100% 0%, 0% 0%, 0% 100%, 100% 100%));
+    }
+    [data-video='pause']{
+      opacity: 1;
     }
   }
 }

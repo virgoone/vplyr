@@ -62,4 +62,13 @@
       }
     }
   }
+  &.vplyr-plying{
+    .vplyr-controls{
+      >div{
+        &.left-controls{
+          @include vplyr-play-btn-plying();
+        }
+      }
+    }
+  }
 }

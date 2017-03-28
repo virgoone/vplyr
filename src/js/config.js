@@ -11,6 +11,7 @@ export const defaultConfig = {
   duration:               null,
   displayDuration:        true,
   loadSprite:             true,
+  controls:               ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
   selectors: {
     html5:                'video, audio',
     editable:             'input, textarea, select, [contenteditable]',
@@ -35,6 +36,10 @@ export const defaultConfig = {
         buffer:           '.vplyr-progress-buffer',
         played:           '.vplyr-progress-played'
     },
+    volume: {
+        input:          '[data-video="volume"]',
+        display:        '.vplyr-volume-display'
+    },
     currentTime:          '.control-currenttime',
     duration:             '.control-duration'
 },
@@ -51,12 +56,23 @@ export const defaultConfig = {
       captions:           null,
       fullscreen:         null
   },
+  types: {
+    html5:              ['video']
+  },
   classes:{
-
+    type:               'vplyr-{0}',
+    videoWrapper:'vplyr-video-container',
+    playing:'vplyr-plying',
+    loading:            'vplyr-loading',
+    hover:              'vplyr-hover',
+    stopped:'vplyr-stopped',
+    isIos:              'vplyr--is-ios',
+    isTouch:            'vplyr--is-touch',
+    isWechat:           'vplyr--is-wechat',
   },
   events:                 ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
   // Logging
-  logPrefix:              '[vPlyr]'
+  logPrefix:              '[VPlyr]'
 }
 export function createDefaultConfig() {
   return Object.assign({}, defaultConfig);

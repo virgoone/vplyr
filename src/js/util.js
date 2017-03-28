@@ -6,6 +6,43 @@ class Utils {
     this.extend  = this._extend.bind(this);
     this.matches  = this._matches.bind(this);
     this.inArray = this._inArray.bind(this);
+    this.supported = this._support.bind(this);
+    this.replaceAll = this._replaceAll.bind(this);
+    
+  }
+  _replaceAll(string, find, replace) {
+    return string.replace(new RegExp(find.replace(/([.*+?\^=!:${}()|\[\]\/\\])/g, '\\$1'), 'g'), replace);
+  }
+  _support(type){
+    const browser     = this._browserSniff(),
+        isOldIE     = (browser.isIE && browser.version <= 9),
+        isIos       = browser.isIos,
+        isIphone    = browser.isIphone,
+        audioSupport = !!document.createElement('audio').canPlayType,
+        videoSupport = !!document.createElement('video').canPlayType;
+    let basic       = false,
+        full        = false;
+
+    switch (type) {
+        case 'video':
+            basic = videoSupport;
+            full  = (basic && (!isOldIE && !isIphone));
+            break;
+
+        case 'audio':
+            basic = audioSupport;
+            full  = (basic && !isOldIE);
+            break;
+
+        default:
+            basic = (audioSupport && videoSupport);
+            full  = (basic && !isOldIE);
+    }
+
+    return {
+        basic:  basic,
+        full:   full
+    };
   }
   _inArray(haystack, needle) {
     return Array.prototype.indexOf && (haystack.indexOf(needle) !== -1);

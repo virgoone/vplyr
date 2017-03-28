@@ -32,7 +32,9 @@
     bottom:0px;
     position: absolute;
     background-color: rgba(0,0,0,.2);
-    z-index: 62;
+    @include transition();
+    z-index: -1;
+    opacity: 0;
     .vplyr-video-loader{
       position: absolute;
       top: calc(50% - 32px);
@@ -66,6 +68,12 @@
           border-top: 3px solid #EFEFFA;
         }
       }
+    }
+  }
+  &.vplyr-loading{
+    .vplyr-video-loader-container{
+      z-index: 65;
+      opacity: 1;
     }
   }
   
