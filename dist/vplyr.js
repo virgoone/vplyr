@@ -2,7 +2,7 @@
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _selectors;
@@ -12,82 +12,87 @@ exports.createDefaultConfig = createDefaultConfig;
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var defaultConfig = exports.defaultConfig = {
+  enabled: true,
+  debug: true,
+  autoplay: false,
+  loop: false,
+  seekTime: 10,
+  volume: 10,
+  volumeMin: 0,
+  volumeMax: 10,
+  volumeStep: 1,
+  duration: null,
+  displayDuration: true,
+  loadSprite: true,
+  controls: ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
+  selectors: (_selectors = {
+    html5: 'video, audio',
+    editable: 'input, textarea, select, [contenteditable]',
+    container: '.vplyr',
+    controls: {
+      container: null,
+      wrapper: '.vplyr-controls'
+    },
+    buttons: {
+      seek: '[data-video="seek"]',
+      play: '[data-video="play"]',
+      pause: '[data-video="pause"]',
+      mute: '[data-video="mute"]',
+      fullscreen: '[data-video="fullscreen"]'
+    },
+    volume: {
+      input: '[data-video="volume"]',
+      display: '.vplyr-volume-display'
+    },
+    progress: {
+      container: '.vplyr-progress-bar-container',
+      buffer: '.vplyr-progress-buffer',
+      played: '.vplyr-progress-played'
+    }
+  }, _defineProperty(_selectors, 'volume', {
+    input: '[data-video="volume"]',
+    display: '.vplyr-volume-display'
+  }), _defineProperty(_selectors, 'currentTime', '.control-currenttime'), _defineProperty(_selectors, 'duration', '.control-duration'), _selectors),
+
+  // Custom control listeners
+  listeners: {
+    seek: null,
+    play: null,
+    pause: null,
+    restart: null,
+    rewind: null,
+    forward: null,
+    mute: null,
+    volume: null,
+    captions: null,
+    fullscreen: null
+  },
+  storage: {
     enabled: true,
-    debug: true,
-    autoplay: false,
-    loop: false,
-    seekTime: 10,
-    volume: 10,
-    volumeMin: 0,
-    volumeMax: 10,
-    volumeStep: 1,
-    duration: null,
-    displayDuration: true,
-    loadSprite: true,
-    controls: ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
-    selectors: (_selectors = {
-        html5: 'video, audio',
-        editable: 'input, textarea, select, [contenteditable]',
-        container: '.vplyr',
-        controls: {
-            container: null,
-            wrapper: '.vplyr-controls'
-        },
-        buttons: {
-            seek: '[data-video="seek"]',
-            play: '[data-video="play"]',
-            pause: '[data-video="pause"]',
-            mute: '[data-video="mute"]',
-            fullscreen: '[data-video="fullscreen"]'
-        },
-        volume: {
-            input: '[data-video="volume"]',
-            display: '.vplyr-volume-display'
-        },
-        progress: {
-            container: '.vplyr-progress-bar-container',
-            buffer: '.vplyr-progress-buffer',
-            played: '.vplyr-progress-played'
-        }
-    }, _defineProperty(_selectors, 'volume', {
-        input: '[data-video="volume"]',
-        display: '.vplyr-volume-display'
-    }), _defineProperty(_selectors, 'currentTime', '.control-currenttime'), _defineProperty(_selectors, 'duration', '.control-duration'), _selectors),
-    // Custom control listeners
-    listeners: {
-        seek: null,
-        play: null,
-        pause: null,
-        restart: null,
-        rewind: null,
-        forward: null,
-        mute: null,
-        volume: null,
-        captions: null,
-        fullscreen: null
-    },
-    types: {
-        html5: ['video']
-    },
-    classes: {
-        type: 'vplyr-{0}',
-        videoWrapper: 'vplyr-video-container',
-        playing: 'vplyr-plying',
-        loading: 'vplyr-loading',
-        hover: 'vplyr-hover',
-        stopped: 'vplyr-stopped',
-        isIos: 'vplyr--is-ios',
-        isTouch: 'vplyr--is-touch',
-        isWechat: 'vplyr--is-wechat',
-        isChrome: 'vplyr--is-chrome',
-        tabFocus: 'tab-focus'
-    },
-    events: ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
-    // Logging
-    logPrefix: '[VPlyr]'
+    key: 'vplyr'
+  },
+  types: {
+    html5: ['video']
+  },
+  classes: {
+    type: 'vplyr-{0}',
+    videoWrapper: 'vplyr-video-container',
+    playing: 'vplyr-plying',
+    loading: 'vplyr-loading',
+    hover: 'vplyr-hover',
+    stopped: 'vplyr-stopped',
+    isIos: 'vplyr--is-ios',
+    isTouch: 'vplyr--is-touch',
+    isWechat: 'vplyr--is-wechat',
+    isChrome: 'vplyr--is-chrome',
+    tabFocus: 'tab-focus'
+  },
+  events: ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
+  // Logging
+  logPrefix: '[VPlyr]'
 };
 function createDefaultConfig() {
-    return Object.assign({}, defaultConfig);
+  return Object.assign({}, defaultConfig);
 }
 
 },{}],2:[function(_dereq_,module,exports){
@@ -376,6 +381,9 @@ var Player = function () {
       };
       _log('Config', config);
       vk.config = config;
+      vk.timers = timers;
+      vk.api = api;
+
       this._setup(vk, config);
       _log('player', vk);
       if (!vk.init) {
@@ -393,6 +401,7 @@ var Player = function () {
       if (!_util2.default.is.htmlElement(player.media)) {
         return;
       }
+      this._setupStorage();
       var tagName = player.media.tagName.toLowerCase();
       player.type = tagName;
       config.crossorigin = player.media.getAttribute('crossorigin') !== null;
@@ -410,6 +419,28 @@ var Player = function () {
       if (_util2.default.inArray(config.types.html5, player.type)) {
         // Setup UI
         this._setupInterface(player, config);
+      }
+    }
+  }, {
+    key: '_ready',
+    value: function _ready() {
+      // Ready event at end of execution stack
+      window.setTimeout(function () {
+        this._triggerEvent(this.media, 'ready');
+      }, 0);
+
+      // Set class hook on media element
+      _dom2.default.toggleClass(plyr.media, defaults.classes.setup, true);
+
+      // Set container class for ready
+      _dom2.default.toggleClass(this.container, this.config.classes.ready, true);
+
+      // Store a refernce to instance
+      this.media.vplyr = this.api;
+
+      // Autoplay
+      if (this.config.autoplay) {
+        this._play();
       }
     }
   }, {
@@ -444,8 +475,51 @@ var Player = function () {
         this._controlListeners(player, config);
       }
       this._mediaListeners();
+      this._toggleNativeControls(true, this, this.config);
+
       this._timeUpdate();
+      // Set volume
+      this._setVolume();
+
+      this._updateVolume();
+
       this._checkPlaying();
+    }
+  }, {
+    key: '_setupStorage',
+    value: function _setupStorage() {
+      var value = null;
+      this.storage = {};
+
+      // Bail if we don't have localStorage support or it's disabled
+      if (!_util2.default.storageSupport || !this.config.storage.enabled) {
+        return;
+      }
+
+      window.localStorage.removeItem('vplyr-volume');
+
+      // load value from the current key
+      value = window.localStorage.getItem(this.config.storage.key);
+
+      if (!value) {
+        // Key wasn't set (or had been cleared), move along
+        return;
+      } else if (/^\d+(\.\d+)?$/.test(value)) {
+        // If value is a number, it's probably volume from an older
+        // version of plyr. See: https://github.com/Selz/plyr/pull/313
+        // Update the key to be JSON
+        this._updateStorage({ volume: parseFloat(value) });
+      } else {
+        // Assume it's JSON from this or a later version of plyr
+        this.storage = JSON.parse(value);
+      }
+    }
+  }, {
+    key: '_triggerEvent',
+    value: function _triggerEvent(element, type, bubbles, properties) {
+      _event2.default.customEvent(element, type, bubbles, _util2.default.extend({}, properties, {
+        vplyr: this
+      }));
     }
   }, {
     key: '_getDuration',
@@ -559,6 +633,12 @@ var Player = function () {
       _event2.default.onEvent(this.media, 'durationchange loadedmetadata', this._displayDuration.bind(this));
 
       _event2.default.onEvent(this.media, 'play pause ended', this._checkPlaying.bind(this));
+
+      _event2.default.onEvent(this.media, 'progress playing', this._updateProgress.bind(this));
+
+      _event2.default.onEvent(this.media, 'waiting canplay seeked', this._checkLoading.bind(this));
+
+      _event2.default.onEvent(this.media, 'volumechange', this._updateVolume.bind(this));
     }
   }, {
     key: '_proxyListener',
@@ -604,6 +684,30 @@ var Player = function () {
       this._proxyListener(this.buttons.pause, 'click', this.config.listeners.pause, togglePlay);
       // Seek
       this._proxyListener(this.buttons.seek, inputEvent, this.config.listeners.seek, this._seek.bind(this));
+
+      this._proxyListener(this.volume.input, inputEvent, this.config.listeners.volume, function () {
+        _this._setVolume(_this.volume.input.value);
+      });
+      this._proxyListener(this.buttons.mute, 'click', this.config.listeners.mute, this._toggleMute.bind(this));
+    }
+  }, {
+    key: '_checkLoading',
+    value: function _checkLoading(event) {
+      var _this2 = this;
+
+      var loading = event.type === 'waiting';
+
+      // Clear timer
+      clearTimeout(this.timers.loading);
+
+      // Timer to prevent flicker when seeking
+      this.timers.loading = setTimeout(function () {
+        // Toggle container class hook
+        _dom2.default.toggleClass(_this2.container, _this2.config.classes.loading, loading);
+
+        // Show controls if loading, hide if done
+        // this._toggleControls(loading);
+      }, loading ? 250 : 0);
     }
   }, {
     key: '_checkPlaying',
@@ -630,6 +734,8 @@ var Player = function () {
   }, {
     key: '_updateProgress',
     value: function _updateProgress(event) {
+      var _this3 = this;
+
       if (!this.supported.full) {
         return;
       }
@@ -657,12 +763,16 @@ var Player = function () {
           case 'playing':
           case 'progress':
             progress = this.progress.buffer;
-            var buffered = this.media.buffered;
-            if (buffered && buffered.length) {
-              value = this._getPercentage(buffered.end(0), duration);
-            } else {
-              value = 0;
-            }
+            value = function () {
+              var buffered = _this3.media.buffered;
+
+              if (buffered && buffered.length) {
+                // HTML5
+                return _this3._getPercentage(buffered.end(0), duration);
+              }
+              return 0;
+            }();
+            _log('event.type', event.type, value);
             break;
         }
       }
@@ -699,6 +809,119 @@ var Player = function () {
         if (progress.text) {
           progress.text.innerHTML = value;
         }
+      }
+    }
+  }, {
+    key: '_setVolume',
+    value: function _setVolume(volume) {
+      var max = this.config.volumeMax,
+          min = this.config.volumeMin;
+
+      // Load volume from storage if no value specified
+      if (_util2.default.is.undefined(volume)) {
+        volume = this.storage.volume;
+      }
+
+      // Use config if all else fails
+      if (volume === null || isNaN(volume)) {
+        volume = this.config.volume;
+      }
+      if (_util2.default.is.undefined(volume)) {
+        volume = this.storage.volume;
+      }
+      // Maximum is volumeMax
+      if (volume > max) {
+        volume = max;
+      }
+      // Minimum is volumeMin
+      if (volume < min) {
+        volume = min;
+      }
+      // Set the player volume
+      this.media.volume = parseFloat(volume / max);
+
+      // Set the display
+      if (this.volume.display) {
+        this.volume.display.value = volume;
+      }
+      // Toggle muted state
+      if (volume === 0) {
+        this.media.muted = true;
+      } else if (this.media.muted && volume > 0) {
+        this._toggleMute();
+      }
+    }
+  }, {
+    key: '_updateVolume',
+    value: function _updateVolume() {
+      // Get the current volume
+      var volume = this.media.muted ? 0 : this.media.volume * this.config.volumeMax;
+
+      // Update the <input type="range"> if present
+      if (this.supported.full) {
+        if (this.volume.input) {
+          this.volume.input.value = volume;
+        }
+        if (this.volume.display) {
+          this.volume.display.value = volume;
+        }
+      }
+
+      // Update the volume in storage
+      this._updateStorage({ volume: volume });
+
+      // Toggle class if muted
+      _dom2.default.toggleClass(this.container, this.config.classes.muted, volume === 0);
+
+      // Update checkbox for mute state
+      if (this.supported.full && this.buttons.mute) {
+        this._toggleState(this.buttons.mute, volume === 0);
+      }
+    }
+  }, {
+    key: '_updateStorage',
+    value: function _updateStorage(value) {
+      // Bail if we don't have localStorage support or it's disabled
+      if (!_util2.default.storageSupport || !this.config.storage.enabled) {
+        return;
+      }
+
+      // Update the working copy of the values
+      _util2.default.extend(this.storage, value);
+
+      // Update storage
+      window.localStorage.setItem(this.config.storage.key, JSON.stringify(this.storage));
+    }
+  }, {
+    key: '_toggleState',
+    value: function _toggleState(target, state) {
+      // Bail if no target
+      if (!target) {
+        return;
+      }
+      // Get state
+      state = _util2.default.is.boolean(state) ? state : !target.getAttribute('aria-pressed');
+
+      // Set the attribute on target
+      target.setAttribute('aria-pressed', state);
+      return state;
+    }
+  }, {
+    key: '_toggleMute',
+    value: function _toggleMute(muted) {
+      if (!_util2.default.is.boolean(muted)) {
+        muted = !this.media.muted;
+      }
+
+      // Set button state
+      this._toggleState(this.buttons.mute, muted);
+
+      // Set mute on the player
+      this.media.muted = muted;
+
+      // If volume is 0 after unmuting, set to default
+      if (this.media.volume === 0) {
+        this._setVolume(this.config.volume);
       }
     }
   }, {
@@ -820,7 +1043,7 @@ var Player = function () {
       } catch (e) {
         _warn('It looks like there is a problem with your controls HTML');
         // Restore native video controls
-        this._toggleNativeControls(true, player, config);
+        this._toggleNativeControls(true);
 
         return false;
       }
@@ -828,10 +1051,10 @@ var Player = function () {
   }, {
     key: '_buildControls',
     value: function _buildControls(config) {
-      var html = ['<div class="vplyr-gradient-bottom"></div>'];
+      var html = ['<div class="vplyr-video-loader-container">', '<div class="vplyr-video-loader">', '<div class="loader-inner one"></div>', '<div class="loader-inner two"></div>', '<div class="loader-inner three"></div>', '</div>', '</div><div class="vplyr-gradient-bottom"></div>'];
       html.push('<div class="vplyr-bottom-container">');
       if (_util2.default.inArray(config.controls, 'progress')) {
-        html.push('<div class="vplyr-progress-bar-container">', '<input id="seek{id}" type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar" data-video="seek"/>', '<progress class="vplyr-progress-played" max="100" role="presentation"></progress>', '<progress class="vplyr-progress-buffer" max="100" value="100">', '<span>100.00</span>', '</progress>', '</div>');
+        html.push('<div class="vplyr-progress-bar-container">', '<input id="seek{id}" type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar" data-video="seek"/>', '<progress class="vplyr-progress-played" max="100" role="presentation"></progress>', '<progress class="vplyr-progress-buffer" max="100" value="100">', '<span>100.00</span>% buffered', '</progress>', '</div>');
       }
       html.push('<div class="vplyr-controls">');
       html.push('<div class="left-controls">');
@@ -892,11 +1115,11 @@ var Player = function () {
     }
   }, {
     key: '_toggleNativeControls',
-    value: function _toggleNativeControls(toggle, player, config) {
-      if (toggle && _util2.default.inArray(config.types.html5, player.type)) {
-        player.media.setAttribute('controls', '');
+    value: function _toggleNativeControls(toggle) {
+      if (toggle && _util2.default.inArray(this.config.types.html5, this.type)) {
+        this.media.setAttribute('controls', '');
       } else {
-        player.media.removeAttribute('controls');
+        this.media.removeAttribute('controls');
       }
     }
   }, {

@@ -42,7 +42,8 @@ export const defaultConfig = {
     },
     currentTime:          '.control-currenttime',
     duration:             '.control-duration'
-},
+    },
+
   // Custom control listeners
   listeners: {
       seek:               null,
@@ -55,6 +56,10 @@ export const defaultConfig = {
       volume:             null,
       captions:           null,
       fullscreen:         null
+  },
+  storage: {
+    enabled:            true,
+    key:                'vplyr'
   },
   types: {
     html5:              ['video']

@@ -30,6 +30,9 @@ class Player {
     _warn = function() { _console('warn', arguments) };
     _log('Config', config);
     vk.config = config;
+    vk.timers = timers;
+    vk.api = api;
+    
     this._setup(vk,config);
     _log('player', vk);
     if (!vk.init) {
@@ -46,6 +49,7 @@ class Player {
     if (!utils.is.htmlElement(player.media)) {
       return;
     }
+    this._setupStorage();
     const tagName = player.media.tagName.toLowerCase();
     player.type         = tagName;
     config.crossorigin  = (player.media.getAttribute('crossorigin') !== null);
@@ -63,6 +67,26 @@ class Player {
     if(utils.inArray(config.types.html5,player.type)){
       // Setup UI
       this._setupInterface(player,config);
+    }
+  }
+  _ready() {
+    // Ready event at end of execution stack
+    window.setTimeout(function() {
+      this._triggerEvent(this.media, 'ready');
+    }, 0);
+
+    // Set class hook on media element
+    $.toggleClass(plyr.media, defaults.classes.setup, true);
+
+    // Set container class for ready
+    $.toggleClass(this.container, this.config.classes.ready, true);
+
+    // Store a refernce to instance
+    this.media.vplyr = this.api;
+
+    // Autoplay
+    if (this.config.autoplay) {
+      this._play();
     }
   }
   _setupInterface(player,config){
@@ -95,8 +119,47 @@ class Player {
       this._controlListeners(player,config);
     }
     this._mediaListeners();
+    this._toggleNativeControls(true,this,this.config);
+
     this._timeUpdate();
+    // Set volume
+    this._setVolume();
+
+    this._updateVolume();
+
     this._checkPlaying();
+  }
+  _setupStorage() {
+    var value = null;
+    this.storage = {};
+
+    // Bail if we don't have localStorage support or it's disabled
+    if (!utils.storageSupport || !this.config.storage.enabled) {
+      return;
+    }
+    
+    window.localStorage.removeItem('vplyr-volume');
+
+    // load value from the current key
+    value = window.localStorage.getItem(this.config.storage.key);
+
+    if (!value) {
+        // Key wasn't set (or had been cleared), move along
+        return;
+    } else if (/^\d+(\.\d+)?$/.test(value)) {
+      // If value is a number, it's probably volume from an older
+      // version of plyr. See: https://github.com/Selz/plyr/pull/313
+      // Update the key to be JSON
+      this._updateStorage({volume: parseFloat(value)});
+    } else {
+        // Assume it's JSON from this or a later version of plyr
+      this.storage = JSON.parse(value);
+    }
+  }
+  _triggerEvent(element, type, bubbles, properties) {
+    Event.customEvent(element, type, bubbles, utils.extend({}, properties, {
+      vplyr: this
+    }));
   }
   _getDuration() {
     // It should be a number, but parse it just incase
@@ -194,6 +257,12 @@ class Player {
     Event.onEvent(this.media, 'durationchange loadedmetadata', this._displayDuration.bind(this));
     
     Event.onEvent(this.media, 'play pause ended', this._checkPlaying.bind(this));
+
+    Event.onEvent(this.media, 'progress playing', this._updateProgress.bind(this));
+
+    Event.onEvent(this.media, 'waiting canplay seeked', this._checkLoading.bind(this));
+
+    Event.onEvent(this.media, 'volumechange', this._updateVolume.bind(this));
     
   }
   _proxyListener(element, eventName, userListener, defaultListener, useCapture) {
@@ -234,6 +303,26 @@ class Player {
     this._proxyListener(this.buttons.pause, 'click', this.config.listeners.pause, togglePlay);
     // Seek
     this._proxyListener(this.buttons.seek, inputEvent, this.config.listeners.seek, this._seek.bind(this));
+
+    this._proxyListener(this.volume.input, inputEvent, this.config.listeners.volume, ()=>{
+      this._setVolume(this.volume.input.value);
+    });
+    this._proxyListener(this.buttons.mute, 'click', this.config.listeners.mute, this._toggleMute.bind(this));
+  }
+  _checkLoading(event) {
+    const loading = (event.type === 'waiting');
+
+    // Clear timer
+    clearTimeout(this.timers.loading);
+
+    // Timer to prevent flicker when seeking
+    this.timers.loading = setTimeout(()=>{
+      // Toggle container class hook
+      $.toggleClass(this.container, this.config.classes.loading, loading);
+
+      // Show controls if loading, hide if done
+      // this._toggleControls(loading);
+    }, (loading ? 250 : 0));
   }
   _checkPlaying() {
     $.toggleClass(this.container, this.config.classes.playing, !this.media.paused);
@@ -281,12 +370,16 @@ class Player {
         case 'playing':
         case 'progress':
           progress    = this.progress.buffer;
-          const buffered = this.media.buffered;
-          if (buffered && buffered.length) {
-            value = this._getPercentage(buffered.end(0), duration);
-          }else{
-            value = 0 ;
-          }
+          value = (()=> {
+            var buffered = this.media.buffered;
+
+            if (buffered && buffered.length) {
+              // HTML5
+              return this._getPercentage(buffered.end(0), duration);
+            } 
+            return 0;
+          })();
+          _log('event.type',event.type,value)
           break;
       }
     }
@@ -322,6 +415,110 @@ class Player {
         progress.text.innerHTML = value;
       }
     }
+  }
+  _setVolume(volume){
+    const max = this.config.volumeMax,
+        min = this.config.volumeMin;
+
+    // Load volume from storage if no value specified
+    if (utils.is.undefined(volume)) {
+      volume = this.storage.volume;
+    }
+
+    // Use config if all else fails
+    if (volume === null || isNaN(volume)) {
+      volume = this.config.volume;
+    }
+    if (utils.is.undefined(volume)) {
+      volume = this.storage.volume;
+    }
+    // Maximum is volumeMax
+    if (volume > max) {
+      volume = max;
+    }
+    // Minimum is volumeMin
+    if (volume < min) {
+      volume = min;
+    }
+    // Set the player volume
+    this.media.volume = parseFloat(volume / max);
+
+    // Set the display
+    if (this.volume.display) {
+      this.volume.display.value = volume;
+    }
+    // Toggle muted state
+    if (volume === 0) {
+      this.media.muted = true;
+    } else if (this.media.muted && volume > 0) {
+      this._toggleMute();
+    }
+  }
+  _updateVolume() {
+    // Get the current volume
+    var volume = this.media.muted ? 0 : (this.media.volume * this.config.volumeMax);
+
+    // Update the <input type="range"> if present
+    if (this.supported.full) {
+      if (this.volume.input) {
+        this.volume.input.value = volume;
+      }
+      if (this.volume.display) {
+        this.volume.display.value = volume;
+      }
+    }
+
+    // Update the volume in storage
+    this._updateStorage({volume: volume});
+
+    // Toggle class if muted
+    $.toggleClass(this.container, this.config.classes.muted, (volume === 0));
+
+    // Update checkbox for mute state
+    if (this.supported.full && this.buttons.mute) {
+      this._toggleState(this.buttons.mute, (volume === 0));
+    }
+  }
+  _updateStorage(value) {
+    // Bail if we don't have localStorage support or it's disabled
+    if (!utils.storageSupport || !this.config.storage.enabled) {
+        return;
+    }
+
+    // Update the working copy of the values
+    utils.extend(this.storage, value);
+
+    // Update storage
+    window.localStorage.setItem(this.config.storage.key, JSON.stringify(this.storage));
+  }
+  _toggleState(target, state) {
+    // Bail if no target
+    if (!target) {
+        return;
+    }
+    // Get state
+    state = (utils.is.boolean(state) ? state : !target.getAttribute('aria-pressed'));
+
+    // Set the attribute on target
+    target.setAttribute('aria-pressed', state);
+    return state;
+  }
+  _toggleMute(muted){
+    if (!utils.is.boolean(muted)) {
+      muted = !this.media.muted;
+    }
+
+    // Set button state
+    this._toggleState(this.buttons.mute, muted);
+
+    // Set mute on the player
+    this.media.muted = muted;
+
+    // If volume is 0 after unmuting, set to default
+    if (this.media.volume === 0) {
+      this._setVolume(this.config.volume);
+    }
+
   }
   _displayDuration() {
     if (!this.supported.full) {
@@ -436,13 +633,19 @@ class Player {
     catch(e) {
       _warn('It looks like there is a problem with your controls HTML');
       // Restore native video controls
-      this._toggleNativeControls(true,player,config);
+      this._toggleNativeControls(true);
 
       return false;
     }
   }
   _buildControls(config){
-    const html = ['<div class="vplyr-gradient-bottom"></div>'];
+    const html = ['<div class="vplyr-video-loader-container">',
+          '<div class="vplyr-video-loader">',
+          '<div class="loader-inner one"></div>',
+          '<div class="loader-inner two"></div>',
+          '<div class="loader-inner three"></div>',
+          '</div>',
+          '</div><div class="vplyr-gradient-bottom"></div>'];
     html.push('<div class="vplyr-bottom-container">')
     if (utils.inArray(config.controls, 'progress')) {
       html.push(
@@ -450,7 +653,7 @@ class Player {
           '<input id="seek{id}" type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar" data-video="seek"/>',
           '<progress class="vplyr-progress-played" max="100" role="presentation"></progress>',
           '<progress class="vplyr-progress-buffer" max="100" value="100">',
-          '<span>100.00</span>',
+          '<span>100.00</span>% buffered',
           '</progress>',
           '</div>'
       );
@@ -546,11 +749,11 @@ class Player {
       }
     }
   }
-  _toggleNativeControls(toggle,player,config) {
-    if (toggle && utils.inArray(config.types.html5, player.type)) {
-        player.media.setAttribute('controls', '');
+  _toggleNativeControls(toggle) {
+    if (toggle && utils.inArray(this.config.types.html5, this.type)) {
+      this.media.setAttribute('controls', '');
     } else {
-        player.media.removeAttribute('controls');
+      this.media.removeAttribute('controls');
     }
   }
   _wrap(elements, wrapper) {

@@ -50,6 +50,9 @@
         color: $vplyr-video-progress-buffered-bg;
     }
 }
+.vplyr-progress-buffer,.vplyr-volume-display{
+    background: rgba(255,255,255,.25)
+}
 .vplyr-progress-played,
 .vplyr-volume-display {
     z-index: 1;
