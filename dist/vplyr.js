@@ -78,7 +78,9 @@ var defaultConfig = exports.defaultConfig = {
         stopped: 'vplyr-stopped',
         isIos: 'vplyr--is-ios',
         isTouch: 'vplyr--is-touch',
-        isWechat: 'vplyr--is-wechat'
+        isWechat: 'vplyr--is-wechat',
+        isChrome: 'vplyr--is-chrome',
+        tabFocus: 'tab-focus'
     },
     events: ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
     // Logging
@@ -373,6 +375,7 @@ var Player = function () {
         _console('warn', arguments);
       };
       _log('Config', config);
+      vk.config = config;
       this._setup(vk, config);
       _log('player', vk);
       if (!vk.init) {
@@ -434,17 +437,316 @@ var Player = function () {
         this._injectControls(player, config);
       }
       // Find the elements
-      if (!this._findElements()) {
+      if (!this._findElements(player, config)) {
         return;
       }
       if (controlsMissing) {
         this._controlListeners(player, config);
       }
+      this._mediaListeners();
+      this._timeUpdate();
+      this._checkPlaying();
+    }
+  }, {
+    key: '_getDuration',
+    value: function _getDuration() {
+      // It should be a number, but parse it just incase
+      var duration = parseInt(this.config.duration),
+
+
+      // True duration
+      mediaDuration = 0;
+
+      // Only if duration available
+      if (this.media.duration !== null && !isNaN(this.media.duration)) {
+        mediaDuration = this.media.duration;
+      }
+
+      // If custom duration is funky, use regular duration
+      return isNaN(duration) ? mediaDuration : duration;
+    }
+  }, {
+    key: '_seek',
+    value: function _seek(input) {
+      _log(this);
+      var targetTime = 0,
+          paused = this.media.paused,
+          duration = this._getDuration();
+
+      if (_util2.default.is.number(input)) {
+        targetTime = input;
+      } else if (_util2.default.is.object(input) && _util2.default.inArray(['input', 'change'], input.type)) {
+        // It's the seek slider
+        // Seek to the selected time
+        targetTime = input.target.value / input.target.max * duration;
+      }
+      if (targetTime < 0) {
+        targetTime = 0;
+      } else if (targetTime > duration) {
+        targetTime = duration;
+      }
+      this._updateSeekDisplay(targetTime);
+      try {
+        this.media.currentTime = targetTime.toFixed(4);
+      } catch (e) {}
+      // Logging
+      _log('Seeking to ' + this.media.currentTime + ' seconds');
+    }
+  }, {
+    key: '_play',
+    value: function _play() {
+      if ('play' in this.media) {
+        this.media.play();
+      }
+    }
+  }, {
+    key: '_pause',
+    value: function _pause() {
+      if ('pause' in this.media) {
+        this.media.pause();
+      }
+    }
+  }, {
+    key: '_togglePlay',
+    value: function _togglePlay(toggle) {
+      // True toggle
+      if (!_util2.default.is.boolean(toggle)) {
+        toggle = this.media.paused;
+      }
+
+      if (toggle) {
+        this._play();
+      } else {
+        this._pause();
+      }
+      return toggle;
+    }
+  }, {
+    key: '_getPercentage',
+    value: function _getPercentage(current, max) {
+      if (current === 0 || max === 0 || isNaN(current) || isNaN(max)) {
+        return 0;
+      }
+      return (current / max * 100).toFixed(2);
+    }
+  }, {
+    key: '_updateSeekDisplay',
+    value: function _updateSeekDisplay(time) {
+      // Default to 0
+      if (!_util2.default.is.number(time)) {
+        time = 0;
+      }
+
+      var duration = this._getDuration(),
+          value = this._getPercentage(time, duration);
+
+      // Update progress
+      if (this.progress && this.progress.played) {
+        this.progress.played.value = value;
+      }
+
+      // Update seek range input
+      if (this.buttons && this.buttons.seek) {
+        this.buttons.seek.value = value;
+      }
+    }
+  }, {
+    key: '_mediaListeners',
+    value: function _mediaListeners() {
+      // Time change on media
+      _event2.default.onEvent(this.media, 'timeupdate seeking', this._timeUpdate.bind(this));
+
+      _event2.default.onEvent(this.media, 'durationchange loadedmetadata', this._displayDuration.bind(this));
+
+      _event2.default.onEvent(this.media, 'play pause ended', this._checkPlaying.bind(this));
+    }
+  }, {
+    key: '_proxyListener',
+    value: function _proxyListener(element, eventName, userListener, defaultListener, useCapture) {
+      _event2.default.onEvent(element, eventName, function (event) {
+        if (userListener) {
+          userListener.apply(element, [event]);
+        }
+        defaultListener.apply(element, [event]);
+      }, useCapture);
     }
   }, {
     key: '_controlListeners',
-    value: function _controlListeners(player, config) {
-      var inputEvent = player.browser.isIE ? 'change' : 'input';
+    value: function _controlListeners() {
+      var _this = this;
+
+      var inputEvent = this.browser.isIE ? 'change' : 'input';
+      var togglePlay = function togglePlay() {
+        var play = _this._togglePlay();
+        var trigger = _this.buttons[play ? 'play' : 'pause'],
+            target = _this.buttons[play ? 'pause' : 'play'];
+
+        // Get the last play button to account for the large play button
+        if (target && target.length > 1) {
+          target = target[target.length - 1];
+        } else {
+          target = target[0];
+        }
+        if (target) {
+          var hadTabFocus = _dom2.default.hasClass(trigger, _this.config.classes.tabFocus);
+
+          setTimeout(function () {
+            target.focus();
+            if (hadTabFocus) {
+              _dom2.default.toggleClass(trigger, this.config.classes.tabFocus, false);
+              _dom2.default.toggleClass(target, this.config.classes.tabFocus, true);
+            }
+          }, 100);
+        }
+      };
+      this._proxyListener(this.buttons.play, 'click', this.config.listeners.play, togglePlay);
+      // Pause
+      this._proxyListener(this.buttons.pause, 'click', this.config.listeners.pause, togglePlay);
+      // Seek
+      this._proxyListener(this.buttons.seek, inputEvent, this.config.listeners.seek, this._seek.bind(this));
+    }
+  }, {
+    key: '_checkPlaying',
+    value: function _checkPlaying() {
+      _dom2.default.toggleClass(this.container, this.config.classes.playing, !this.media.paused);
+
+      _dom2.default.toggleClass(this.container, this.config.classes.stopped, this.media.paused);
+
+      // $.toggleControls(this.media.paused);
+    }
+  }, {
+    key: '_timeUpdate',
+    value: function _timeUpdate(event) {
+      // Duration
+      this._updateTimeDisplay(this.media.currentTime, this.currentTime);
+
+      // Ignore updates while seeking
+      if (event && event.type === 'timeupdate' && this.media.seeking) {
+        return;
+      }
+      // Playing progress
+      this._updateProgress(event);
+    }
+  }, {
+    key: '_updateProgress',
+    value: function _updateProgress(event) {
+      if (!this.supported.full) {
+        return;
+      }
+
+      var progress = this.progress.played,
+          value = 0,
+          duration = this._getDuration();
+      if (event) {
+        switch (event.type) {
+          case 'timeupdate':
+          case 'seeking':
+            if (this.controls.pressed) {
+              return;
+            }
+
+            value = this._getPercentage(this.media.currentTime, duration);
+
+            // Set seek range value only if it's a 'natural' time event
+            if (event.type === 'timeupdate' && this.buttons.seek) {
+              this.buttons.seek.value = value;
+            }
+
+            break;
+          // Check buffer status
+          case 'playing':
+          case 'progress':
+            progress = this.progress.buffer;
+            var buffered = this.media.buffered;
+            if (buffered && buffered.length) {
+              value = this._getPercentage(buffered.end(0), duration);
+            } else {
+              value = 0;
+            }
+            break;
+        }
+      }
+      this._setProgress(progress, value);
+    }
+  }, {
+    key: '_setProgress',
+    value: function _setProgress(progress, value) {
+      if (!this.supported.full) {
+        return;
+      }
+
+      // Default to 0
+      if (_util2.default.is.undefined(value)) {
+        value = 0;
+      }
+      // Default to buffer or bail
+      if (_util2.default.is.undefined(progress)) {
+        if (this.progress && this.progress.buffer) {
+          progress = this.progress.buffer;
+        } else {
+          return;
+        }
+      }
+
+      // One progress element passed
+      if (_util2.default.is.htmlElement(progress)) {
+        progress.value = value;
+      } else if (progress) {
+        // Object of progress + text element
+        if (progress.bar) {
+          progress.bar.value = value;
+        }
+        if (progress.text) {
+          progress.text.innerHTML = value;
+        }
+      }
+    }
+  }, {
+    key: '_displayDuration',
+    value: function _displayDuration() {
+      if (!this.supported.full) {
+        return;
+      }
+
+      // Determine duration
+      var duration = this._getDuration() || 0;
+
+      // If there's only one time display, display duration there
+      if (!this.duration && this.config.displayDuration && this.media.paused) {
+        this._updateTimeDisplay(duration, this.currentTime);
+      }
+
+      // If there's a duration element, update content
+      if (this.duration) {
+        this._updateTimeDisplay(duration, this.duration);
+      }
+    }
+  }, {
+    key: '_updateTimeDisplay',
+    value: function _updateTimeDisplay(time, element) {
+      // Bail if there's no duration display
+      if (!element) {
+        return;
+      }
+
+      // Fallback to 0
+      if (isNaN(time)) {
+        time = 0;
+      }
+
+      this.secs = parseInt(time % 60);
+      this.mins = parseInt(time / 60 % 60);
+      this.hours = parseInt(time / 60 / 60 % 60);
+
+      // Do we need to display hours?
+      var displayHours = parseInt(this._getDuration() / 60 / 60 % 60) > 0;
+
+      // Ensure it's two digits. For example, 03 rather than 3.
+      this.secs = ('0' + this.secs).slice(-2);
+      this.mins = ('0' + this.mins).slice(-2);
+
+      // Render
+      element.innerHTML = (displayHours ? this.hours + ':' : '') + this.mins + ':' + this.secs;
     }
   }, {
     key: '_injectControls',
@@ -457,7 +759,9 @@ var Player = function () {
       if (!html) {
         html = this._buildControls(config);
       }
-      html = _util2.default.replaceAll(html, '{id}', Math.floor(Math.random() * 100000));
+      var random = Math.floor(Math.random() * 1000000);
+      player.container.setAttribute('id', 'vplyr' + random);
+      html = _util2.default.replaceAll(html, '{id}', random);
       var target = void 0;
       if (_util2.default.is.string(config.selectors.controls.container)) {
         target = document.querySelector(config.selectors.controls.container);
@@ -516,7 +820,7 @@ var Player = function () {
       } catch (e) {
         _warn('It looks like there is a problem with your controls HTML');
         // Restore native video controls
-        this._toggleNativeControls(true);
+        this._toggleNativeControls(true, player, config);
 
         return false;
       }
@@ -535,7 +839,7 @@ var Player = function () {
         html.push('<div class="btn-controls">', '<div class="btn-wrap">', '<div class="play" data-video="play"></div>', '<div class="pause" data-video="pause"></div>', '</div>', '</div>');
       }
       if (_util2.default.inArray(config.controls, 'time')) {
-        html.push('<div class="time-mod-controls">', '<div class="control-currenttime">01:29</div>', '<div class="control-separator">/</div>', '<div class="control-duration">1:30:52</div>', '</div>');
+        html.push('<div class="time-mod-controls">', '<div class="control-currenttime">00:00</div>', '<div class="control-separator">/</div>', '<div class="control-duration">00:00</div>', '</div>');
       }
       html.push('</div>'); //close vplyr left controls
       html.push('<div class="right-controls">');
@@ -569,12 +873,14 @@ var Player = function () {
         _dom2.default.toggleClass(player.container, config.classes.stopped, config.autoplay);
         // Add iOS class
         _dom2.default.toggleClass(player.container, config.classes.isIos, player.browser.isIos);
+        // Add chrome class
+        _dom2.default.toggleClass(player.container, config.classes.isChrome, player.browser.isChrome);
 
         // Add touch class
         _dom2.default.toggleClass(player.container, config.classes.isTouch, player.browser.isTouch);
 
         // Add wechat class
-        _dom2.default.toggleClass(player.container, config.classes.isTouch, player.browser.isWechat);
+        _dom2.default.toggleClass(player.container, config.classes.isWechat, player.browser.isWechat);
         if (player.type === 'video') {
           var wrapper = document.createElement('div');
           wrapper.setAttribute('class', config.classes.videoWrapper);
@@ -866,7 +1172,7 @@ var Utils = function () {
         isFirefox: isFirefox,
         isChrome: isChrome,
         isSafari: isSafari,
-        isWeChat: isWechat,
+        isWechat: isWechat,
         isIos: /(iPad|iPhone|iPod)/g.test(navigator.platform),
         isIphone: /(iPhone|iPod)/g.test(navigator.userAgent),
         isTouch: 'ontouchstart' in document.documentElement

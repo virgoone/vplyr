@@ -69,6 +69,8 @@ export const defaultConfig = {
     isIos:              'vplyr--is-ios',
     isTouch:            'vplyr--is-touch',
     isWechat:           'vplyr--is-wechat',
+    isChrome:           'vplyr--is-chrome',
+    tabFocus:           'tab-focus'
   },
   events:                 ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
   // Logging

@@ -203,7 +203,7 @@ class Utils {
       isFirefox:  isFirefox,
       isChrome:   isChrome,
       isSafari:   isSafari,
-      isWeChat:   isWechat,
+      isWechat:   isWechat,
       isIos:      /(iPad|iPhone|iPod)/g.test(navigator.platform),
       isIphone:   /(iPhone|iPod)/g.test(navigator.userAgent),
       isTouch:    'ontouchstart' in document.documentElement
