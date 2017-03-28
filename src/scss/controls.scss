@@ -71,4 +71,43 @@
       }
     }
   }
+  &.vplyr-muted{
+    .vplyr-controls{
+      >div{
+        &.right-controls{
+          .volume-controls{
+            .vplyr-volume{
+              >svg{
+                &.icon-muted{
+                  display: block;
+                }
+                &.icon-volume{
+                  display: none;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  &.vplyr-fullscreen-active{
+    .vplyr-controls{
+      >div{
+        &.right-controls{
+          .fullscreen-controls{
+          
+            >svg{
+               &.icon-enter-fullscreen{
+                display: none;
+              }
+              &.icon-exit-fullscreen{
+                display: block;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }

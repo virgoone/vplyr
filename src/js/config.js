@@ -65,6 +65,7 @@ export const defaultConfig = {
     html5:              ['video']
   },
   classes:{
+    muted:              'vplyr-muted',
     type:               'vplyr-{0}',
     videoWrapper:'vplyr-video-container',
     playing:'vplyr-plying',
@@ -75,7 +76,11 @@ export const defaultConfig = {
     isTouch:            'vplyr--is-touch',
     isWechat:           'vplyr--is-wechat',
     isChrome:           'vplyr--is-chrome',
-    tabFocus:           'tab-focus'
+    tabFocus:           'tab-focus',
+    fullscreen: {
+        enabled:        'vplyr-fullscreen-enabled',
+        active:         'vplyr-fullscreen-active'
+    },
   },
   events:                 ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
   // Logging

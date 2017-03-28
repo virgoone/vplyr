@@ -3,11 +3,12 @@
 import utils from './util';
 import $ from './dom';
 import Event from './event';
-let _log , _warn;
+let _log , _warn,fullscreen;
 
 class Player {
   constructor(media, config){
     this._init(media, config);
+   
   }
   _init(media, config){
     const vk = this;
@@ -15,6 +16,7 @@ class Player {
     let api = {};
     vk.media = media;
     let original = media.cloneNode(true);
+    fullscreen = $.fullscreen();
     const _console = (type,args)=>{
       if (config.debug && window.console) {
         args = Array.prototype.slice.call(args);
@@ -308,6 +310,104 @@ class Player {
       this._setVolume(this.volume.input.value);
     });
     this._proxyListener(this.buttons.mute, 'click', this.config.listeners.mute, this._toggleMute.bind(this));
+
+    this._proxyListener(this.buttons.fullscreen, 'click', this.config.listeners.fullscreen, this._toggleFullscreen.bind(this));
+
+    // Handle user exiting fullscreen by escaping etc
+    if (fullscreen.supportsFullScreen) {
+      Event.onEvent(document, fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
+    }
+  }
+  _toggleFullscreen(event) {
+    // Check for native support
+    var nativeSupport = fullscreen.supportsFullScreen;
+
+    if (nativeSupport) {
+      // If it's a fullscreen change event, update the UI
+      if (event && event.type === fullscreen.fullScreenEventName) {
+          this.isFullscreen = fullscreen.isFullScreen(this.container);
+      } else {
+        // Else it's a user request to enter or exit
+        if (!fullscreen.isFullScreen(this.container)) {
+          // Save scroll position
+          this._saveScrollPosition();
+
+          // Request full screen
+          fullscreen.requestFullScreen(this.container);
+        } else {
+            // Bail from fullscreen
+          fullscreen.cancelFullScreen();
+        }
+
+        // Check if we're actually full screen (it could fail)
+        this.isFullscreen = fullscreen.isFullScreen(this.container);
+
+        return;
+      }
+    } else {
+        // Otherwise, it's a simple toggle
+        this.isFullscreen = !this.isFullscreen;
+
+        // Bind/unbind escape key
+        document.body.style.overflow = this.isFullscreen ? 'hidden' : '';
+    }
+
+    // Set class hook
+    $.toggleClass(this.container, this.config.classes.fullscreen.active, this.isFullscreen);
+
+    // Trap focus
+    this._focusTrap(this.isFullscreen);
+
+    // Set button state
+    if (this.buttons && this.buttons.fullscreen) {
+      this._toggleState(this.buttons.fullscreen, this.isFullscreen);
+    }
+
+    // Trigger an event
+    this._triggerEvent(this.container, this.isFullscreen ? 'enterfullscreen' : 'exitfullscreen', true);
+
+    // Restore scroll position
+    if (!this.isFullscreen && nativeSupport) {
+        this._restoreScrollPosition();
+    }
+  }
+  _focusTrap() {
+    const _getElements = (selector)=> {
+      return this.container.querySelectorAll(selector);
+    }
+    const _getElement=(selector)=> {
+      return _getElements(selector)[0];
+    }
+    var tabbables   = _getElements('input:not([disabled]), button:not([disabled])'),
+        first       = tabbables[0],
+        last        = tabbables[tabbables.length - 1];
+
+    function _checkFocus(event) {
+      // If it is TAB
+      if (event.which === 9 && this.isFullscreen) {
+        if (event.target === last && !event.shiftKey) {
+          // Move focus to first element that can be tabbed if Shift isn't used
+          event.preventDefault();
+          first.focus();
+        } else if (event.target === first && event.shiftKey) {
+          // Move focus to last element that can be tabbed if Shift is used
+          event.preventDefault();
+          last.focus();
+        }
+      }
+    }
+
+    // Bind the handler
+    Event.onEvent(this.container, 'keydown', _checkFocus);
+  }
+  _saveScrollPosition() {
+    scroll = {
+        x: window.pageXOffset || 0,
+        y: window.pageYOffset || 0
+    };
+  }
+  _restoreScrollPosition() {
+    window.scrollTo(scroll.x, scroll.y);
   }
   _checkLoading(event) {
     const loading = (event.type === 'waiting');
@@ -683,8 +783,8 @@ class Player {
     html.push('<div class="right-controls">')
     if (utils.inArray(config.controls, 'fullscreen')) {
       html.push(
-        '<div class="fullscreen-controls">',
-          '<svg class="icon-exit-fullscreen" data-video="fullscreen">',
+        '<div class="fullscreen-controls" data-video="fullscreen">',
+          '<svg class="icon-exit-fullscreen">',
           '<use xlink:href="#vplyr-exit-fullscreen"></use>',
           '</svg>',
           '<svg class="icon-enter-fullscreen">',

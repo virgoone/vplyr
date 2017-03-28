@@ -12,7 +12,7 @@ class Event{
     }
 
     // Default bubbles to false
-    if (!_is.boolean(bubbles)) {
+    if (!utils.is.boolean(bubbles)) {
         bubbles = false;
     }
 

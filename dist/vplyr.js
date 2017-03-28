@@ -2,7 +2,7 @@
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-  value: true
+    value: true
 });
 
 var _selectors;
@@ -12,87 +12,92 @@ exports.createDefaultConfig = createDefaultConfig;
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var defaultConfig = exports.defaultConfig = {
-  enabled: true,
-  debug: true,
-  autoplay: false,
-  loop: false,
-  seekTime: 10,
-  volume: 10,
-  volumeMin: 0,
-  volumeMax: 10,
-  volumeStep: 1,
-  duration: null,
-  displayDuration: true,
-  loadSprite: true,
-  controls: ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
-  selectors: (_selectors = {
-    html5: 'video, audio',
-    editable: 'input, textarea, select, [contenteditable]',
-    container: '.vplyr',
-    controls: {
-      container: null,
-      wrapper: '.vplyr-controls'
-    },
-    buttons: {
-      seek: '[data-video="seek"]',
-      play: '[data-video="play"]',
-      pause: '[data-video="pause"]',
-      mute: '[data-video="mute"]',
-      fullscreen: '[data-video="fullscreen"]'
-    },
-    volume: {
-      input: '[data-video="volume"]',
-      display: '.vplyr-volume-display'
-    },
-    progress: {
-      container: '.vplyr-progress-bar-container',
-      buffer: '.vplyr-progress-buffer',
-      played: '.vplyr-progress-played'
-    }
-  }, _defineProperty(_selectors, 'volume', {
-    input: '[data-video="volume"]',
-    display: '.vplyr-volume-display'
-  }), _defineProperty(_selectors, 'currentTime', '.control-currenttime'), _defineProperty(_selectors, 'duration', '.control-duration'), _selectors),
-
-  // Custom control listeners
-  listeners: {
-    seek: null,
-    play: null,
-    pause: null,
-    restart: null,
-    rewind: null,
-    forward: null,
-    mute: null,
-    volume: null,
-    captions: null,
-    fullscreen: null
-  },
-  storage: {
     enabled: true,
-    key: 'vplyr'
-  },
-  types: {
-    html5: ['video']
-  },
-  classes: {
-    type: 'vplyr-{0}',
-    videoWrapper: 'vplyr-video-container',
-    playing: 'vplyr-plying',
-    loading: 'vplyr-loading',
-    hover: 'vplyr-hover',
-    stopped: 'vplyr-stopped',
-    isIos: 'vplyr--is-ios',
-    isTouch: 'vplyr--is-touch',
-    isWechat: 'vplyr--is-wechat',
-    isChrome: 'vplyr--is-chrome',
-    tabFocus: 'tab-focus'
-  },
-  events: ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
-  // Logging
-  logPrefix: '[VPlyr]'
+    debug: true,
+    autoplay: false,
+    loop: false,
+    seekTime: 10,
+    volume: 10,
+    volumeMin: 0,
+    volumeMax: 10,
+    volumeStep: 1,
+    duration: null,
+    displayDuration: true,
+    loadSprite: true,
+    controls: ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
+    selectors: (_selectors = {
+        html5: 'video, audio',
+        editable: 'input, textarea, select, [contenteditable]',
+        container: '.vplyr',
+        controls: {
+            container: null,
+            wrapper: '.vplyr-controls'
+        },
+        buttons: {
+            seek: '[data-video="seek"]',
+            play: '[data-video="play"]',
+            pause: '[data-video="pause"]',
+            mute: '[data-video="mute"]',
+            fullscreen: '[data-video="fullscreen"]'
+        },
+        volume: {
+            input: '[data-video="volume"]',
+            display: '.vplyr-volume-display'
+        },
+        progress: {
+            container: '.vplyr-progress-bar-container',
+            buffer: '.vplyr-progress-buffer',
+            played: '.vplyr-progress-played'
+        }
+    }, _defineProperty(_selectors, 'volume', {
+        input: '[data-video="volume"]',
+        display: '.vplyr-volume-display'
+    }), _defineProperty(_selectors, 'currentTime', '.control-currenttime'), _defineProperty(_selectors, 'duration', '.control-duration'), _selectors),
+
+    // Custom control listeners
+    listeners: {
+        seek: null,
+        play: null,
+        pause: null,
+        restart: null,
+        rewind: null,
+        forward: null,
+        mute: null,
+        volume: null,
+        captions: null,
+        fullscreen: null
+    },
+    storage: {
+        enabled: true,
+        key: 'vplyr'
+    },
+    types: {
+        html5: ['video']
+    },
+    classes: {
+        muted: 'vplyr-muted',
+        type: 'vplyr-{0}',
+        videoWrapper: 'vplyr-video-container',
+        playing: 'vplyr-plying',
+        loading: 'vplyr-loading',
+        hover: 'vplyr-hover',
+        stopped: 'vplyr-stopped',
+        isIos: 'vplyr--is-ios',
+        isTouch: 'vplyr--is-touch',
+        isWechat: 'vplyr--is-wechat',
+        isChrome: 'vplyr--is-chrome',
+        tabFocus: 'tab-focus',
+        fullscreen: {
+            enabled: 'vplyr-fullscreen-enabled',
+            active: 'vplyr-fullscreen-active'
+        }
+    },
+    events: ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
+    // Logging
+    logPrefix: '[VPlyr]'
 };
 function createDefaultConfig() {
-  return Object.assign({}, defaultConfig);
+    return Object.assign({}, defaultConfig);
 }
 
 },{}],2:[function(_dereq_,module,exports){
@@ -103,6 +108,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _util = _dereq_('./util');
+
+var _util2 = _interopRequireDefault(_util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -118,6 +129,7 @@ var Dom = function () {
     this.setAttributes = this._setAttributes.bind(this);
     this.insertElement = this._insertElement.bind(this);
     this.getClassname = this._getClassname.bind(this);
+    this.fullscreen = this._fullscreen.bind(this);
   }
 
   _createClass(Dom, [{
@@ -195,6 +207,77 @@ var Dom = function () {
         }
       }
     }
+  }, {
+    key: '_fullscreen',
+    value: function _fullscreen() {
+      var fullscreen = {
+        supportsFullScreen: false,
+        isFullScreen: function isFullScreen() {
+          return false;
+        },
+        requestFullScreen: function requestFullScreen() {},
+        cancelFullScreen: function cancelFullScreen() {},
+        fullScreenEventName: '',
+        element: null,
+        prefix: ''
+      },
+          browserPrefixes = 'webkit o moz ms khtml'.split(' ');
+
+      // Check for native support
+      if (!_util2.default.is.undefined(document.cancelFullScreen)) {
+        fullscreen.supportsFullScreen = true;
+      } else {
+        // Check for fullscreen support by vendor prefix
+        for (var i = 0, il = browserPrefixes.length; i < il; i++) {
+          fullscreen.prefix = browserPrefixes[i];
+
+          if (!_util2.default.is.undefined(document[fullscreen.prefix + 'CancelFullScreen'])) {
+            fullscreen.supportsFullScreen = true;
+            break;
+          } else if (!_util2.default.is.undefined(document.msExitFullscreen) && document.msFullscreenEnabled) {
+            // Special case for MS (when isn't it?)
+            fullscreen.prefix = 'ms';
+            fullscreen.supportsFullScreen = true;
+            break;
+          }
+        }
+      }
+
+      // Update methods to do something useful
+      if (fullscreen.supportsFullScreen) {
+        // Yet again Microsoft awesomeness,
+        // Sometimes the prefix is 'ms', sometimes 'MS' to keep you on your toes
+        fullscreen.fullScreenEventName = fullscreen.prefix === 'ms' ? 'MSFullscreenChange' : fullscreen.prefix + 'fullscreenchange';
+
+        fullscreen.isFullScreen = function (element) {
+          if (_util2.default.is.undefined(element)) {
+            element = document.body;
+          }
+          switch (this.prefix) {
+            case '':
+              return document.fullscreenElement === element;
+            case 'moz':
+              return document.mozFullScreenElement === element;
+            default:
+              return document[this.prefix + 'FullscreenElement'] === element;
+          }
+        };
+        fullscreen.requestFullScreen = function (element) {
+          if (_util2.default.is.undefined(element)) {
+            element = document.body;
+          }
+          return this.prefix === '' ? element.requestFullScreen() : element[this.prefix + (this.prefix === 'ms' ? 'RequestFullscreen' : 'RequestFullScreen')]();
+        };
+        fullscreen.cancelFullScreen = function () {
+          return this.prefix === '' ? document.cancelFullScreen() : document[this.prefix + (this.prefix === 'ms' ? 'ExitFullscreen' : 'CancelFullScreen')]();
+        };
+        fullscreen.element = function () {
+          return this.prefix === '' ? document.fullscreenElement : document[this.prefix + 'FullscreenElement'];
+        };
+      }
+
+      return fullscreen;
+    }
   }]);
 
   return Dom;
@@ -202,7 +285,7 @@ var Dom = function () {
 
 exports.default = new Dom();
 
-},{}],3:[function(_dereq_,module,exports){
+},{"./util":6}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -236,7 +319,7 @@ var Event = function () {
       }
 
       // Default bubbles to false
-      if (!_is.boolean(bubbles)) {
+      if (!_util2.default.is.boolean(bubbles)) {
         bubbles = false;
       }
 
@@ -345,7 +428,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _log = void 0,
-    _warn = void 0;
+    _warn = void 0,
+    fullscreen = void 0;
 
 var Player = function () {
   function Player(media, config) {
@@ -362,6 +446,7 @@ var Player = function () {
       var api = {};
       vk.media = media;
       var original = media.cloneNode(true);
+      fullscreen = _dom2.default.fullscreen();
       var _console = function _console(type, args) {
         if (config.debug && window.console) {
           args = Array.prototype.slice.call(args);
@@ -689,11 +774,119 @@ var Player = function () {
         _this._setVolume(_this.volume.input.value);
       });
       this._proxyListener(this.buttons.mute, 'click', this.config.listeners.mute, this._toggleMute.bind(this));
+
+      this._proxyListener(this.buttons.fullscreen, 'click', this.config.listeners.fullscreen, this._toggleFullscreen.bind(this));
+
+      // Handle user exiting fullscreen by escaping etc
+      if (fullscreen.supportsFullScreen) {
+        _event2.default.onEvent(document, fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
+      }
+    }
+  }, {
+    key: '_toggleFullscreen',
+    value: function _toggleFullscreen(event) {
+      // Check for native support
+      var nativeSupport = fullscreen.supportsFullScreen;
+
+      if (nativeSupport) {
+        // If it's a fullscreen change event, update the UI
+        if (event && event.type === fullscreen.fullScreenEventName) {
+          this.isFullscreen = fullscreen.isFullScreen(this.container);
+        } else {
+          // Else it's a user request to enter or exit
+          if (!fullscreen.isFullScreen(this.container)) {
+            // Save scroll position
+            this._saveScrollPosition();
+
+            // Request full screen
+            fullscreen.requestFullScreen(this.container);
+          } else {
+            // Bail from fullscreen
+            fullscreen.cancelFullScreen();
+          }
+
+          // Check if we're actually full screen (it could fail)
+          this.isFullscreen = fullscreen.isFullScreen(this.container);
+
+          return;
+        }
+      } else {
+        // Otherwise, it's a simple toggle
+        this.isFullscreen = !this.isFullscreen;
+
+        // Bind/unbind escape key
+        document.body.style.overflow = this.isFullscreen ? 'hidden' : '';
+      }
+
+      // Set class hook
+      _dom2.default.toggleClass(this.container, this.config.classes.fullscreen.active, this.isFullscreen);
+
+      // Trap focus
+      this._focusTrap(this.isFullscreen);
+
+      // Set button state
+      if (this.buttons && this.buttons.fullscreen) {
+        this._toggleState(this.buttons.fullscreen, this.isFullscreen);
+      }
+
+      // Trigger an event
+      this._triggerEvent(this.container, this.isFullscreen ? 'enterfullscreen' : 'exitfullscreen', true);
+
+      // Restore scroll position
+      if (!this.isFullscreen && nativeSupport) {
+        this._restoreScrollPosition();
+      }
+    }
+  }, {
+    key: '_focusTrap',
+    value: function _focusTrap() {
+      var _this2 = this;
+
+      var _getElements = function _getElements(selector) {
+        return _this2.container.querySelectorAll(selector);
+      };
+      var _getElement = function _getElement(selector) {
+        return _getElements(selector)[0];
+      };
+      var tabbables = _getElements('input:not([disabled]), button:not([disabled])'),
+          first = tabbables[0],
+          last = tabbables[tabbables.length - 1];
+
+      function _checkFocus(event) {
+        // If it is TAB
+        if (event.which === 9 && this.isFullscreen) {
+          if (event.target === last && !event.shiftKey) {
+            // Move focus to first element that can be tabbed if Shift isn't used
+            event.preventDefault();
+            first.focus();
+          } else if (event.target === first && event.shiftKey) {
+            // Move focus to last element that can be tabbed if Shift is used
+            event.preventDefault();
+            last.focus();
+          }
+        }
+      }
+
+      // Bind the handler
+      _event2.default.onEvent(this.container, 'keydown', _checkFocus);
+    }
+  }, {
+    key: '_saveScrollPosition',
+    value: function _saveScrollPosition() {
+      scroll = {
+        x: window.pageXOffset || 0,
+        y: window.pageYOffset || 0
+      };
+    }
+  }, {
+    key: '_restoreScrollPosition',
+    value: function _restoreScrollPosition() {
+      window.scrollTo(scroll.x, scroll.y);
     }
   }, {
     key: '_checkLoading',
     value: function _checkLoading(event) {
-      var _this2 = this;
+      var _this3 = this;
 
       var loading = event.type === 'waiting';
 
@@ -703,7 +896,7 @@ var Player = function () {
       // Timer to prevent flicker when seeking
       this.timers.loading = setTimeout(function () {
         // Toggle container class hook
-        _dom2.default.toggleClass(_this2.container, _this2.config.classes.loading, loading);
+        _dom2.default.toggleClass(_this3.container, _this3.config.classes.loading, loading);
 
         // Show controls if loading, hide if done
         // this._toggleControls(loading);
@@ -734,7 +927,7 @@ var Player = function () {
   }, {
     key: '_updateProgress',
     value: function _updateProgress(event) {
-      var _this3 = this;
+      var _this4 = this;
 
       if (!this.supported.full) {
         return;
@@ -764,11 +957,11 @@ var Player = function () {
           case 'progress':
             progress = this.progress.buffer;
             value = function () {
-              var buffered = _this3.media.buffered;
+              var buffered = _this4.media.buffered;
 
               if (buffered && buffered.length) {
                 // HTML5
-                return _this3._getPercentage(buffered.end(0), duration);
+                return _this4._getPercentage(buffered.end(0), duration);
               }
               return 0;
             }();
@@ -1067,7 +1260,7 @@ var Player = function () {
       html.push('</div>'); //close vplyr left controls
       html.push('<div class="right-controls">');
       if (_util2.default.inArray(config.controls, 'fullscreen')) {
-        html.push('<div class="fullscreen-controls">', '<svg class="icon-exit-fullscreen" data-video="fullscreen">', '<use xlink:href="#vplyr-exit-fullscreen"></use>', '</svg>', '<svg class="icon-enter-fullscreen">', ' <use xlink:href="#vplyr-enter-fullscreen"></use>', '</svg>', '</div>');
+        html.push('<div class="fullscreen-controls" data-video="fullscreen">', '<svg class="icon-exit-fullscreen">', '<use xlink:href="#vplyr-exit-fullscreen"></use>', '</svg>', '<svg class="icon-enter-fullscreen">', ' <use xlink:href="#vplyr-enter-fullscreen"></use>', '</svg>', '</div>');
       }
       html.push('<div class="volume-controls">');
       if (_util2.default.inArray(config.controls, 'mute')) {
