@@ -24,6 +24,7 @@ var defaultConfig = exports.defaultConfig = {
     duration: null,
     displayDuration: true,
     loadSprite: true,
+    hideControls: true,
     controls: ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
     selectors: (_selectors = {
         html5: 'video, audio',
@@ -75,6 +76,8 @@ var defaultConfig = exports.defaultConfig = {
         html5: ['video']
     },
     classes: {
+        setup: 'vplyr-setup',
+        ready: 'vplyr-ready',
         muted: 'vplyr-muted',
         type: 'vplyr-{0}',
         videoWrapper: 'vplyr-video-container',
@@ -87,6 +90,7 @@ var defaultConfig = exports.defaultConfig = {
         isWechat: 'vplyr--is-wechat',
         isChrome: 'vplyr--is-chrome',
         tabFocus: 'tab-focus',
+        hideControls: 'vplyr-hide-controls',
         fullscreen: {
             enabled: 'vplyr-fullscreen-enabled',
             active: 'vplyr-fullscreen-active'
@@ -423,6 +427,8 @@ var _event = _dereq_('./event');
 
 var _event2 = _interopRequireDefault(_event);
 
+var _config = _dereq_('./config');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -504,18 +510,23 @@ var Player = function () {
       if (_util2.default.inArray(config.types.html5, player.type)) {
         // Setup UI
         this._setupInterface(player, config);
+
+        this._ready();
       }
+      this.init = true;
     }
   }, {
     key: '_ready',
     value: function _ready() {
+      var _this = this;
+
       // Ready event at end of execution stack
       window.setTimeout(function () {
-        this._triggerEvent(this.media, 'ready');
+        _this._triggerEvent(_this.media, 'ready');
       }, 0);
 
       // Set class hook on media element
-      _dom2.default.toggleClass(plyr.media, defaults.classes.setup, true);
+      _dom2.default.toggleClass(this.media, _config.defaultConfig.classes.setup, true);
 
       // Set container class for ready
       _dom2.default.toggleClass(this.container, this.config.classes.ready, true);
@@ -561,7 +572,6 @@ var Player = function () {
       }
       this._mediaListeners();
       this._toggleNativeControls(true, this, this.config);
-
       this._timeUpdate();
       // Set volume
       this._setVolume();
@@ -738,13 +748,13 @@ var Player = function () {
   }, {
     key: '_controlListeners',
     value: function _controlListeners() {
-      var _this = this;
+      var _this2 = this;
 
       var inputEvent = this.browser.isIE ? 'change' : 'input';
       var togglePlay = function togglePlay() {
-        var play = _this._togglePlay();
-        var trigger = _this.buttons[play ? 'play' : 'pause'],
-            target = _this.buttons[play ? 'pause' : 'play'];
+        var play = _this2._togglePlay();
+        var trigger = _this2.buttons[play ? 'play' : 'pause'],
+            target = _this2.buttons[play ? 'pause' : 'play'];
 
         // Get the last play button to account for the large play button
         if (target && target.length > 1) {
@@ -753,7 +763,7 @@ var Player = function () {
           target = target[0];
         }
         if (target) {
-          var hadTabFocus = _dom2.default.hasClass(trigger, _this.config.classes.tabFocus);
+          var hadTabFocus = _dom2.default.hasClass(trigger, _this2.config.classes.tabFocus);
 
           setTimeout(function () {
             target.focus();
@@ -771,7 +781,7 @@ var Player = function () {
       this._proxyListener(this.buttons.seek, inputEvent, this.config.listeners.seek, this._seek.bind(this));
 
       this._proxyListener(this.volume.input, inputEvent, this.config.listeners.volume, function () {
-        _this._setVolume(_this.volume.input.value);
+        _this2._setVolume(_this2.volume.input.value);
       });
       this._proxyListener(this.buttons.mute, 'click', this.config.listeners.mute, this._toggleMute.bind(this));
 
@@ -780,6 +790,22 @@ var Player = function () {
       // Handle user exiting fullscreen by escaping etc
       if (fullscreen.supportsFullScreen) {
         _event2.default.onEvent(document, fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
+      }
+      if (this.config.hideControls) {
+        // Toggle controls on mouse events and entering fullscreen
+        _event2.default.onEvent(this.container, 'mouseenter mouseleave mousemove touchstart touchend touchcancel touchmove enterfullscreen', this._toggleControls.bind(this));
+
+        // Watch for cursor over controls so they don't hide when trying to interact
+        _event2.default.onEvent(this.controls, 'mouseenter mouseleave', function (event) {
+          _this2.controls.hover = event.type === 'mouseenter';
+        });
+
+        // Watch for cursor over controls so they don't hide when trying to interact
+        _event2.default.onEvent(this.controls, 'mousedown mouseup touchstart touchend touchcancel', function (event) {
+          _this2.controls.pressed = _util2.default.inArray(['mousedown', 'touchstart'], event.type);
+        });
+        // Focus in/out on controls
+        _event2.default.onEvent(this.controls, 'focus blur', this._toggleControls.bind(this), true);
       }
     }
   }, {
@@ -840,10 +866,10 @@ var Player = function () {
   }, {
     key: '_focusTrap',
     value: function _focusTrap() {
-      var _this2 = this;
+      var _this3 = this;
 
       var _getElements = function _getElements(selector) {
-        return _this2.container.querySelectorAll(selector);
+        return _this3.container.querySelectorAll(selector);
       };
       var _getElement = function _getElement(selector) {
         return _getElements(selector)[0];
@@ -886,7 +912,7 @@ var Player = function () {
   }, {
     key: '_checkLoading',
     value: function _checkLoading(event) {
-      var _this3 = this;
+      var _this4 = this;
 
       var loading = event.type === 'waiting';
 
@@ -896,10 +922,10 @@ var Player = function () {
       // Timer to prevent flicker when seeking
       this.timers.loading = setTimeout(function () {
         // Toggle container class hook
-        _dom2.default.toggleClass(_this3.container, _this3.config.classes.loading, loading);
+        _dom2.default.toggleClass(_this4.container, _this4.config.classes.loading, loading);
 
         // Show controls if loading, hide if done
-        // this._toggleControls(loading);
+        _this4._toggleControls(loading);
       }, loading ? 250 : 0);
     }
   }, {
@@ -909,7 +935,7 @@ var Player = function () {
 
       _dom2.default.toggleClass(this.container, this.config.classes.stopped, this.media.paused);
 
-      // $.toggleControls(this.media.paused);
+      this._toggleControls(this.media.paused);
     }
   }, {
     key: '_timeUpdate',
@@ -927,7 +953,7 @@ var Player = function () {
   }, {
     key: '_updateProgress',
     value: function _updateProgress(event) {
-      var _this4 = this;
+      var _this5 = this;
 
       if (!this.supported.full) {
         return;
@@ -957,11 +983,11 @@ var Player = function () {
           case 'progress':
             progress = this.progress.buffer;
             value = function () {
-              var buffered = _this4.media.buffered;
+              var buffered = _this5.media.buffered;
 
               if (buffered && buffered.length) {
                 // HTML5
-                return _this4._getPercentage(buffered.end(0), duration);
+                return _this5._getPercentage(buffered.end(0), duration);
               }
               return 0;
             }();
@@ -1278,6 +1304,75 @@ var Player = function () {
       return html.join('');
     }
   }, {
+    key: '_toggleControls',
+    value: function _toggleControls(toggle) {
+      var _this6 = this;
+
+      // Don't hide if config says not to, it's audio, or not ready or loading
+      if (!this.config.hideControls || this.type === 'audio') {
+        return;
+      }
+
+      var delay = 0,
+          isEnterFullscreen = false,
+          show = toggle,
+          loading = _dom2.default.hasClass(this.container, this.config.classes.loading);
+
+      // Default to false if no boolean
+      if (!_util2.default.is.boolean(toggle)) {
+        if (toggle && toggle.type) {
+          // Is the enter fullscreen event
+          isEnterFullscreen = toggle.type === 'enterfullscreen';
+
+          // Whether to show controls
+          show = _util2.default.inArray(['mousemove', 'touchstart', 'mouseenter', 'focus'], toggle.type);
+
+          // Delay hiding on move events
+          if (_util2.default.inArray(['mousemove', 'touchmove'], toggle.type)) {
+            delay = 2000;
+          }
+
+          // Delay a little more for keyboard users
+          if (toggle.type === 'focus') {
+            delay = 3000;
+          }
+        } else {
+          show = _dom2.default.hasClass(this.container, this.config.classes.hideControls);
+        }
+      }
+
+      // Clear timer every movement
+      window.clearTimeout(this.timers.hover);
+
+      // If the mouse is not over the controls, set a timeout to hide them
+      if (show || this.media.paused || loading) {
+        _dom2.default.toggleClass(this.container, this.config.classes.hideControls, false);
+
+        // Always show controls when paused or if touch
+        if (this.media.paused || loading) {
+          return;
+        }
+
+        // Delay for hiding on touch
+        if (this.browser.isTouch) {
+          delay = 3000;
+        }
+      }
+
+      // If toggle is false or if we're playing (regardless of toggle),
+      // then set the timer to hide the controls
+      if (!show || !this.media.paused) {
+        this.timers.hover = window.setTimeout(function () {
+          // If the mouse is over the controls (and not entering fullscreen), bail
+          if ((_this6.controls.pressed || _this6.controls.hover) && !isEnterFullscreen) {
+            return;
+          }
+
+          _dom2.default.toggleClass(_this6.container, _this6.config.classes.hideControls, true);
+        }, delay);
+      }
+    }
+  }, {
     key: '_setupMedia',
     value: function _setupMedia(player, config) {
       if (!player.media) {
@@ -1360,7 +1455,7 @@ var Player = function () {
 
 exports.default = Player;
 
-},{"./dom":2,"./event":3,"./util":6}],6:[function(_dereq_,module,exports){
+},{"./config":1,"./dom":2,"./event":3,"./util":6}],6:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {

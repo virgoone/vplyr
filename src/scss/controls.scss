@@ -110,4 +110,19 @@
       }
     }
   }
+  .vplyr-gradient-bottom{
+    bottom: 0;
+    z-index: 22;
+    background-position: bottom;
+  }
+  &.vplyr-hide-controls{
+    .vplyr-gradient-bottom{
+      opacity: 0;
+      @include transition(opacity .1s cubic-bezier(0.4,0.0,1,1));
+    }
+    .vplyr-bottom-container{
+      opacity: 0;
+      @include transition(opacity .1s cubic-bezier(0.4,0.0,1,1));
+    }
+  }
 }

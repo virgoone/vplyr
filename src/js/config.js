@@ -11,6 +11,7 @@ export const defaultConfig = {
   duration:               null,
   displayDuration:        true,
   loadSprite:             true,
+  hideControls:           true,
   controls:               ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
   selectors: {
     html5:                'video, audio',
@@ -65,6 +66,8 @@ export const defaultConfig = {
     html5:              ['video']
   },
   classes:{
+    setup:              'vplyr-setup',
+    ready:              'vplyr-ready',
     muted:              'vplyr-muted',
     type:               'vplyr-{0}',
     videoWrapper:'vplyr-video-container',
@@ -77,6 +80,7 @@ export const defaultConfig = {
     isWechat:           'vplyr--is-wechat',
     isChrome:           'vplyr--is-chrome',
     tabFocus:           'tab-focus',
+    hideControls:       'vplyr-hide-controls',
     fullscreen: {
         enabled:        'vplyr-fullscreen-enabled',
         active:         'vplyr-fullscreen-active'

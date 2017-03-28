@@ -4,6 +4,7 @@ import utils from './util';
 import $ from './dom';
 import Event from './event';
 let _log , _warn,fullscreen;
+import {defaultConfig as defaults} from './config';
 
 class Player {
   constructor(media, config){
@@ -69,16 +70,19 @@ class Player {
     if(utils.inArray(config.types.html5,player.type)){
       // Setup UI
       this._setupInterface(player,config);
+
+      this._ready();
     }
+    this.init = true;
   }
   _ready() {
     // Ready event at end of execution stack
-    window.setTimeout(function() {
+    window.setTimeout(()=> {
       this._triggerEvent(this.media, 'ready');
     }, 0);
 
     // Set class hook on media element
-    $.toggleClass(plyr.media, defaults.classes.setup, true);
+    $.toggleClass(this.media, defaults.classes.setup, true);
 
     // Set container class for ready
     $.toggleClass(this.container, this.config.classes.ready, true);
@@ -122,7 +126,6 @@ class Player {
     }
     this._mediaListeners();
     this._toggleNativeControls(true,this,this.config);
-
     this._timeUpdate();
     // Set volume
     this._setVolume();
@@ -317,6 +320,22 @@ class Player {
     if (fullscreen.supportsFullScreen) {
       Event.onEvent(document, fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
     }
+    if (this.config.hideControls) {
+      // Toggle controls on mouse events and entering fullscreen
+      Event.onEvent(this.container, 'mouseenter mouseleave mousemove touchstart touchend touchcancel touchmove enterfullscreen', this._toggleControls.bind(this));
+
+      // Watch for cursor over controls so they don't hide when trying to interact
+      Event.onEvent(this.controls, 'mouseenter mouseleave', (event)=>{
+          this.controls.hover = event.type === 'mouseenter';
+      });
+
+        // Watch for cursor over controls so they don't hide when trying to interact
+      Event.onEvent(this.controls, 'mousedown mouseup touchstart touchend touchcancel', (event)=> {
+        this.controls.pressed = utils.inArray(['mousedown', 'touchstart'], event.type);
+      });
+      // Focus in/out on controls
+      Event.onEvent(this.controls, 'focus blur', this._toggleControls.bind(this), true);
+    }
   }
   _toggleFullscreen(event) {
     // Check for native support
@@ -421,7 +440,7 @@ class Player {
       $.toggleClass(this.container, this.config.classes.loading, loading);
 
       // Show controls if loading, hide if done
-      // this._toggleControls(loading);
+      this._toggleControls(loading);
     }, (loading ? 250 : 0));
   }
   _checkPlaying() {
@@ -429,7 +448,7 @@ class Player {
 
     $.toggleClass(this.container, this.config.classes.stopped, this.media.paused);
 
-    // $.toggleControls(this.media.paused);
+    this._toggleControls(this.media.paused);
   }
   _timeUpdate(event) {
     // Duration
@@ -821,6 +840,71 @@ class Player {
     html.push('</div>')//close vplyr controls
     html.push('</div>')//close
     return html.join('');
+  }
+  _toggleControls(toggle) {
+    // Don't hide if config says not to, it's audio, or not ready or loading
+    if (!this.config.hideControls || this.type === 'audio') {
+      return;
+    }
+
+    var delay = 0,
+        isEnterFullscreen = false,
+        show = toggle,
+        loading = $.hasClass(this.container, this.config.classes.loading);
+
+    // Default to false if no boolean
+    if (!utils.is.boolean(toggle)) {
+      if (toggle && toggle.type) {
+        // Is the enter fullscreen event
+        isEnterFullscreen = (toggle.type === 'enterfullscreen');
+
+        // Whether to show controls
+        show = utils.inArray(['mousemove', 'touchstart', 'mouseenter', 'focus'], toggle.type);
+
+        // Delay hiding on move events
+        if (utils.inArray(['mousemove', 'touchmove'], toggle.type)) {
+          delay = 2000;
+        }
+
+        // Delay a little more for keyboard users
+        if (toggle.type === 'focus') {
+            delay = 3000;
+        }
+      } else {
+        show = $.hasClass(this.container, this.config.classes.hideControls);
+      }
+    }
+
+    // Clear timer every movement
+    window.clearTimeout(this.timers.hover);
+
+    // If the mouse is not over the controls, set a timeout to hide them
+    if (show || this.media.paused || loading) {
+      $.toggleClass(this.container, this.config.classes.hideControls, false);
+
+      // Always show controls when paused or if touch
+      if (this.media.paused || loading) {
+        return;
+      }
+
+      // Delay for hiding on touch
+      if (this.browser.isTouch) {
+        delay = 3000;
+      }
+    }
+
+    // If toggle is false or if we're playing (regardless of toggle),
+    // then set the timer to hide the controls
+    if (!show || !this.media.paused) {
+      this.timers.hover = window.setTimeout(() =>{
+        // If the mouse is over the controls (and not entering fullscreen), bail
+        if ((this.controls.pressed || this.controls.hover) && !isEnterFullscreen) {
+            return;
+        }
+
+        $.toggleClass(this.container, this.config.classes.hideControls, true);
+      }, delay);
+    }
   }
   _setupMedia(player,config){
     if (!player.media) {
