@@ -8,8 +8,7 @@ import {defaultConfig as defaults} from './config';
 
 class Player {
   constructor(media, config){
-    this._init(media, config);
-   
+    return this._init(media, config);
   }
   _init(media, config){
     const vk = this;
@@ -34,6 +33,27 @@ class Player {
     _log('Config', config);
     vk.config = config;
     vk.timers = timers;
+    api = {
+      isFullscreen:()=>{return this.isFullScreen || false},
+      getVolume:()=>{return this.media.volume},
+      isMuted:  () =>{ return this.media.muted; },
+      isReady:  () =>{ return $.hasClass(this.container, this.config.classes.ready); },
+      isLoading:()=> { return $.hasClass(this.container, this.config.classes.loading); },
+      isPaused: () =>{ return this.media.paused; },
+      stop:  ()=>{ this._pause(); this._seek(); },
+      getType: ()=>this.type,
+      getCurrentTime: ()=>this.media.currentTime,
+      getContainer:()=>this.container,
+      setVolume: this._setVolume,
+      togglePlay: this._togglePlay,
+      toggleMute: this._toggleMute,
+      toggleFullscreen: this._toggleFullscreen,
+      toggleControls: this._toggleControls,
+      play: this._play,
+      pause: this._pause,
+      getDuration:this._getDuration,
+      seek:this._seek,
+    }
     vk.api = api;
     
     this._setup(vk,config);
@@ -970,6 +990,30 @@ class Player {
       }
       return child;
     }
+  }
+  _cancelRequests() {
+    if (!utils.inArray(this.config.types.html5, this.type)) {
+      return;
+    }
+
+    // Remove child sources
+    var sources = this.media.querySelectorAll('source');
+    for (var i = 0; i < sources.length; i++) {
+      $.removeElement(sources[i]);
+    }
+
+    // Set blank video src attribute
+    // This is to prevent a MEDIA_ERR_SRC_NOT_SUPPORTED error
+    // Info: http://stackoverflow.com/questions/32231579/how-to-properly-dispose-of-an-html5-video-and-close-socket-or-connection
+    this.media.setAttribute('src', this.config.blankUrl);
+
+    // Load the new empty source
+    // This will cancel existing requests
+    // See https://github.com/Selz/plyr/issues/174
+    this.media.load();
+
+    // Debugging
+    _log('Cancelled network requests');
   }
   _toggleStyleHook(player,config) {
     $.toggleClass(player.container, config.selectors.container.replace('.', ''), player.supported.full);

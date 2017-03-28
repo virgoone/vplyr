@@ -12,6 +12,7 @@ export const defaultConfig = {
   displayDuration:        true,
   loadSprite:             true,
   hideControls:           true,
+  blankUrl:'https://cdn.selz.com/plyr/blank.mp4',
   controls:               ['play-large', 'play', 'progress', 'time', 'mute', 'volume', 'captions', 'fullscreen'],
   selectors: {
     html5:                'video, audio',
