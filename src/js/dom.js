@@ -11,7 +11,6 @@ class Dom {
     this.insertElement= this._insertElement.bind(this);
     this.getClassname= this._getClassname.bind(this);
     this.fullscreen= this._fullscreen.bind(this);
-    
   }
   _getClassname(selector) {
     return selector.replace('.', '');

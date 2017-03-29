@@ -7,83 +7,146 @@ import Logger from './logger';
 let _log , _warn;
 import {defaultConfig as defaults} from './config';
 
+const playerMap = new WeakMap();
+const fullscreen = $.fullscreen();
+
 class Player {
   constructor(media, config){
-    this._media = media;
-    this._config = config;
-    this._type = null;
-    this._player = {};
-    this._timers = {};
-    this._original = null;
-    this._fullscreen = $.fullscreen();
     const _logger = new Logger(config);
+    
     this._log = _logger.log;
     this._warn = _logger.warn;
+    playerMap.set(this,{
+      media,
+      config,
+      player:{},
+      timers:{},
+      fullscreen,
+      original:null,
+      storage:{}
+    })
     this._init();
+    this._log(this,$);
   }
-  _init(){
-    const timers = {};
-    let api = {};
-    this._original = this._media.cloneNode(true);
-    this._player.media = this._media;
-    console.log(this);
-    this._log('Config', this._config);
-    
-    api = {
-      isFullscreen:()=>{return this.isFullScreen || false},
-      getVolume:()=>{return this.media.volume},
-      isMuted:  () =>{ return this.media.muted; },
-      isReady:  () =>{ return $.hasClass(this.container, this.config.classes.ready); },
-      isLoading:()=> { return $.hasClass(this.container, this.config.classes.loading); },
-      isPaused: () =>{ return this.media.paused; },
-      stop:  ()=>{ this._pause(); this._seek(); },
-      getType: ()=>this.type,
-      getCurrentTime: ()=>this.media.currentTime,
-      getContainer:()=>this.container,
-      setVolume: this._setVolume,
-      togglePlay: this._togglePlay,
-      toggleMute: this._toggleMute,
-      toggleFullscreen: this._toggleFullscreen,
-      toggleControls: this._toggleControls,
-      play: this._play,
-      pause: this._pause,
-      getDuration:this._getDuration,
-      seek:this._seek,
+  pause(){
+    this._pause();
+  }
+  play(){
+    this._play();
+  }
+  stop(){
+    this._pause();
+    this._seek();
+  }
+  togglePlay(){
+    this._togglePlay();
+  }
+  toggleControls(){
+    this._toggleControls();
+  }
+  get loadingState(){
+    const {player,config} = playerMap.get(this);
+    const {container} = player;
+    const {classes} = config;
+    return $.hasClass(container, classes.loading);
+  }
+  get readyState(){
+    const {player,config} = playerMap.get(this);
+    const {container} = player;
+    const {classes} = config;
+    return $.hasClass(container, classes.ready);
+  }
+  get container(){
+    const {player} = playerMap.get(this);
+    return player.container;
+  }
+  get type(){
+    const {player} = playerMap.get(this);
+    return player.type;
+  }
+  get volume(){
+    const {player} = playerMap.get(this);
+    return player.media.volume;
+  }
+  get duration(){
+    return this._getDuration();
+  }
+  get currentTime(){
+    const {player} = playerMap.get(this);
+    return player.media.currentTime;
+  }
+  get fullscreen(){
+    const {player} = playerMap.get(this);
+    return player.isFullscreen || false;
+  }
+  get muted(){
+    const {player} = playerMap.get(this);
+    return player.media.muted;
+  }
+  get paused(){
+    const {player} = playerMap.get(this);
+    return player.media.paused;
+  }
+  set fullscreen(fullscreen){
+    if(!utils.is.boolean(fullscreen)){
+      return;
     }
     
+    const {player} = playerMap.get(this);
+    if((!player.isFullscreen && fullscreen) || (player.isFullscreen && !fullscreen)){
+      this._toggleFullscreen();
+    }
+  }
+  set volume(value){
+    return this._setVolume(value);
+  }
+  set currentTime(value){
+    this.seek(value);
+  }
+  set muted(muted){
+    this._toggleMute(muted);
+  }
+  _init(){
+    const {player,media,config} = playerMap.get(this);
+    let {original} = playerMap.get(this);
+    original = media.cloneNode(true);
+    player.media =media;
+    this._log('Config', config);
+    
+    
     this._setup();
-    this._log('player', this._player);
+    this._log('player', player);
     if (!this.__init__) {
       return null;
     }
   }
-
   _setup(){
     if (this.__init__) {
       return null;
     }
-    const {media} = this._player; 
-    this._player.browser = utils.browserSniff;
+    const {original,player,config} = playerMap.get(this);
+    const {media} = player; 
+    player.browser = utils.browserSniff;
     if (!utils.is.htmlElement(media)) {
       return;
     }
     this._setupStorage();//设置storage
     const tagName = media.tagName.toLowerCase();
-    this._player.type  = this._type = tagName;
-    this._config.crossorigin  = (media.getAttribute('crossorigin') !== null);
-    this._config.autoplay     = (this._config.autoplay || (media.getAttribute('autoplay') !== null));
-    this._config.loop         = (this._config.loop || (media.getAttribute('loop') !== null));
-    this._player.supported = utils.supported(this._player.type);
-    if (!this._player.supported.basic) {
+    player.type  = tagName;
+    config.crossorigin  = (media.getAttribute('crossorigin') !== null);
+    config.autoplay     = (config.autoplay || (media.getAttribute('autoplay') !== null));
+    config.loop         = (config.loop || (media.getAttribute('loop') !== null));
+    player.supported = utils.supported(player.type);
+    if (!player.supported.basic) {
       return;
     }
-    this._player.container = this._wrap(media, document.createElement('div'));
-    this._player.container.setAttribute('tabindex', 0);
+    player.container = this._wrap(media, document.createElement('div'));
+    player.container.setAttribute('tabindex', 0);
     this._toggleStyleHook();
-    this._log('' + this._player.browser.name + ' ' + this._player.browser.version);
+    this._log('' + player.browser.name + ' ' + player.browser.version);
     this._setupMedia();
 
-    if(utils.inArray(this._config.types.html5,this._player.type)){
+    if(utils.inArray(config.types.html5,player.type)){
       // Setup UI
       this._setupInterface();
 
@@ -92,43 +155,45 @@ class Player {
     this.__init__ = true;
   }
   _ready() {
+    const {player,config} = playerMap.get(this);
+    const {media,container} = player;
+    
     // Ready event at end of execution stack
     window.setTimeout(()=> {
-      this._triggerEvent(this._media, 'ready');
+      this._triggerEvent(media, 'ready');
     }, 0);
 
     // Set class hook on media element
-    $.toggleClass(this._media, defaults.classes.setup, true);
+    $.toggleClass(media, defaults.classes.setup, true);
 
     // Set container class for ready
-    $.toggleClass(this._player.container, this._config.classes.ready, true);
-
-    // Store a refernce to instance
-    this._media.vplyr = this._api;
+    $.toggleClass(container, config.classes.ready, true);
 
     // Autoplay
-    if (this._config.autoplay) {
+    if (config.autoplay) {
       this._play();
     }
   }
   _setupInterface(){
+    const {player,config} = playerMap.get(this);
+    
     const _getElements = (selector)=> {
-      return this._player.container.querySelectorAll(selector);
+      return player.container.querySelectorAll(selector);
     }
     const _getElement=(selector)=> {
       return _getElements(selector)[0];
     }
-    if (!this._player.supported.full) {
-      this._warn('Basic support only', this._player.type);
+    if (!player.supported.full) {
+      this._warn('Basic support only', player.type);
       
       // Remove controls
-      $.removeElement(_getElement(this._config.selectors.controls.wrapper));
+      $.removeElement(_getElement(config.selectors.controls.wrapper));
       // reset native controls
       this._toggleNativeControls(true);
       // Bail
       return;
     }
-    const controlsMissing = !_getElements(this._config.selectors.controls.wrapper).length;
+    const controlsMissing = !_getElements(config.selectors.controls.wrapper).length;
     if (controlsMissing) {
       // Inject custom controls
       this._injectControls();
@@ -152,17 +217,16 @@ class Player {
   }
   _setupStorage() {
     var value = null;
-    this._storage = {};
-
+    let {config,storage} = playerMap.get(this);
     // Bail if we don't have localStorage support or it's disabled
-    if (!utils.storageSupport || !this._config.storage.enabled) {
+    if (!utils.storageSupport || !config.storage.enabled) {
       return;
     }
     
     window.localStorage.removeItem('vplyr-volume');
 
     // load value from the current key
-    value = window.localStorage.getItem(this._config.storage.key);
+    value = window.localStorage.getItem(config.storage.key);
 
     if (!value) {
         // Key wasn't set (or had been cleared), move along
@@ -174,7 +238,7 @@ class Player {
       this._updateStorage({volume: parseFloat(value)});
     } else {
         // Assume it's JSON from this or a later version of plyr
-      this._storage = JSON.parse(value);
+      storage = JSON.parse(value);
     }
   }
   _triggerEvent(element, type, bubbles, properties) {
@@ -183,23 +247,28 @@ class Player {
     }));
   }
   _getDuration() {
+    const {config,player} = playerMap.get(this);
+    const {media} = player;
+    
     // It should be a number, but parse it just incase
-    var duration = parseInt(this._config.duration),
+    var duration = parseInt(config.duration),
 
     // True duration
     mediaDuration = 0;
 
     // Only if duration available
-    if (this._media.duration !== null && !isNaN(this._media.duration)) {
-      mediaDuration = this._media.duration;
+    if (media.duration !== null && !isNaN(media.duration)) {
+      mediaDuration = media.duration;
     }
 
     // If custom duration is funky, use regular duration
     return (isNaN(duration) ? mediaDuration : duration);
   }
   _seek(input){
+    const {player} = playerMap.get(this);
+    const {media} = player;
     let targetTime  = 0,
-        paused      = this._media.paused,
+        paused      = media.paused,
         duration    = this._getDuration();
 
     if (utils.is.number(input)) {
@@ -216,26 +285,32 @@ class Player {
     }
     this._updateSeekDisplay(targetTime);
     try {
-      this._media.currentTime = targetTime.toFixed(4);
+      media.currentTime = targetTime.toFixed(4);
     }
     catch(e) {}
     // Logging
-    this._log('Seeking to ' + this._media.currentTime + ' seconds');
+    this._log('Seeking to ' + media.currentTime + ' seconds');
   }
   _play() {
-    if ('play' in this._media) {
-      this._media.play();
+    const {player} = playerMap.get(this);
+    const {media} = player;
+    if ('play' in media) {
+      media.play();
     }
   }
   _pause() {
-    if ('pause' in this._media) {
-      this._media.pause();
+    const {player} = playerMap.get(this);
+    const {media} = player;
+    if ('pause' in media) {
+      media.pause();
     }
   }
   _togglePlay(toggle) {
+    const {player} = playerMap.get(this);
+    const {media} = player;
     // True toggle
     if (!utils.is.boolean(toggle)) {
-      toggle = this._media.paused;
+      toggle = media.paused;
     }
 
     if (toggle) {
@@ -256,7 +331,9 @@ class Player {
     if (!utils.is.number(time)) {
         time = 0;
     }
-    const {progress,buttons} = this._player;
+    const {player} = playerMap.get(this);
+    
+    const {progress,buttons} = player;
     var duration    = this._getDuration(),
         value       = this._getPercentage(time, duration);
 
@@ -271,7 +348,8 @@ class Player {
     }
   }
   _mediaListeners(){
-    const media = this._media;
+    const {player} = playerMap.get(this);
+    const {media} = player;
     // Time change on media
     Event.onEvent(media, 'timeupdate seeking', this._timeUpdate.bind(this));
 
@@ -295,8 +373,10 @@ class Player {
     }, useCapture);
   }
   _controlListeners(){
-    const {browser,buttons,volume,container,controls} = this._player;
-    const {classes,listeners,hideControls} = this._config;
+    const {player,config,fullscreen} = playerMap.get(this);
+    
+    const {browser,buttons,volume,container,controls} = player;
+    const {classes,listeners,hideControls} = config;
     const inputEvent = (browser.isIE ? 'change' : 'input');
     const togglePlay = ()=>{
       const play = this._togglePlay();
@@ -335,8 +415,8 @@ class Player {
     this._proxyListener(buttons.fullscreen, 'click', listeners.fullscreen, this._toggleFullscreen.bind(this));
 
     // Handle user exiting fullscreen by escaping etc
-    if (this._fullscreen.supportsFullScreen) {
-      Event.onEvent(document, this._fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
+    if (fullscreen.supportsFullScreen) {
+      Event.onEvent(document, fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
     }
     if (hideControls) {
       // Toggle controls on mouse events and entering fullscreen
@@ -344,12 +424,12 @@ class Player {
 
       // Watch for cursor over controls so they don't hide when trying to interact
       Event.onEvent(controls, 'mouseenter mouseleave', (event)=>{
-          this._player.controls.hover = event.type === 'mouseenter';
+          player.controls.hover = event.type === 'mouseenter';
       });
 
         // Watch for cursor over controls so they don't hide when trying to interact
       Event.onEvent(controls, 'mousedown mouseup touchstart touchend touchcancel', (event)=> {
-        this._player.controls.pressed = utils.inArray(['mousedown', 'touchstart'], event.type);
+        player.controls.pressed = utils.inArray(['mousedown', 'touchstart'], event.type);
       });
       // Focus in/out on controls
       Event.onEvent(controls, 'focus blur', this._toggleControls.bind(this), true);
@@ -357,14 +437,15 @@ class Player {
   }
   _toggleFullscreen(event) {
     // Check for native support
-    const fullscreen = this._fullscreen;
-    const {container,buttons} = this._player;
+    const {player,config,fullscreen} = playerMap.get(this);
+    
+    const {container,buttons} = player;
     var nativeSupport = fullscreen.supportsFullScreen;
 
     if (nativeSupport) {
       // If it's a fullscreen change event, update the UI
       if (event && event.type === fullscreen.fullScreenEventName) {
-          this._player.isFullscreen = fullscreen.isFullScreen(container);
+          player.isFullscreen = fullscreen.isFullScreen(container);
       } else {
         // Else it's a user request to enter or exit
         if (!fullscreen.isFullScreen(container)) {
@@ -379,39 +460,40 @@ class Player {
         }
 
         // Check if we're actually full screen (it could fail)
-        this._player.isFullscreen = fullscreen.isFullScreen(container);
+        player.isFullscreen = fullscreen.isFullScreen(container);
 
         return;
       }
     } else {
         // Otherwise, it's a simple toggle
-        this._player.isFullscreen = !this._player.isFullscreen;
+        player.isFullscreen = !player.isFullscreen;
 
         // Bind/unbind escape key
-        document.body.style.overflow = this._player.isFullscreen ? 'hidden' : '';
+        document.body.style.overflow = player.isFullscreen ? 'hidden' : '';
     }
 
     // Set class hook
-    $.toggleClass(container, this._config.classes.fullscreen.active, this._player.isFullscreen);
+    $.toggleClass(container, config.classes.fullscreen.active, player.isFullscreen);
 
     // Trap focus
-    this._focusTrap(this._player.isFullscreen);
+    this._focusTrap(player.isFullscreen);
 
     // Set button state
     if (buttons && buttons.fullscreen) {
-      this._toggleState(buttons.fullscreen, this._player.isFullscreen);
+      this._toggleState(buttons.fullscreen, player.isFullscreen);
     }
 
     // Trigger an event
-    this._triggerEvent(container, this._player.isFullscreen ? 'enterfullscreen' : 'exitfullscreen', true);
+    this._triggerEvent(container, player.isFullscreen ? 'enterfullscreen' : 'exitfullscreen', true);
 
     // Restore scroll position
-    if (!this._player.isFullscreen && nativeSupport) {
+    if (!player.isFullscreen && nativeSupport) {
         this._restoreScrollPosition();
     }
   }
   _focusTrap() {
-    const  {container,isFullscreen} = this._player;
+    const {player,config} = playerMap.get(this);
+    const  {container} = player;
     const _getElements = (selector)=> {
       return container.querySelectorAll(selector);
     }
@@ -450,14 +532,15 @@ class Player {
     window.scrollTo(scroll.x, scroll.y);
   }
   _checkLoading(event) {
+    const {player,config,timers} = playerMap.get(this);
     const loading = (event.type === 'waiting');
-    const {container} = this._player;
-    const {classes} = this._config;
+    const {container} = player;
+    const {classes} = config;
     // Clear timer
-    clearTimeout(this._timers.loading);
+    clearTimeout(timers.loading);
 
     // Timer to prevent flicker when seeking
-    this._timers.loading = setTimeout(()=>{
+    timers.loading = setTimeout(()=>{
       // Toggle container class hook
       $.toggleClass(container, classes.loading, loading);
 
@@ -466,9 +549,10 @@ class Player {
     }, (loading ? 250 : 0));
   }
   _checkPlaying() {
-    const {container} = this._player;
-    const {classes} = this._config;
-    const {paused} = this._media;
+    const {player,config} = playerMap.get(this);
+    const {media,container} = player;
+    const {classes} = config;
+    const {paused} = media;
     $.toggleClass(container, classes.playing, !paused);
 
     $.toggleClass(container, classes.stopped, paused);
@@ -476,19 +560,21 @@ class Player {
     this._toggleControls(paused);
   }
   _timeUpdate(event) {
+    const {player,config} = playerMap.get(this);
+    const {media} = player;
     // Duration
-    this._updateTimeDisplay(this._media.currentTime, this._player.currentTime);
+    this._updateTimeDisplay(media.currentTime, player.currentTime);
 
     // Ignore updates while seeking
-    if (event && event.type === 'timeupdate' && this._media.seeking) {
+    if (event && event.type === 'timeupdate' && media.seeking) {
       return;
     }
     // Playing progress
     this._updateProgress(event);
   }
   _updateProgress(event){
-    const {supported} = this._player;
-    const {controls,progress,buttons} = this._player;
+    const {player} = playerMap.get(this);
+    const {media,controls,progress,buttons,supported} = player;
     if (!supported.full) {
       return;
     }
@@ -504,7 +590,7 @@ class Player {
             return;
           }
 
-          __value = this._getPercentage(this._media.currentTime, duration);
+          __value = this._getPercentage(media.currentTime, duration);
 
           // Set seek range value only if it's a 'natural' time event
           if (event.type === 'timeupdate' && buttons.seek) {
@@ -517,7 +603,7 @@ class Player {
         case 'progress':
           __progress    = progress.buffer;
           __value = (()=> {
-            var buffered = this._media.buffered;
+            var buffered = media.buffered;
 
             if (buffered && buffered.length) {
               // HTML5
@@ -531,7 +617,9 @@ class Player {
     this._setProgress(__progress, __value);
   }
   _setProgress(progress, value) {
-    const {supported} = this._player;
+    const {player} = playerMap.get(this);
+    
+    const {supported} = player;
     if (!supported.full) {
       return;
     }
@@ -542,8 +630,8 @@ class Player {
     }
     // Default to buffer or bail
     if (utils.is.undefined(progress)) {
-      if (this._player.progress && this._player.progress.buffer) {
-        progress = this._player.progress.buffer;
+      if (player.progress && player.progress.buffer) {
+        progress = player.progress.buffer;
       } else {
         return;
       }
@@ -563,17 +651,19 @@ class Player {
     }
   }
   _setVolume(volume){
-    const max = this._config.volumeMax,
-        min = this._config.volumeMin;
+    const {player,config,storage} = playerMap.get(this);
+    const {media} = player;
+    const max = config.volumeMax,
+        min = config.volumeMin;
 
     // Load volume from storage if no value specified
     if (utils.is.undefined(volume)) {
-      volume = this._storage.volume;
+      volume = storage.volume;
     }
 
     // Use config if all else fails
     if (volume === null || isNaN(volume)) {
-      volume = this._config.volume;
+      volume = config.volume;
     }
     
     // Maximum is volumeMax
@@ -585,25 +675,26 @@ class Player {
       volume = min;
     }
     // Set the player volume
-    this._media.volume = parseFloat(volume / max);
+    media.volume = parseFloat(volume / max);
 
     // Set the display
-    if (this._player.volume.display) {
-      this._player.volume.display.value = volume;
+    if (player.volume.display) {
+      player.volume.display.value = volume;
     }
     // Toggle muted state
     if (volume === 0) {
-      this._media.muted = true;
-    } else if (this._media.muted && volume > 0) {
+      media.muted = true;
+    } else if (media.muted && volume > 0) {
       this._toggleMute();
     }
   }
   _updateVolume() {
-    const {muted} = this._media;
-    const {container,buttons,supported,volume} = this._player;
-    const {classes} = this._config;
+    const {player,config,storage} = playerMap.get(this);
+    const {media,container,buttons,supported,volume} = player;
+    const {muted} = media;
+    const {classes} = config;
     // Get the current volume
-    var __volume = muted ? 0 : (this._media.volume * this._config.volumeMax);
+    var __volume = muted ? 0 : (media.volume * config.volumeMax);
 
     // Update the <input type="range"> if present
     if (supported.full) {
@@ -627,16 +718,18 @@ class Player {
     }
   }
   _updateStorage(value) {
+    const {storage,config} = playerMap.get(this);
+    
     // Bail if we don't have localStorage support or it's disabled
-    if (!utils.storageSupport || !this._config.storage.enabled) {
+    if (!utils.storageSupport || !config.storage.enabled) {
         return;
     }
 
     // Update the working copy of the values
-    utils.extend(this._storage, value);
+    utils.extend(storage, value);
 
     // Update storage
-    window.localStorage.setItem(this._config.storage.key, JSON.stringify(this._storage));
+    window.localStorage.setItem(config.storage.key, JSON.stringify(storage));
   }
   _toggleState(target, state) {
     // Bail if no target
@@ -651,25 +744,28 @@ class Player {
     return state;
   }
   _toggleMute(muted){
+    const {player,config,storage} = playerMap.get(this);
+    const {media} = player;
     if (!utils.is.boolean(muted)) {
-      muted = !this._media.muted;
+      muted = !media.muted;
     }
 
     // Set button state
-    this._toggleState(this._player.buttons.mute, muted);
+    this._toggleState(player.buttons.mute, muted);
 
     // Set mute on the player
-    this._media.muted = muted;
+    media.muted = muted;
 
     // If volume is 0 after unmuting, set to default
-    if (this._media.volume === 0) {
-      this._setVolume(this._config.volume);
+    if (media.volume === 0) {
+      this._setVolume(config.volume);
     }
 
   }
   _displayDuration() {
-    const {supported,duration,currentTime} = this._player;
-    const {displayDuration} = this._config;
+    const {player,config,storage} = playerMap.get(this);
+    const {media,supported,duration,currentTime} = player;
+    const {displayDuration} = config;
     if (!supported.full) {
       return;
     }
@@ -678,7 +774,7 @@ class Player {
     var __duration = this._getDuration() || 0;
 
     // If there's only one time display, display duration there
-    if (!duration && displayDuration && this._media.paused) {
+    if (!duration && displayDuration && media.paused) {
       this._updateTimeDisplay(__duration,currentTime);
     }
 
@@ -689,6 +785,8 @@ class Player {
 
   }
   _updateTimeDisplay(time, element) {
+    const {player} = playerMap.get(this);
+    
     // Bail if there's no duration display
     if (!element) {
         return;
@@ -699,23 +797,24 @@ class Player {
         time = 0;
     }
 
-    this._player.secs = parseInt(time % 60);
-    this._player.mins = parseInt((time / 60) % 60);
-    this._player.hours = parseInt(((time / 60) / 60) % 60);
+    player.secs = parseInt(time % 60);
+    player.mins = parseInt((time / 60) % 60);
+    player.hours = parseInt(((time / 60) / 60) % 60);
 
     // Do we need to display hours?
     var displayHours = (parseInt(((this._getDuration() / 60) / 60) % 60) > 0);
 
     // Ensure it's two digits. For example, 03 rather than 3.
-    this._player.secs = ('0' + this._player.secs).slice(-2);
-    this._player.mins = ('0' + this._player.mins).slice(-2);
+    player.secs = ('0' + player.secs).slice(-2);
+    player.mins = ('0' + player.mins).slice(-2);
 
     // Render
-    element.innerHTML = (displayHours ? this._player.hours + ':' : '') + this._player.mins + ':' + this._player.secs;
+    element.innerHTML = (displayHours ? player.hours + ':' : '') + player.mins + ':' + player.secs;
   }
   _injectControls(){
-    let {html,selectors} = this._config;
-    const {container} = this._player;
+    const {player,config} = playerMap.get(this);
+    let {html,selectors} = config;
+    const {container} = player;
     // Insert custom video controls
     this._log('Injecting custom controls');
     // If no controls are specified, create default
@@ -736,8 +835,10 @@ class Player {
     target.insertAdjacentHTML('beforeend', html);
   }
   _findElements(){
-    const {container} = this._player;
-    const {selectors} = this._config;
+    const {player,config} = playerMap.get(this);
+    
+    const {container} = player;
+    const {selectors} = config;
     const {controls,buttons,progress,volume,duration,currentTime,seekTime} = selectors;
     const _getElements = (selector)=> {
       return container.querySelectorAll(selector);
@@ -746,39 +847,39 @@ class Player {
       return _getElements(selector)[0];
     }
     try {
-      this._player.controls                 = _getElement(controls.wrapper);
+      player.controls                 = _getElement(controls.wrapper);
 
       // Buttons
-      this._player.buttons = {};
-      this._player.buttons.seek             = _getElement(buttons.seek);
-      this._player.buttons.play             = _getElements(buttons.play);
-      this._player.buttons.pause            = _getElement(buttons.pause);
-      this._player.buttons.fullscreen       = _getElement(buttons.fullscreen);
+      player.buttons = {};
+      player.buttons.seek             = _getElement(buttons.seek);
+      player.buttons.play             = _getElements(buttons.play);
+      player.buttons.pause            = _getElement(buttons.pause);
+      player.buttons.fullscreen       = _getElement(buttons.fullscreen);
 
       // Inputs
-      this._player.buttons.mute             = _getElement(buttons.mute);
+      player.buttons.mute             = _getElement(buttons.mute);
 
       // Progress
-      this._player.progress = {};
-      this._player.progress.container       = _getElement(progress.container);
+      player.progress = {};
+      player.progress.container       = _getElement(progress.container);
 
       // Progress - Buffering
-      this._player.progress.buffer          = {};
-      this._player.progress.buffer.bar      = _getElement(progress.buffer);
-      this._player.progress.buffer.text     = this._player.progress.buffer.bar && this._player.progress.buffer.bar.getElementsByTagName('span')[0];
+      player.progress.buffer          = {};
+      player.progress.buffer.bar      = _getElement(progress.buffer);
+      player.progress.buffer.text     = player.progress.buffer.bar && player.progress.buffer.bar.getElementsByTagName('span')[0];
 
       // Progress - Played
-      this._player.progress.played          = _getElement(progress.played);
+      player.progress.played          = _getElement(progress.played);
 
       // Volume
-      this._player.volume                   = {};
-      this._player.volume.input             = _getElement(volume.input);
-      this._player.volume.display           = _getElement(volume.display);
+      player.volume                   = {};
+      player.volume.input             = _getElement(volume.input);
+      player.volume.display           = _getElement(volume.display);
 
       // Timing
-      this._player.duration                 = _getElement(duration);
-      this._player.currentTime              = _getElement(currentTime);
-      this._player.seekTime                 = _getElements(seekTime);
+      player.duration                 = _getElement(duration);
+      player.currentTime              = _getElement(currentTime);
+      player.seekTime                 = _getElements(seekTime);
 
       return true;
     }
@@ -791,7 +892,9 @@ class Player {
     }
   }
   _buildControls(){
-    const {controls} = this._config;
+    const {config} = playerMap.get(this);
+    
+    const {controls} = config;
     const html = ['<div class="vplyr-video-loader-container">',
           '<div class="vplyr-video-loader">',
           '<div class="loader-inner one"></div>',
@@ -876,9 +979,11 @@ class Player {
     return html.join('');
   }
   _toggleControls(toggle) {
-    const {hideControls,classes} = this._config;
-    const {type,container,browser,controls} = this._player;
-    const {paused} = this._media;
+    const {player,config,timers} = playerMap.get(this);
+    
+    const {hideControls,classes} = config;
+    const {type,container,browser,controls,media} = player;
+    const {paused} = media;
     // Don't hide if config says not to, it's audio, or not ready or loading
     if (!hideControls || type === 'audio') {
       return;
@@ -913,7 +1018,7 @@ class Player {
     }
 
     // Clear timer every movement
-    window.clearTimeout(this._timers.hover);
+    window.clearTimeout(timers.hover);
 
     // If the mouse is not over the controls, set a timeout to hide them
     if (show || paused || loading) {
@@ -933,7 +1038,7 @@ class Player {
     // If toggle is false or if we're playing (regardless of toggle),
     // then set the timer to hide the controls
     if (!show || !paused) {
-      this._timers.hover = window.setTimeout(() =>{
+      timers.hover = window.setTimeout(() =>{
         // If the mouse is over the controls (and not entering fullscreen), bail
         if ((controls.pressed || controls.hover) && !isEnterFullscreen) {
             return;
@@ -944,12 +1049,13 @@ class Player {
     }
   }
   _setupMedia(){
-    if (!this._player.media) {
+    const {original,player,config} = playerMap.get(this);
+    if (!player.media) {
       this._warn('No media element found!');
       return;
     }
-    const {autoplay,classes} = this._config;
-    const {container,type,browser,supported} = this._player;
+    const {autoplay,classes} = config;
+    const {container,type,browser,supported} = player;
     const {stopped,inIos,inChrome,inTouch,inWechat,videoWrapper} =classes;
     const {isIos,isChrome,isTouch,isWechat} = browser;
     if(supported.full){
@@ -964,20 +1070,22 @@ class Player {
 
       // Add wechat class
       $.toggleClass(container, inWechat, isWechat);
-      if(this._player.type === 'video'){
+      if(player.type === 'video'){
         const wrapper = document.createElement('div');
         wrapper.setAttribute('class', videoWrapper);
-        this._wrap(this._player.media, wrapper);
+        this._wrap(player.media, wrapper);
         // Cache the container
-        this._player.videoContainer = wrapper;
+        player.videoContainer = wrapper;
       }
     }
   }
   _toggleNativeControls(toggle) {
-    if (toggle && utils.inArray(this._config.types.html5, this._player.type)) {
-      this._media.setAttribute('controls', '');
+    const {player,config} = playerMap.get(this);
+    const {media} = player;
+    if (toggle && utils.inArray(config.types.html5, player.type)) {
+      media.setAttribute('controls', '');
     } else {
-      this._media.removeAttribute('controls');
+      media.removeAttribute('controls');
     }
   }
   _wrap(elements, wrapper) {
@@ -1012,7 +1120,8 @@ class Player {
     }
   }
   _toggleStyleHook() {
-    $.toggleClass(this._player.container, this._config.selectors.container.replace('.', ''), this._player.supported.full);
+    const {player,config} = playerMap.get(this);
+    $.toggleClass(player.container, config.selectors.container.replace('.', ''), player.supported.full);
   }
 }
 export default Player;

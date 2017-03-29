@@ -8,7 +8,7 @@ import Player from './player';
 class vPlayer {
   constructor(targets, options){
     this.TAG = 'VideoPlayer';
-    this._init(targets,options);
+    this.players = this._init(targets,options);
   }
   _init(targets, options){
     const _targets = this.__getTargets(targets, options);
@@ -16,7 +16,7 @@ class vPlayer {
     if (!utils.supported().basic || !_targets.length) {
       return false;
     }
-    const players = [],instance = [];
+    const players = [],instances = [];
     const selector = [defaults.selectors.html5].join(',');
     const _add = (target, media)=>{
       if (!$.hasClass(media,defaults.classes.hook)){
@@ -58,8 +58,27 @@ class vPlayer {
         return null;
       }
       const instance = new Player(media, config);
+      window.instance = instance;
       console.log('instance',instance);
-    })
+       // Go to next if setup failed
+      if (!utils.is.object(instance)) {
+        return;
+      }
+      // if (config.debug) {
+      //   var events = config.events.concat(['setup', 'statechange', 'enterfullscreen', 'exitfullscreen', 'captionsenabled', 'captionsdisabled']);
+      //   Event.onEvent(instance.API.getContainer(), events.join(' '), function(event) {
+      //       console.log([config.logPrefix, 'event:', event.type].join(' '), event.detail.vplyr);
+      //   });
+      // }
+      // // Callback
+      // Event.customEvent(instance.API.getContainer(), 'setup', true, {
+      //   vplyr: instance
+      // });
+
+      // Add to return array even if it's already setup
+      instances.push(instance);
+    });
+    return instances;
   }
   __matches(element, selector) {
     var p = Element.prototype;
