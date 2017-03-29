@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-cn">
+    <head>
+        <meta charset="utf-8" />
+        <title>VPlyr</title>
+        <meta name="description" content="A simple HTML5 media player with custom controls and WebVTT captions.">
+        <meta name="author" content="virgoone">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+        <meta http-equiv="Cache-Control" content="no-transform">
+        <meta http-equiv="Cache-Control" content="no-siteapp">
+
+        
+        <link rel="stylesheet" href="demo.css">
+        
+    </head>
+    <body>
+        <section>
+           <video controls>
+                </video>
+        </section>
+        
+        
+        <script>
+            (function(){
+              var video = document.querySelector('video');
+
+              var assetURL = 'http://video.xinpianchang.com/58d0a18d4d9b6.mp4';
+              // Need to be specific for Blink regarding codecs
+              // ./mp4info frag_bunny.mp4 | grep Codec
+              var mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+
+              if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
+                var mediaSource = new MediaSource();
+                //console.log(mediaSource.readyState); // closed
+                video.src = URL.createObjectURL(mediaSource);
+                mediaSource.addEventListener('sourceopen', sourceOpen);
+              } else {
+                console.error('Unsupported MIME type or codec: ', mimeCodec);
+              }
+
+              function sourceOpen (_) {
+                //console.log(this.readyState); // open
+                var mediaSource = this;
+                var sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+                fetchAB(assetURL, function (buf) {
+                   sourceBuffer.addEventListener('error', function (error) {
+                    console.log(mediaSource.readyState,_); // ended
+                  });
+                  sourceBuffer.addEventListener('updateend', function (_) {
+                    if(mediaSource.readyState!='closed'){
+                       mediaSource.endOfStream();
+                      video.play();
+                    }
+                   
+                    //console.log(mediaSource.readyState); // ended
+                  });
+                  sourceBuffer.appendBuffer(buf);
+                });
+              };
+
+              function fetchAB (url, cb) {
+                console.log(url);
+                var xhr = new XMLHttpRequest;
+                xhr.open('get', url);
+                xhr.responseType = 'arraybuffer';
+                xhr.onload = function () {
+                  cb(xhr.response);
+                };
+                xhr.send();
+              };
+            })()
+        </script>
+    </body>
+</html>

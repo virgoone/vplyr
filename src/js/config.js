@@ -87,9 +87,9 @@ export const defaultConfig = {
         active:         'vplyr-fullscreen-active'
     },
   },
-  events:                 ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
+  events: ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
   // Logging
-  logPrefix:              '[VPlyr]'
+  logPrefix: '[VPlyr]'
 }
 export function createDefaultConfig() {
   return Object.assign({}, defaultConfig);

@@ -47,6 +47,7 @@
     "run-sequence": "^1.2.2"
   },
   "devDependencies": {
+    "babel-plugin-transform-runtime": "^6.23.0",
     "babelify": "^7.3.0",
     "browserify": "^14.1.0",
     "vinyl-buffer": "^1.0.0",

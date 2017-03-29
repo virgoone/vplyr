@@ -5,6 +5,7 @@ import $ from './dom';
 import {defaultConfig as defaults} from './config';
 import Event from './event';
 import Player from './player';
+
 class vPlayer {
   constructor(targets, options){
     this.TAG = 'VideoPlayer';
@@ -57,23 +58,23 @@ class vPlayer {
       if (!config.enabled) {
         return null;
       }
+      
+      console.log(media.duration);
       const instance = new Player(media, config);
-      window.instance = instance;
-      console.log('instance',instance);
        // Go to next if setup failed
       if (!utils.is.object(instance)) {
         return;
       }
-      // if (config.debug) {
-      //   var events = config.events.concat(['setup', 'statechange', 'enterfullscreen', 'exitfullscreen', 'captionsenabled', 'captionsdisabled']);
-      //   Event.onEvent(instance.API.getContainer(), events.join(' '), function(event) {
-      //       console.log([config.logPrefix, 'event:', event.type].join(' '), event.detail.vplyr);
-      //   });
-      // }
-      // // Callback
-      // Event.customEvent(instance.API.getContainer(), 'setup', true, {
-      //   vplyr: instance
-      // });
+      if (config.debug) {
+        var events = config.events.concat(['setup', 'statechange', 'enterfullscreen', 'exitfullscreen', 'captionsenabled', 'captionsdisabled']);
+        Event.onEvent(instance.container, events.join(' '), function(event) {
+          console.log([config.logPrefix, 'event:', event.type].join(' '), event.detail.vplyr);
+        });
+      }
+      // Callback
+      Event.customEvent(instance.container, 'setup', true, {
+        vplyr: instance
+      });
 
       // Add to return array even if it's already setup
       instances.push(instance);

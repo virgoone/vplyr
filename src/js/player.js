@@ -4,6 +4,7 @@ import utils from './util';
 import $ from './dom';
 import Event from './event';
 import Logger from './logger';
+
 let _log , _warn;
 import {defaultConfig as defaults} from './config';
 
