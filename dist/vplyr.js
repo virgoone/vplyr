@@ -86,10 +86,10 @@ var defaultConfig = exports.defaultConfig = {
         loading: 'vplyr-loading',
         hover: 'vplyr-hover',
         stopped: 'vplyr-stopped',
-        isIos: 'vplyr--is-ios',
-        isTouch: 'vplyr--is-touch',
-        isWechat: 'vplyr--is-wechat',
-        isChrome: 'vplyr--is-chrome',
+        inIos: 'vplyr--is-ios',
+        inTouch: 'vplyr--is-touch',
+        inWechat: 'vplyr--is-wechat',
+        inChrome: 'vplyr--is-chrome',
         tabFocus: 'tab-focus',
         hideControls: 'vplyr-hide-controls',
         fullscreen: {
@@ -290,7 +290,7 @@ var Dom = function () {
 
 exports.default = new Dom();
 
-},{"./util":6}],3:[function(_dereq_,module,exports){
+},{"./util":8}],3:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -376,7 +376,7 @@ var Event = function () {
 
 exports.default = new Event();
 
-},{"./util":6}],4:[function(_dereq_,module,exports){
+},{"./util":8}],4:[function(_dereq_,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -384,6 +384,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var _vplyr = _dereq_('./vplyr.js');
 
 var _vplyr2 = _interopRequireDefault(_vplyr);
+
+var _polyfill = _dereq_('./polyfill.js');
+
+var _polyfill2 = _interopRequireDefault(_polyfill);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -404,10 +408,67 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
         root.vplyr = factory(root, document);
     }
 })(typeof window !== 'undefined' ? window : undefined, function (window, document) {
+    _polyfill2.default.install();
     window.vPlayer = _vplyr2.default;
 });
 
-},{"./vplyr.js":7}],5:[function(_dereq_,module,exports){
+},{"./polyfill.js":7,"./vplyr.js":9}],5:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _util = _dereq_('./util.js');
+
+var _util2 = _interopRequireDefault(_util);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Log = function () {
+  function Log(config) {
+    _classCallCheck(this, Log);
+
+    this._config = config;
+    this.log = this._log.bind(this);
+    this.warn = this._warn.bind(this);
+    this.console = this._console.bind(this);
+  }
+
+  _createClass(Log, [{
+    key: '_console',
+    value: function _console(type, args) {
+      if (this._config.debug && window.console) {
+        args = Array.prototype.slice.call(args);
+
+        if (_util2.default.is.string(this._config.logPrefix) && this._config.logPrefix.length) {
+          args.unshift(this._config.logPrefix);
+        }
+        console[type].apply(console, args);
+      }
+    }
+  }, {
+    key: '_log',
+    value: function _log() {
+      this._console('log', arguments);
+    }
+  }, {
+    key: '_warn',
+    value: function _warn() {
+      this._console('warn', arguments);
+    }
+  }]);
+
+  return Log;
+}();
+
+exports.default = Log;
+
+},{"./util.js":8}],6:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -428,54 +489,48 @@ var _event = _dereq_('./event');
 
 var _event2 = _interopRequireDefault(_event);
 
-var _config = _dereq_('./config');
+var _logger2 = _dereq_('./logger');
+
+var _logger3 = _interopRequireDefault(_logger2);
+
+var _config5 = _dereq_('./config');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _log = void 0,
-    _warn = void 0,
-    fullscreen = void 0;
+    _warn = void 0;
 
 var Player = function () {
   function Player(media, config) {
     _classCallCheck(this, Player);
 
-    return this._init(media, config);
+    this._media = media;
+    this._config = config;
+    this._type = null;
+    this._player = {};
+    this._timers = {};
+    this._original = null;
+    this._fullscreen = _dom2.default.fullscreen();
+    var _logger = new _logger3.default(config);
+    this._log = _logger.log;
+    this._warn = _logger.warn;
+    this._init();
   }
 
   _createClass(Player, [{
     key: '_init',
-    value: function _init(media, config) {
+    value: function _init() {
       var _this = this;
 
-      var vk = this;
       var timers = {};
       var api = {};
-      vk.media = media;
-      var original = media.cloneNode(true);
-      fullscreen = _dom2.default.fullscreen();
-      var _console = function _console(type, args) {
-        if (config.debug && window.console) {
-          args = Array.prototype.slice.call(args);
+      this._original = this._media.cloneNode(true);
+      this._player.media = this._media;
+      console.log(this);
+      this._log('Config', this._config);
 
-          if (_util2.default.is.string(config.logPrefix) && config.logPrefix.length) {
-            args.unshift(config.logPrefix);
-          }
-
-          console[type].apply(console, args);
-        }
-      };
-      _log = function _log() {
-        _console('log', arguments);
-      };
-      _warn = function _warn() {
-        _console('warn', arguments);
-      };
-      _log('Config', config);
-      vk.config = config;
-      vk.timers = timers;
       api = {
         isFullscreen: function isFullscreen() {
           return _this.isFullScreen || false;
@@ -517,47 +572,48 @@ var Player = function () {
         getDuration: this._getDuration,
         seek: this._seek
       };
-      vk.api = api;
 
-      this._setup(vk, config);
-      _log('player', vk);
-      if (!vk.init) {
+      this._setup();
+      this._log('player', this._player);
+      if (!this.__init__) {
         return null;
       }
-      return api;
     }
   }, {
     key: '_setup',
-    value: function _setup(player, config) {
-      if (player.init) {
+    value: function _setup() {
+      if (this.__init__) {
         return null;
       }
-      player.browser = _util2.default.browserSniff;
-      if (!_util2.default.is.htmlElement(player.media)) {
+      var media = this._player.media;
+
+      this._player.browser = _util2.default.browserSniff;
+      if (!_util2.default.is.htmlElement(media)) {
         return;
       }
-      this._setupStorage();
-      var tagName = player.media.tagName.toLowerCase();
-      player.type = tagName;
-      config.crossorigin = player.media.getAttribute('crossorigin') !== null;
-      config.autoplay = config.autoplay || player.media.getAttribute('autoplay') !== null;
-      config.loop = config.loop || player.media.getAttribute('loop') !== null;
-      player.supported = _util2.default.supported(player.type);
-      if (!player.supported.basic) {
+      this._setupStorage(); //设置storage
+      var tagName = media.tagName.toLowerCase();
+      this._player.type = this._type = tagName;
+      this._config.crossorigin = media.getAttribute('crossorigin') !== null;
+      this._config.autoplay = this._config.autoplay || media.getAttribute('autoplay') !== null;
+      this._config.loop = this._config.loop || media.getAttribute('loop') !== null;
+      this._player.supported = _util2.default.supported(this._player.type);
+      if (!this._player.supported.basic) {
         return;
       }
-      player.container = this._wrap(player.media, document.createElement('div'));
-      player.container.setAttribute('tabindex', 0);
-      this._toggleStyleHook(player, config);
-      _log('' + player.browser.name + ' ' + player.browser.version);
-      this._setupMedia(player, config);
-      if (_util2.default.inArray(config.types.html5, player.type)) {
+      this._player.container = this._wrap(media, document.createElement('div'));
+      this._player.container.setAttribute('tabindex', 0);
+      this._toggleStyleHook();
+      this._log('' + this._player.browser.name + ' ' + this._player.browser.version);
+      this._setupMedia();
+
+      if (_util2.default.inArray(this._config.types.html5, this._player.type)) {
         // Setup UI
-        this._setupInterface(player, config);
+        this._setupInterface();
 
         this._ready();
       }
-      this.init = true;
+      this.__init__ = true;
     }
   }, {
     key: '_ready',
@@ -566,56 +622,58 @@ var Player = function () {
 
       // Ready event at end of execution stack
       window.setTimeout(function () {
-        _this2._triggerEvent(_this2.media, 'ready');
+        _this2._triggerEvent(_this2._media, 'ready');
       }, 0);
 
       // Set class hook on media element
-      _dom2.default.toggleClass(this.media, _config.defaultConfig.classes.setup, true);
+      _dom2.default.toggleClass(this._media, _config5.defaultConfig.classes.setup, true);
 
       // Set container class for ready
-      _dom2.default.toggleClass(this.container, this.config.classes.ready, true);
+      _dom2.default.toggleClass(this._player.container, this._config.classes.ready, true);
 
       // Store a refernce to instance
-      this.media.vplyr = this.api;
+      this._media.vplyr = this._api;
 
       // Autoplay
-      if (this.config.autoplay) {
+      if (this._config.autoplay) {
         this._play();
       }
     }
   }, {
     key: '_setupInterface',
-    value: function _setupInterface(player, config) {
+    value: function _setupInterface() {
+      var _this3 = this;
+
       var _getElements = function _getElements(selector) {
-        return player.container.querySelectorAll(selector);
+        return _this3._player.container.querySelectorAll(selector);
       };
       var _getElement = function _getElement(selector) {
         return _getElements(selector)[0];
       };
-      if (!player.supported.full) {
-        _warn('Basic support only', player.type);
+      if (!this._player.supported.full) {
+        this._warn('Basic support only', this._player.type);
 
         // Remove controls
-        _dom2.default.removeElement(_getElement(config.selectors.controls.wrapper));
+        _dom2.default.removeElement(_getElement(this._config.selectors.controls.wrapper));
         // reset native controls
-        this._toggleNativeControls(true, player, config);
+        this._toggleNativeControls(true);
         // Bail
         return;
       }
-      var controlsMissing = !_getElements(config.selectors.controls.wrapper).length;
+      var controlsMissing = !_getElements(this._config.selectors.controls.wrapper).length;
       if (controlsMissing) {
         // Inject custom controls
-        this._injectControls(player, config);
+        this._injectControls();
       }
       // Find the elements
-      if (!this._findElements(player, config)) {
+      if (!this._findElements()) {
         return;
       }
       if (controlsMissing) {
-        this._controlListeners(player, config);
+        this._controlListeners();
       }
       this._mediaListeners();
-      this._toggleNativeControls(true, this, this.config);
+      this._toggleNativeControls(false);
       this._timeUpdate();
       // Set volume
       this._setVolume();
@@ -628,17 +686,17 @@ var Player = function () {
     key: '_setupStorage',
     value: function _setupStorage() {
       var value = null;
-      this.storage = {};
+      this._storage = {};
 
       // Bail if we don't have localStorage support or it's disabled
-      if (!_util2.default.storageSupport || !this.config.storage.enabled) {
+      if (!_util2.default.storageSupport || !this._config.storage.enabled) {
         return;
       }
 
       window.localStorage.removeItem('vplyr-volume');
 
       // load value from the current key
-      value = window.localStorage.getItem(this.config.storage.key);
+      value = window.localStorage.getItem(this._config.storage.key);
 
       if (!value) {
         // Key wasn't set (or had been cleared), move along
@@ -650,7 +708,7 @@ var Player = function () {
         this._updateStorage({ volume: parseFloat(value) });
       } else {
         // Assume it's JSON from this or a later version of plyr
-        this.storage = JSON.parse(value);
+        this._storage = JSON.parse(value);
       }
     }
   }, {
@@ -664,15 +722,15 @@ var Player = function () {
     key: '_getDuration',
     value: function _getDuration() {
       // It should be a number, but parse it just incase
-      var duration = parseInt(this.config.duration),
+      var duration = parseInt(this._config.duration),
 
 
       // True duration
       mediaDuration = 0;
 
       // Only if duration available
-      if (this.media.duration !== null && !isNaN(this.media.duration)) {
-        mediaDuration = this.media.duration;
+      if (this._media.duration !== null && !isNaN(this._media.duration)) {
+        mediaDuration = this._media.duration;
       }
 
       // If custom duration is funky, use regular duration
@@ -681,9 +739,8 @@ var Player = function () {
   }, {
     key: '_seek',
     value: function _seek(input) {
-      _log(this);
       var targetTime = 0,
-          paused = this.media.paused,
+          paused = this._media.paused,
           duration = this._getDuration();
 
       if (_util2.default.is.number(input)) {
@@ -700,23 +757,23 @@ var Player = function () {
       }
       this._updateSeekDisplay(targetTime);
       try {
-        this.media.currentTime = targetTime.toFixed(4);
+        this._media.currentTime = targetTime.toFixed(4);
       } catch (e) {}
       // Logging
-      _log('Seeking to ' + this.media.currentTime + ' seconds');
+      this._log('Seeking to ' + this._media.currentTime + ' seconds');
     }
   }, {
     key: '_play',
     value: function _play() {
-      if ('play' in this.media) {
-        this.media.play();
+      if ('play' in this._media) {
+        this._media.play();
       }
     }
   }, {
     key: '_pause',
     value: function _pause() {
-      if ('pause' in this.media) {
-        this.media.pause();
+      if ('pause' in this._media) {
+        this._media.pause();
       }
     }
   }, {
@@ -724,7 +781,7 @@ var Player = function () {
     value: function _togglePlay(toggle) {
       // True toggle
       if (!_util2.default.is.boolean(toggle)) {
-        toggle = this.media.paused;
+        toggle = this._media.paused;
       }
 
       if (toggle) {
@@ -749,35 +806,39 @@ var Player = function () {
       if (!_util2.default.is.number(time)) {
         time = 0;
       }
+      var _player = this._player,
+          progress = _player.progress,
+          buttons = _player.buttons;
 
       var duration = this._getDuration(),
           value = this._getPercentage(time, duration);
 
       // Update progress
-      if (this.progress && this.progress.played) {
-        this.progress.played.value = value;
+      if (progress && progress.played) {
+        progress.played.value = value;
       }
 
       // Update seek range input
-      if (this.buttons && this.buttons.seek) {
-        this.buttons.seek.value = value;
+      if (buttons && buttons.seek) {
+        buttons.seek.value = value;
       }
     }
   }, {
     key: '_mediaListeners',
     value: function _mediaListeners() {
+      var media = this._media;
       // Time change on media
-      _event2.default.onEvent(this.media, 'timeupdate seeking', this._timeUpdate.bind(this));
+      _event2.default.onEvent(media, 'timeupdate seeking', this._timeUpdate.bind(this));
 
-      _event2.default.onEvent(this.media, 'durationchange loadedmetadata', this._displayDuration.bind(this));
+      _event2.default.onEvent(media, 'durationchange loadedmetadata', this._displayDuration.bind(this));
 
-      _event2.default.onEvent(this.media, 'play pause ended', this._checkPlaying.bind(this));
+      _event2.default.onEvent(media, 'play pause ended', this._checkPlaying.bind(this));
 
-      _event2.default.onEvent(this.media, 'progress playing', this._updateProgress.bind(this));
+      _event2.default.onEvent(media, 'progress playing', this._updateProgress.bind(this));
 
-      _event2.default.onEvent(this.media, 'waiting canplay seeked', this._checkLoading.bind(this));
+      _event2.default.onEvent(media, 'waiting canplay seeked', this._checkLoading.bind(this));
 
-      _event2.default.onEvent(this.media, 'volumechange', this._updateVolume.bind(this));
+      _event2.default.onEvent(media, 'volumechange', this._updateVolume.bind(this));
     }
   }, {
     key: '_proxyListener',
@@ -792,13 +853,24 @@ var Player = function () {
   }, {
     key: '_controlListeners',
     value: function _controlListeners() {
-      var _this3 = this;
+      var _this4 = this;
 
-      var inputEvent = this.browser.isIE ? 'change' : 'input';
+      var _player2 = this._player,
+          browser = _player2.browser,
+          buttons = _player2.buttons,
+          volume = _player2.volume,
+          container = _player2.container,
+          controls = _player2.controls;
+      var _config = this._config,
+          classes = _config.classes,
+          listeners = _config.listeners,
+          hideControls = _config.hideControls;
+
+      var inputEvent = browser.isIE ? 'change' : 'input';
       var togglePlay = function togglePlay() {
-        var play = _this3._togglePlay();
-        var trigger = _this3.buttons[play ? 'play' : 'pause'],
-            target = _this3.buttons[play ? 'pause' : 'play'];
+        var play = _this4._togglePlay();
+        var trigger = buttons[play ? 'play' : 'pause'],
+            target = buttons[play ? 'pause' : 'play'];
 
         // Get the last play button to account for the large play button
         if (target && target.length > 1) {
@@ -807,113 +879,120 @@ var Player = function () {
           target = target[0];
         }
         if (target) {
-          var hadTabFocus = _dom2.default.hasClass(trigger, _this3.config.classes.tabFocus);
+          var hadTabFocus = _dom2.default.hasClass(trigger, classes.tabFocus);
 
           setTimeout(function () {
             target.focus();
             if (hadTabFocus) {
-              _dom2.default.toggleClass(trigger, this.config.classes.tabFocus, false);
-              _dom2.default.toggleClass(target, this.config.classes.tabFocus, true);
+              _dom2.default.toggleClass(trigger, classes.tabFocus, false);
+              _dom2.default.toggleClass(target, classes.tabFocus, true);
             }
           }, 100);
         }
       };
-      this._proxyListener(this.buttons.play, 'click', this.config.listeners.play, togglePlay);
+      this._proxyListener(buttons.play, 'click', listeners.play, togglePlay);
       // Pause
-      this._proxyListener(this.buttons.pause, 'click', this.config.listeners.pause, togglePlay);
+      this._proxyListener(buttons.pause, 'click', listeners.pause, togglePlay);
       // Seek
-      this._proxyListener(this.buttons.seek, inputEvent, this.config.listeners.seek, this._seek.bind(this));
+      this._proxyListener(buttons.seek, inputEvent, listeners.seek, this._seek.bind(this));
 
-      this._proxyListener(this.volume.input, inputEvent, this.config.listeners.volume, function () {
-        _this3._setVolume(_this3.volume.input.value);
+      this._proxyListener(volume.input, inputEvent, listeners.volume, function () {
+        _this4._setVolume(volume.input.value);
       });
-      this._proxyListener(this.buttons.mute, 'click', this.config.listeners.mute, this._toggleMute.bind(this));
+      this._proxyListener(buttons.mute, 'click', listeners.mute, this._toggleMute.bind(this));
 
-      this._proxyListener(this.buttons.fullscreen, 'click', this.config.listeners.fullscreen, this._toggleFullscreen.bind(this));
+      this._proxyListener(buttons.fullscreen, 'click', listeners.fullscreen, this._toggleFullscreen.bind(this));
 
       // Handle user exiting fullscreen by escaping etc
-      if (fullscreen.supportsFullScreen) {
-        _event2.default.onEvent(document, fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
+      if (this._fullscreen.supportsFullScreen) {
+        _event2.default.onEvent(document, this._fullscreen.fullScreenEventName, this._toggleFullscreen.bind(this));
       }
-      if (this.config.hideControls) {
+      if (hideControls) {
         // Toggle controls on mouse events and entering fullscreen
-        _event2.default.onEvent(this.container, 'mouseenter mouseleave mousemove touchstart touchend touchcancel touchmove enterfullscreen', this._toggleControls.bind(this));
+        _event2.default.onEvent(container, 'mouseenter mouseleave mousemove touchstart touchend touchcancel touchmove enterfullscreen', this._toggleControls.bind(this));
 
         // Watch for cursor over controls so they don't hide when trying to interact
-        _event2.default.onEvent(this.controls, 'mouseenter mouseleave', function (event) {
-          _this3.controls.hover = event.type === 'mouseenter';
+        _event2.default.onEvent(controls, 'mouseenter mouseleave', function (event) {
+          _this4._player.controls.hover = event.type === 'mouseenter';
         });
 
         // Watch for cursor over controls so they don't hide when trying to interact
-        _event2.default.onEvent(this.controls, 'mousedown mouseup touchstart touchend touchcancel', function (event) {
-          _this3.controls.pressed = _util2.default.inArray(['mousedown', 'touchstart'], event.type);
+        _event2.default.onEvent(controls, 'mousedown mouseup touchstart touchend touchcancel', function (event) {
+          _this4._player.controls.pressed = _util2.default.inArray(['mousedown', 'touchstart'], event.type);
         });
         // Focus in/out on controls
-        _event2.default.onEvent(this.controls, 'focus blur', this._toggleControls.bind(this), true);
+        _event2.default.onEvent(controls, 'focus blur', this._toggleControls.bind(this), true);
       }
     }
   }, {
     key: '_toggleFullscreen',
     value: function _toggleFullscreen(event) {
       // Check for native support
+      var fullscreen = this._fullscreen;
+      var _player3 = this._player,
+          container = _player3.container,
+          buttons = _player3.buttons;
+
       var nativeSupport = fullscreen.supportsFullScreen;
 
       if (nativeSupport) {
         // If it's a fullscreen change event, update the UI
         if (event && event.type === fullscreen.fullScreenEventName) {
-          this.isFullscreen = fullscreen.isFullScreen(this.container);
+          this._player.isFullscreen = fullscreen.isFullScreen(container);
         } else {
           // Else it's a user request to enter or exit
-          if (!fullscreen.isFullScreen(this.container)) {
+          if (!fullscreen.isFullScreen(container)) {
             // Save scroll position
             this._saveScrollPosition();
 
             // Request full screen
-            fullscreen.requestFullScreen(this.container);
+            fullscreen.requestFullScreen(container);
           } else {
             // Bail from fullscreen
             fullscreen.cancelFullScreen();
           }
 
           // Check if we're actually full screen (it could fail)
-          this.isFullscreen = fullscreen.isFullScreen(this.container);
+          this._player.isFullscreen = fullscreen.isFullScreen(container);
 
           return;
         }
       } else {
         // Otherwise, it's a simple toggle
-        this.isFullscreen = !this.isFullscreen;
+        this._player.isFullscreen = !this._player.isFullscreen;
 
         // Bind/unbind escape key
-        document.body.style.overflow = this.isFullscreen ? 'hidden' : '';
+        document.body.style.overflow = this._player.isFullscreen ? 'hidden' : '';
       }
 
       // Set class hook
-      _dom2.default.toggleClass(this.container, this.config.classes.fullscreen.active, this.isFullscreen);
+      _dom2.default.toggleClass(container, this._config.classes.fullscreen.active, this._player.isFullscreen);
 
       // Trap focus
-      this._focusTrap(this.isFullscreen);
+      this._focusTrap(this._player.isFullscreen);
 
       // Set button state
-      if (this.buttons && this.buttons.fullscreen) {
-        this._toggleState(this.buttons.fullscreen, this.isFullscreen);
+      if (buttons && buttons.fullscreen) {
+        this._toggleState(buttons.fullscreen, this._player.isFullscreen);
       }
 
       // Trigger an event
-      this._triggerEvent(this.container, this.isFullscreen ? 'enterfullscreen' : 'exitfullscreen', true);
+      this._triggerEvent(container, this._player.isFullscreen ? 'enterfullscreen' : 'exitfullscreen', true);
 
       // Restore scroll position
-      if (!this.isFullscreen && nativeSupport) {
+      if (!this._player.isFullscreen && nativeSupport) {
         this._restoreScrollPosition();
       }
     }
   }, {
     key: '_focusTrap',
     value: function _focusTrap() {
-      var _this4 = this;
+      var _player4 = this._player,
+          container = _player4.container,
+          isFullscreen = _player4.isFullscreen;
 
       var _getElements = function _getElements(selector) {
-        return _this4.container.querySelectorAll(selector);
+        return container.querySelectorAll(selector);
       };
       var _getElement = function _getElement(selector) {
         return _getElements(selector)[0];
@@ -924,7 +1003,7 @@ var Player = function () {
 
       function _checkFocus(event) {
         // If it is TAB
-        if (event.which === 9 && this.isFullscreen) {
+        if (event.which === 9 && isFullscreen) {
           if (event.target === last && !event.shiftKey) {
             // Move focus to first element that can be tabbed if Shift isn't used
             event.preventDefault();
@@ -938,7 +1017,7 @@ var Player = function () {
       }
 
       // Bind the handler
-      _event2.default.onEvent(this.container, 'keydown', _checkFocus);
+      _event2.default.onEvent(container, 'keydown', _checkFocus);
     }
   }, {
     key: '_saveScrollPosition',
@@ -959,14 +1038,16 @@ var Player = function () {
       var _this5 = this;
 
       var loading = event.type === 'waiting';
-
+      var container = this._player.container;
+      var classes = this._config.classes;
       // Clear timer
-      clearTimeout(this.timers.loading);
+
+      clearTimeout(this._timers.loading);
 
       // Timer to prevent flicker when seeking
-      this.timers.loading = setTimeout(function () {
+      this._timers.loading = setTimeout(function () {
         // Toggle container class hook
-        _dom2.default.toggleClass(_this5.container, _this5.config.classes.loading, loading);
+        _dom2.default.toggleClass(container, classes.loading, loading);
 
         // Show controls if loading, hide if done
         _this5._toggleControls(loading);
@@ -975,20 +1056,24 @@ var Player = function () {
   }, {
     key: '_checkPlaying',
     value: function _checkPlaying() {
-      _dom2.default.toggleClass(this.container, this.config.classes.playing, !this.media.paused);
+      var container = this._player.container;
+      var classes = this._config.classes;
+      var paused = this._media.paused;
 
-      _dom2.default.toggleClass(this.container, this.config.classes.stopped, this.media.paused);
+      _dom2.default.toggleClass(container, classes.playing, !paused);
 
-      this._toggleControls(this.media.paused);
+      _dom2.default.toggleClass(container, classes.stopped, paused);
+
+      this._toggleControls(paused);
     }
   }, {
     key: '_timeUpdate',
     value: function _timeUpdate(event) {
       // Duration
-      this._updateTimeDisplay(this.media.currentTime, this.currentTime);
+      this._updateTimeDisplay(this._media.currentTime, this._player.currentTime);
 
       // Ignore updates while seeking
-      if (event && event.type === 'timeupdate' && this.media.seeking) {
+      if (event && event.type === 'timeupdate' && this._media.seeking) {
         return;
       }
       // Playing progress
@@ -999,35 +1084,41 @@ var Player = function () {
     value: function _updateProgress(event) {
       var _this6 = this;
 
-      if (!this.supported.full) {
+      var supported = this._player.supported;
+      var _player5 = this._player,
+          controls = _player5.controls,
+          progress = _player5.progress,
+          buttons = _player5.buttons;
+
+      if (!supported.full) {
         return;
       }
 
-      var progress = this.progress.played,
-          value = 0,
+      var __progress = progress.played,
+          __value = 0,
           duration = this._getDuration();
       if (event) {
         switch (event.type) {
           case 'timeupdate':
           case 'seeking':
-            if (this.controls.pressed) {
+            if (controls.pressed) {
               return;
             }
 
-            value = this._getPercentage(this.media.currentTime, duration);
+            __value = this._getPercentage(this._media.currentTime, duration);
 
             // Set seek range value only if it's a 'natural' time event
-            if (event.type === 'timeupdate' && this.buttons.seek) {
-              this.buttons.seek.value = value;
+            if (event.type === 'timeupdate' && buttons.seek) {
+              buttons.seek.value = __value;
             }
 
             break;
           // Check buffer status
           case 'playing':
           case 'progress':
-            progress = this.progress.buffer;
-            value = function () {
-              var buffered = _this6.media.buffered;
+            __progress = progress.buffer;
+            __value = function () {
+              var buffered = _this6._media.buffered;
 
               if (buffered && buffered.length) {
                 // HTML5
@@ -1035,16 +1126,17 @@ var Player = function () {
               }
               return 0;
             }();
-            _log('event.type', event.type, value);
             break;
         }
       }
-      this._setProgress(progress, value);
+      this._setProgress(__progress, __value);
     }
   }, {
     key: '_setProgress',
     value: function _setProgress(progress, value) {
-      if (!this.supported.full) {
+      var supported = this._player.supported;
+
+      if (!supported.full) {
         return;
       }
 
@@ -1054,8 +1146,8 @@ var Player = function () {
       }
       // Default to buffer or bail
       if (_util2.default.is.undefined(progress)) {
-        if (this.progress && this.progress.buffer) {
-          progress = this.progress.buffer;
+        if (this._player.progress && this._player.progress.buffer) {
+          progress = this._player.progress.buffer;
         } else {
           return;
         }
@@ -1077,21 +1169,19 @@ var Player = function () {
   }, {
     key: '_setVolume',
     value: function _setVolume(volume) {
-      var max = this.config.volumeMax,
-          min = this.config.volumeMin;
+      var max = this._config.volumeMax,
+          min = this._config.volumeMin;
 
       // Load volume from storage if no value specified
       if (_util2.default.is.undefined(volume)) {
-        volume = this.storage.volume;
+        volume = this._storage.volume;
       }
 
       // Use config if all else fails
       if (volume === null || isNaN(volume)) {
-        volume = this.config.volume;
+        volume = this._config.volume;
       }
-      if (_util2.default.is.undefined(volume)) {
-        volume = this.storage.volume;
-      }
+
       // Maximum is volumeMax
       if (volume > max) {
         volume = max;
@@ -1101,59 +1191,67 @@ var Player = function () {
         volume = min;
       }
       // Set the player volume
-      this.media.volume = parseFloat(volume / max);
+      this._media.volume = parseFloat(volume / max);
 
       // Set the display
-      if (this.volume.display) {
-        this.volume.display.value = volume;
+      if (this._player.volume.display) {
+        this._player.volume.display.value = volume;
       }
       // Toggle muted state
       if (volume === 0) {
-        this.media.muted = true;
-      } else if (this.media.muted && volume > 0) {
+        this._media.muted = true;
+      } else if (this._media.muted && volume > 0) {
         this._toggleMute();
       }
     }
   }, {
     key: '_updateVolume',
     value: function _updateVolume() {
+      var muted = this._media.muted;
+      var _player6 = this._player,
+          container = _player6.container,
+          buttons = _player6.buttons,
+          supported = _player6.supported,
+          volume = _player6.volume;
+      var classes = this._config.classes;
       // Get the current volume
-      var volume = this.media.muted ? 0 : this.media.volume * this.config.volumeMax;
+
+      var __volume = muted ? 0 : this._media.volume * this._config.volumeMax;
 
       // Update the <input type="range"> if present
-      if (this.supported.full) {
-        if (this.volume.input) {
-          this.volume.input.value = volume;
+      if (supported.full) {
+        if (volume.input) {
+          volume.input.value = __volume;
         }
-        if (this.volume.display) {
-          this.volume.display.value = volume;
+        if (volume.display) {
+          volume.display.value = __volume;
         }
       }
 
       // Update the volume in storage
-      this._updateStorage({ volume: volume });
+      this._updateStorage({ volume: __volume });
 
       // Toggle class if muted
-      _dom2.default.toggleClass(this.container, this.config.classes.muted, volume === 0);
+      _dom2.default.toggleClass(container, classes.muted, __volume === 0);
 
       // Update checkbox for mute state
-      if (this.supported.full && this.buttons.mute) {
-        this._toggleState(this.buttons.mute, volume === 0);
+      if (supported.full && buttons.mute) {
+        this._toggleState(buttons.mute, volume === 0);
       }
     }
   }, {
     key: '_updateStorage',
     value: function _updateStorage(value) {
       // Bail if we don't have localStorage support or it's disabled
-      if (!_util2.default.storageSupport || !this.config.storage.enabled) {
+      if (!_util2.default.storageSupport || !this._config.storage.enabled) {
         return;
       }
 
       // Update the working copy of the values
-      _util2.default.extend(this.storage, value);
+      _util2.default.extend(this._storage, value);
 
       // Update storage
-      window.localStorage.setItem(this.config.storage.key, JSON.stringify(this.storage));
+      window.localStorage.setItem(this._config.storage.key, JSON.stringify(this._storage));
     }
   }, {
     key: '_toggleState',
@@ -1173,38 +1271,44 @@ var Player = function () {
     key: '_toggleMute',
     value: function _toggleMute(muted) {
       if (!_util2.default.is.boolean(muted)) {
-        muted = !this.media.muted;
+        muted = !this._media.muted;
       }
 
       // Set button state
-      this._toggleState(this.buttons.mute, muted);
+      this._toggleState(this._player.buttons.mute, muted);
 
       // Set mute on the player
-      this.media.muted = muted;
+      this._media.muted = muted;
 
       // If volume is 0 after unmuting, set to default
-      if (this.media.volume === 0) {
-        this._setVolume(this.config.volume);
+      if (this._media.volume === 0) {
+        this._setVolume(this._config.volume);
       }
     }
   }, {
     key: '_displayDuration',
     value: function _displayDuration() {
-      if (!this.supported.full) {
+      var _player7 = this._player,
+          supported = _player7.supported,
+          duration = _player7.duration,
+          currentTime = _player7.currentTime;
+      var displayDuration = this._config.displayDuration;
+
+      if (!supported.full) {
         return;
       }
 
       // Determine duration
-      var duration = this._getDuration() || 0;
+      var __duration = this._getDuration() || 0;
 
       // If there's only one time display, display duration there
-      if (!this.duration && this.config.displayDuration && this.media.paused) {
-        this._updateTimeDisplay(duration, this.currentTime);
+      if (!duration && displayDuration && this._media.paused) {
+        this._updateTimeDisplay(__duration, currentTime);
       }
 
       // If there's a duration element, update content
-      if (this.duration) {
-        this._updateTimeDisplay(duration, this.duration);
+      if (duration) {
+        this._updateTimeDisplay(__duration, duration);
       }
     }
   }, {
@@ -1220,91 +1324,104 @@ var Player = function () {
         time = 0;
       }
 
-      this.secs = parseInt(time % 60);
-      this.mins = parseInt(time / 60 % 60);
-      this.hours = parseInt(time / 60 / 60 % 60);
+      this._player.secs = parseInt(time % 60);
+      this._player.mins = parseInt(time / 60 % 60);
+      this._player.hours = parseInt(time / 60 / 60 % 60);
 
       // Do we need to display hours?
       var displayHours = parseInt(this._getDuration() / 60 / 60 % 60) > 0;
 
       // Ensure it's two digits. For example, 03 rather than 3.
-      this.secs = ('0' + this.secs).slice(-2);
-      this.mins = ('0' + this.mins).slice(-2);
+      this._player.secs = ('0' + this._player.secs).slice(-2);
+      this._player.mins = ('0' + this._player.mins).slice(-2);
 
       // Render
-      element.innerHTML = (displayHours ? this.hours + ':' : '') + this.mins + ':' + this.secs;
+      element.innerHTML = (displayHours ? this._player.hours + ':' : '') + this._player.mins + ':' + this._player.secs;
     }
   }, {
     key: '_injectControls',
-    value: function _injectControls(player, config) {
-      var html = config.html;
-
+    value: function _injectControls() {
+      var _config2 = this._config,
+          html = _config2.html,
+          selectors = _config2.selectors;
+      var container = this._player.container;
       // Insert custom video controls
-      _log('Injecting custom controls');
+
+      this._log('Injecting custom controls');
       // If no controls are specified, create default
       if (!html) {
-        html = this._buildControls(config);
+        html = this._buildControls();
       }
       var random = Math.floor(Math.random() * 1000000);
-      player.container.setAttribute('id', 'vplyr' + random);
+      container.setAttribute('id', 'vplyr' + random);
       html = _util2.default.replaceAll(html, '{id}', random);
       var target = void 0;
-      if (_util2.default.is.string(config.selectors.controls.container)) {
-        target = document.querySelector(config.selectors.controls.container);
+      if (_util2.default.is.string(selectors.controls.container)) {
+        target = document.querySelector(selectors.controls.container);
       }
       // Inject into the container by default
       if (!_util2.default.is.htmlElement(target)) {
-        target = player.container;
+        target = container;
       }
       target.insertAdjacentHTML('beforeend', html);
     }
   }, {
     key: '_findElements',
-    value: function _findElements(player, config) {
+    value: function _findElements() {
+      var container = this._player.container;
+      var selectors = this._config.selectors;
+      var controls = selectors.controls,
+          buttons = selectors.buttons,
+          progress = selectors.progress,
+          volume = selectors.volume,
+          duration = selectors.duration,
+          currentTime = selectors.currentTime,
+          seekTime = selectors.seekTime;
+
       var _getElements = function _getElements(selector) {
-        return player.container.querySelectorAll(selector);
+        return container.querySelectorAll(selector);
       };
       var _getElement = function _getElement(selector) {
         return _getElements(selector)[0];
       };
       try {
-        player.controls = _getElement(config.selectors.controls.wrapper);
+        this._player.controls = _getElement(controls.wrapper);
 
         // Buttons
-        player.buttons = {};
-        player.buttons.seek = _getElement(config.selectors.buttons.seek);
-        player.buttons.play = _getElements(config.selectors.buttons.play);
-        player.buttons.pause = _getElement(config.selectors.buttons.pause);
-        player.buttons.fullscreen = _getElement(config.selectors.buttons.fullscreen);
+        this._player.buttons = {};
+        this._player.buttons.seek = _getElement(buttons.seek);
+        this._player.buttons.play = _getElements(buttons.play);
+        this._player.buttons.pause = _getElement(buttons.pause);
+        this._player.buttons.fullscreen = _getElement(buttons.fullscreen);
 
         // Inputs
-        player.buttons.mute = _getElement(config.selectors.buttons.mute);
+        this._player.buttons.mute = _getElement(buttons.mute);
 
         // Progress
-        player.progress = {};
-        player.progress.container = _getElement(config.selectors.progress.container);
+        this._player.progress = {};
+        this._player.progress.container = _getElement(progress.container);
 
         // Progress - Buffering
-        player.progress.buffer = {};
-        player.progress.buffer.bar = _getElement(config.selectors.progress.buffer);
-        player.progress.buffer.text = player.progress.buffer.bar && player.progress.buffer.bar.getElementsByTagName('span')[0];
+        this._player.progress.buffer = {};
+        this._player.progress.buffer.bar = _getElement(progress.buffer);
+        this._player.progress.buffer.text = this._player.progress.buffer.bar && this._player.progress.buffer.bar.getElementsByTagName('span')[0];
 
         // Progress - Played
-        player.progress.played = _getElement(config.selectors.progress.played);
+        this._player.progress.played = _getElement(progress.played);
 
         // Volume
-        player.volume = {};
-        player.volume.input = _getElement(config.selectors.volume.input);
-        player.volume.display = _getElement(config.selectors.volume.display);
+        this._player.volume = {};
+        this._player.volume.input = _getElement(volume.input);
+        this._player.volume.display = _getElement(volume.display);
 
         // Timing
-        player.duration = _getElement(config.selectors.duration);
-        player.currentTime = _getElement(config.selectors.currentTime);
-        player.seekTime = _getElements(config.selectors.seekTime);
+        this._player.duration = _getElement(duration);
+        this._player.currentTime = _getElement(currentTime);
+        this._player.seekTime = _getElements(seekTime);
 
         return true;
       } catch (e) {
-        _warn('It looks like there is a problem with your controls HTML');
+        this._warn('It looks like there is a problem with your controls HTML');
         // Restore native video controls
         this._toggleNativeControls(true);
 
@@ -1313,30 +1430,32 @@ var Player = function () {
     }
   }, {
     key: '_buildControls',
-    value: function _buildControls(config) {
+    value: function _buildControls() {
+      var controls = this._config.controls;
+
       var html = ['<div class="vplyr-video-loader-container">', '<div class="vplyr-video-loader">', '<div class="loader-inner one"></div>', '<div class="loader-inner two"></div>', '<div class="loader-inner three"></div>', '</div>', '</div><div class="vplyr-gradient-bottom"></div>'];
       html.push('<div class="vplyr-bottom-container">');
-      if (_util2.default.inArray(config.controls, 'progress')) {
+      if (_util2.default.inArray(controls, 'progress')) {
         html.push('<div class="vplyr-progress-bar-container">', '<input id="seek{id}" type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar" data-video="seek"/>', '<progress class="vplyr-progress-played" max="100" role="presentation"></progress>', '<progress class="vplyr-progress-buffer" max="100" value="100">', '<span>100.00</span>% buffered', '</progress>', '</div>');
       }
       html.push('<div class="vplyr-controls">');
       html.push('<div class="left-controls">');
-      if (_util2.default.inArray(config.controls, 'play')) {
+      if (_util2.default.inArray(controls, 'play')) {
         html.push('<div class="btn-controls">', '<div class="btn-wrap">', '<div class="play" data-video="play"></div>', '<div class="pause" data-video="pause"></div>', '</div>', '</div>');
       }
-      if (_util2.default.inArray(config.controls, 'time')) {
+      if (_util2.default.inArray(controls, 'time')) {
         html.push('<div class="time-mod-controls">', '<div class="control-currenttime">00:00</div>', '<div class="control-separator">/</div>', '<div class="control-duration">00:00</div>', '</div>');
       }
       html.push('</div>'); //close vplyr left controls
       html.push('<div class="right-controls">');
-      if (_util2.default.inArray(config.controls, 'fullscreen')) {
+      if (_util2.default.inArray(controls, 'fullscreen')) {
         html.push('<div class="fullscreen-controls" data-video="fullscreen">', '<svg class="icon-exit-fullscreen">', '<use xlink:href="#vplyr-exit-fullscreen"></use>', '</svg>', '<svg class="icon-enter-fullscreen">', ' <use xlink:href="#vplyr-enter-fullscreen"></use>', '</svg>', '</div>');
       }
       html.push('<div class="volume-controls">');
-      if (_util2.default.inArray(config.controls, 'mute')) {
+      if (_util2.default.inArray(controls, 'mute')) {
         html.push('<div class="vplyr-volume" data-video="mute">', '<svg class="icon-muted">', '<use xlink:href="#vplyr-muted"></use>', '</svg>', '<svg class="icon-volume">', '<use xlink:href="#vplyr-volume"></use>', '</svg>', '</div>');
       }
-      if (_util2.default.inArray(config.controls, 'volume')) {
+      if (_util2.default.inArray(controls, 'volume')) {
         html.push('<div class="vplyr-volume-progress">', '<input type="range" id="volume{id}"  class="vplyr-volume-input"  min="0"  max="10" data-video="volume" value="8">', '<progress class="vplyr-volume-display" max="10" role="presentation"></progress>', '</div>');
       }
       html.push('</div>'); //close vplyr volume controls
@@ -1350,17 +1469,25 @@ var Player = function () {
   }, {
     key: '_toggleControls',
     value: function _toggleControls(toggle) {
-      var _this7 = this;
-
+      var _config3 = this._config,
+          hideControls = _config3.hideControls,
+          classes = _config3.classes;
+      var _player8 = this._player,
+          type = _player8.type,
+          container = _player8.container,
+          browser = _player8.browser,
+          controls = _player8.controls;
+      var paused = this._media.paused;
       // Don't hide if config says not to, it's audio, or not ready or loading
-      if (!this.config.hideControls || this.type === 'audio') {
+
+      if (!hideControls || type === 'audio') {
         return;
       }
 
       var delay = 0,
           isEnterFullscreen = false,
           show = toggle,
-          loading = _dom2.default.hasClass(this.container, this.config.classes.loading);
+          loading = _dom2.default.hasClass(container, classes.loading);
 
       // Default to false if no boolean
       if (!_util2.default.is.boolean(toggle)) {
@@ -1381,77 +1508,95 @@ var Player = function () {
             delay = 3000;
           }
         } else {
-          show = _dom2.default.hasClass(this.container, this.config.classes.hideControls);
+          show = _dom2.default.hasClass(container, classes.hideControls);
         }
       }
 
       // Clear timer every movement
-      window.clearTimeout(this.timers.hover);
+      window.clearTimeout(this._timers.hover);
 
       // If the mouse is not over the controls, set a timeout to hide them
-      if (show || this.media.paused || loading) {
-        _dom2.default.toggleClass(this.container, this.config.classes.hideControls, false);
+      if (show || paused || loading) {
+        _dom2.default.toggleClass(container, classes.hideControls, false);
 
         // Always show controls when paused or if touch
-        if (this.media.paused || loading) {
+        if (paused || loading) {
           return;
         }
 
         // Delay for hiding on touch
-        if (this.browser.isTouch) {
+        if (browser.isTouch) {
           delay = 3000;
         }
       }
 
       // If toggle is false or if we're playing (regardless of toggle),
       // then set the timer to hide the controls
-      if (!show || !this.media.paused) {
-        this.timers.hover = window.setTimeout(function () {
+      if (!show || !paused) {
+        this._timers.hover = window.setTimeout(function () {
           // If the mouse is over the controls (and not entering fullscreen), bail
-          if ((_this7.controls.pressed || _this7.controls.hover) && !isEnterFullscreen) {
+          if ((controls.pressed || controls.hover) && !isEnterFullscreen) {
             return;
           }
 
-          _dom2.default.toggleClass(_this7.container, _this7.config.classes.hideControls, true);
+          _dom2.default.toggleClass(container, classes.hideControls, true);
         }, delay);
       }
     }
   }, {
     key: '_setupMedia',
-    value: function _setupMedia(player, config) {
-      if (!player.media) {
-        _warn('No media element found!');
+    value: function _setupMedia() {
+      if (!this._player.media) {
+        this._warn('No media element found!');
         return;
       }
-      if (player.supported.full) {
-        _dom2.default.toggleClass(player.container, config.classes.type.replace('{0}', player.type), true);
-        _dom2.default.toggleClass(player.container, config.classes.stopped, config.autoplay);
-        // Add iOS class
-        _dom2.default.toggleClass(player.container, config.classes.isIos, player.browser.isIos);
-        // Add chrome class
-        _dom2.default.toggleClass(player.container, config.classes.isChrome, player.browser.isChrome);
+      var _config4 = this._config,
+          autoplay = _config4.autoplay,
+          classes = _config4.classes;
+      var _player9 = this._player,
+          container = _player9.container,
+          type = _player9.type,
+          browser = _player9.browser,
+          supported = _player9.supported;
+      var stopped = classes.stopped,
+          inIos = classes.inIos,
+          inChrome = classes.inChrome,
+          inTouch = classes.inTouch,
+          inWechat = classes.inWechat,
+          videoWrapper = classes.videoWrapper;
+      var isIos = browser.isIos,
+          isChrome = browser.isChrome,
+          isTouch = browser.isTouch,
+          isWechat = browser.isWechat;
 
+      if (supported.full) {
+        _dom2.default.toggleClass(container, classes.type.replace('{0}', type), true);
+        _dom2.default.toggleClass(container, stopped, autoplay);
+        // Add iOS class
+        _dom2.default.toggleClass(container, inIos, isIos);
+        // Add chrome class
+        _dom2.default.toggleClass(container, inChrome, isChrome);
         // Add touch class
-        _dom2.default.toggleClass(player.container, config.classes.isTouch, player.browser.isTouch);
+        _dom2.default.toggleClass(container, inTouch, isTouch);
 
         // Add wechat class
-        _dom2.default.toggleClass(player.container, config.classes.isWechat, player.browser.isWechat);
-        if (player.type === 'video') {
+        _dom2.default.toggleClass(container, inWechat, isWechat);
+        if (this._player.type === 'video') {
           var wrapper = document.createElement('div');
-          wrapper.setAttribute('class', config.classes.videoWrapper);
-          this._wrap(player.media, wrapper);
+          wrapper.setAttribute('class', videoWrapper);
+          this._wrap(this._player.media, wrapper);
           // Cache the container
-          player.videoContainer = wrapper;
+          this._player.videoContainer = wrapper;
         }
       }
     }
   }, {
     key: '_toggleNativeControls',
     value: function _toggleNativeControls(toggle) {
-      if (toggle && _util2.default.inArray(this.config.types.html5, this.type)) {
-        this.media.setAttribute('controls', '');
+      if (toggle && _util2.default.inArray(this._config.types.html5, this._player.type)) {
+        this._media.setAttribute('controls', '');
       } else {
-        this.media.removeAttribute('controls');
+        this._media.removeAttribute('controls');
       }
     }
   }, {
@@ -1488,35 +1633,9 @@ var Player = function () {
       }
     }
   }, {
-    key: '_cancelRequests',
-    value: function _cancelRequests() {
-      if (!_util2.default.inArray(this.config.types.html5, this.type)) {
-        return;
-      }
-
-      // Remove child sources
-      var sources = this.media.querySelectorAll('source');
-      for (var i = 0; i < sources.length; i++) {
-        _dom2.default.removeElement(sources[i]);
-      }
-
-      // Set blank video src attribute
-      // This is to prevent a MEDIA_ERR_SRC_NOT_SUPPORTED error
-      // Info: http://stackoverflow.com/questions/32231579/how-to-properly-dispose-of-an-html5-video-and-close-socket-or-connection
-      this.media.setAttribute('src', this.config.blankUrl);
-
-      // Load the new empty source
-      // This will cancel existing requests
-      // See https://github.com/Selz/plyr/issues/174
-      this.media.load();
-
-      // Debugging
-      _log('Cancelled network requests');
-    }
-  }, {
     key: '_toggleStyleHook',
-    value: function _toggleStyleHook(player, config) {
-      _dom2.default.toggleClass(player.container, config.selectors.container.replace('.', ''), player.supported.full);
+    value: function _toggleStyleHook() {
+      _dom2.default.toggleClass(this._player.container, this._config.selectors.container.replace('.', ''), this._player.supported.full);
     }
   }]);
 
@@ -1525,7 +1644,49 @@ var Player = function () {
 
 exports.default = Player;
 
-},{"./config":1,"./dom":2,"./event":3,"./util":6}],6:[function(_dereq_,module,exports){
+},{"./config":1,"./dom":2,"./event":3,"./logger":5,"./util":8}],7:[function(_dereq_,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Polyfill = function () {
+    function Polyfill() {
+        _classCallCheck(this, Polyfill);
+
+        this.install = this._install.bind(this);
+    }
+
+    _createClass(Polyfill, [{
+        key: '_install',
+        value: function _install() {
+            if (typeof window.CustomEvent === 'function') {
+                return;
+            }
+
+            function CustomEvent(event, params) {
+                params = params || { bubbles: false, cancelable: false, detail: undefined };
+                var evt = document.createEvent('CustomEvent');
+                evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+                return evt;
+            }
+
+            CustomEvent.prototype = window.Event.prototype;
+            window.CustomEvent = CustomEvent;
+        }
+    }]);
+
+    return Polyfill;
+}();
+
+exports.default = new Polyfill();
+
+},{}],8:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1572,7 +1733,7 @@ var Utils = function () {
       switch (type) {
         case 'video':
           basic = videoSupport;
-          full = basic && !isOldIE && !isIphone;
+          full = basic && !isOldIE;
           break;
 
         case 'audio':
@@ -1799,7 +1960,7 @@ var Utils = function () {
 
 exports.default = new Utils();
 
-},{}],7:[function(_dereq_,module,exports){
+},{}],9:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1933,7 +2094,7 @@ var vPlayer = function () {
 
 exports.default = vPlayer;
 
-},{"./config":1,"./dom":2,"./event":3,"./player":5,"./util":6}]},{},[4])(4)
+},{"./config":1,"./dom":2,"./event":3,"./player":6,"./util":8}]},{},[4])(4)
 });
 
 //# sourceMappingURL=vplyr.js.map

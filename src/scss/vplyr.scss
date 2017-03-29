@@ -17,18 +17,19 @@
     position: relative;
     background: #000;
     border-radius: inherit;
+    video{
+      object-fit: fill;
+      pointer-events: none;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+      border-radius: inherit;
+    }
   }
   & ::-webkit-media-controls {
     display: none;
   }
-  video{
-    object-fit: fill;
-    pointer-events: none;
-    width: 100%;
-    height: auto;
-    vertical-align: middle;
-    border-radius: inherit;
-  }
+  
   // outline
   &,& *,&:focus{
     outline: 0;

@@ -5,7 +5,11 @@
         <title>VPlyr</title>
         <meta name="description" content="A simple HTML5 media player with custom controls and WebVTT captions.">
         <meta name="author" content="virgoone">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+        <meta http-equiv="Cache-Control" content="no-transform">
+        <meta http-equiv="Cache-Control" content="no-siteapp">
 
         <!-- Styles -->
         <link rel="stylesheet" href="../dist/vplyr.css">
@@ -38,82 +42,9 @@
         </svg>
         <section>
             <div class='js-player'>
-                <video poster="http://videojj-ads.oss-cn-beijing.aliyuncs.com/asset/112.jpg" controls>
-                    <source src="http://video.xinpianchang.com/58cc98f934bc9.mp4" type="video/mp4">
+                <video webkit-playsinline playsinline x-webkit-airplay poster="http://videojj-ads.oss-cn-beijing.aliyuncs.com/asset/112.jpg" controls>
+                    <source src="http://video.xinpianchang.com/58d0a18d4d9b6.mp4" type="video/mp4">
                 </video>
-            </div>
-            <div class="vplyr vplyr-video" tabindex="0" aria-label="Video">
-                <div class="vplyr-video-loader-container">
-                    <div class="vplyr-video-loader">
-                        <div class="loader-inner one"></div>
-                        <div class="loader-inner two"></div>
-                        <div class="loader-inner three"></div>
-                    </div>
-                </div>
-                
-                <div class="vplyr-video-container">
-                    <video x-webkit-airplay webkit-playsinline poster="http://videojj-ads.oss-cn-beijing.aliyuncs.com/asset/112.jpg">
-                        <!-- Video files -->
-                        <source src="http://video.xinpianchang.com/58cc98f934bc9.mp4" type="video/mp4">
-
-                        <!-- Text track file -->
-                        <!--<track kind="captions" label="English" srclang="en" src="webvtt/View_From_A_Blue_Moon_Trailer-HD.en.vtt" default>-->
-                        <!--<track kind="captions" label="Français" srclang="fr" src="webvtt/View_From_A_Blue_Moon_Trailer-HD.fr.vtt">-->
-
-                        <!-- Fallback for browsers that don't support the <video> element -->
-                        <a href="https://cdn.selz.com/plyr/1.5/View_From_A_Blue_Moon_Trailer-HD.mp4" download>Download</a>
-                    </video>
-                </div>
-                <div class="vplyr-gradient-bottom"></div>
-                <div class="vplyr-bottom-container">
-                    <div class="vplyr-progress-bar-container">
-                        <input type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar" data-video="seek"/>
-                        <progress class="vplyr-progress-played" max="100" role="presentation"></progress>
-                        <progress class="vplyr-progress-buffer" max="100" value="100">
-                         <span>100.00</span>
-                        </progress>
-                    </div>
-                    <div class="vplyr-controls">
-                        <div class="left-controls">
-                            <div class="btn-controls">
-                                <div class="btn-wrap">
-                                    <div class="play" data-video="play"></div>
-                                    <div class="pause" data-video="pause"></div>
-                                </div>
-                            </div>
-                            <div class="time-mod-controls">
-                                <div class="control-currenttime">01:29</div>
-                                <div class="control-separator">/</div>
-                                <div class="control-duration">1:30:52</div>
-                            </div>
-                        </div>
-                        <div class="right-controls">
-                            <div class="fullscreen-controls">
-                                <svg class="icon-exit-fullscreen" data-video="fullscreen">
-                                    <use xlink:href="#vplyr-exit-fullscreen"></use>
-                                </svg>
-                                <svg class="icon-enter-fullscreen">
-                                    <use xlink:href="#vplyr-enter-fullscreen"></use>
-                                </svg>
-                            </div>
-                            <div class="volume-controls">
-                                <div class="vplyr-volume" data-video="mute">
-                                    <svg class="icon-muted">
-                                        <use xlink:href="#vplyr-muted"></use>
-                                    </svg>
-                                    <svg class="icon-volume">
-                                        <use xlink:href="#vplyr-volume"></use>
-                                    </svg>
-                                </div>
-                                <div class="vplyr-volume-progress">
-                                    <input type="range"  class="vplyr-volume-input"  min="0"  max="10" data-video="volume" value="8">
-                                    <progress class="vplyr-volume-display" max="10" role="presentation"></progress>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
             </div>
             
         </section>

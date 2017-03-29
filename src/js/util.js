@@ -26,7 +26,7 @@ class Utils {
     switch (type) {
         case 'video':
             basic = videoSupport;
-            full  = (basic && (!isOldIE && !isIphone));
+            full  = (basic && (!isOldIE));
             break;
 
         case 'audio':

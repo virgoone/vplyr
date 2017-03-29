@@ -6,7 +6,7 @@ class Polyfill {
         if (typeof window.CustomEvent === 'function') {
             return;
         }
-
+        
         function CustomEvent(event, params) {
             params = params || { bubbles: false, cancelable: false, detail: undefined };
             var evt = document.createEvent('CustomEvent');
@@ -18,3 +18,4 @@ class Polyfill {
         window.CustomEvent = CustomEvent;
     }
 }
+export default new Polyfill();
