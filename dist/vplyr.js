@@ -195,6 +195,37 @@ var VPlayer = function () {
   }
 
   _createClass(VPlayer, [{
+    key: 'pause',
+    value: function pause() {
+      var intaface = this._intaface;
+      intaface.pause();
+    }
+  }, {
+    key: 'play',
+    value: function play() {
+      var intaface = this._intaface;
+      intaface.play();
+    }
+  }, {
+    key: 'stop',
+    value: function stop() {
+      var intaface = this._intaface;
+      intaface.pause();
+      intaface.seek();
+    }
+  }, {
+    key: 'togglePlay',
+    value: function togglePlay() {
+      var intaface = this._intaface;
+      intaface.togglePlay();
+    }
+  }, {
+    key: 'toggleControls',
+    value: function toggleControls() {
+      var intaface = this._intaface;
+      intaface.toggleControls();
+    }
+  }, {
     key: 'setup',
     value: function setup() {
       var element = this.media;
@@ -210,8 +241,93 @@ var VPlayer = function () {
       }
       var player = new _player2.default(element, config);
       var instance = player.setup();
-      window.___intance__ = instance;
-      console.log(instance);
+      this._intaface = instance;
+    }
+  }, {
+    key: 'loadingState',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.isLoading();
+    }
+  }, {
+    key: 'readyState',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.isReady();
+    }
+  }, {
+    key: 'container',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.getContainer();
+    }
+  }, {
+    key: 'type',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.getType;
+    }
+  }, {
+    key: 'volume',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.getVolume();
+    },
+    set: function set(value) {
+      var intaface = this._intaface;
+      return intaface.setVolume(value);
+    }
+  }, {
+    key: 'duration',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.getDuration();
+    }
+  }, {
+    key: 'currentTime',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.getCurrentTime();
+    },
+    set: function set(value) {
+      intaface.seek(value);
+    }
+  }, {
+    key: 'fullscreen',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.isFullscreen() || false;
+    },
+    set: function set(fullscreen) {
+      if (!_util.is.boolean(fullscreen)) {
+        return;
+      }
+
+      var intaface = this._intaface;
+      if (!intaface.isFullscreen() && fullscreen || intaface.isFullscreen() && !fullscreen) {
+        intaface.toggleFullscreen();
+      }
+    }
+  }, {
+    key: 'muted',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.isMuted();
+    },
+    set: function set(muted) {
+      if (!_util.is.boolean(muted)) {
+        return;
+      }
+      var intaface = this._intaface;
+      if (!intaface.isMuted() && muted || intaface.isMuted() && !muted) {
+        intaface.toggleMute(muted);
+      }
+    }
+  }, {
+    key: 'paused',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.isPaused;
     }
   }]);
 
@@ -2055,7 +2171,7 @@ var storageSupport = exports.storageSupport = Utils.storageSupport();
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
-    value: true
+  value: true
 });
 
 var _index = _dereq_('./player/index');
@@ -2064,14 +2180,30 @@ var _index2 = _interopRequireDefault(_index);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+function install() {
+  if (typeof window.CustomEvent === 'function') {
+    return;
+  }
+
+  function CustomEvent(event, params) {
+    params = params || { bubbles: false, cancelable: false, detail: undefined };
+    var evt = document.createEvent('CustomEvent');
+    evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+    return evt;
+  }
+
+  CustomEvent.prototype = window.Event.prototype;
+  window.CustomEvent = CustomEvent;
+}
+install();
 var vPlayer = _index2.default;
 
 Object.defineProperty(vPlayer, 'version', {
-    enumerable: true,
-    get: function get() {
-        // replaced by browserify-versionify transform
-        return '0.0.1';
-    }
+  enumerable: true,
+  get: function get() {
+    // replaced by browserify-versionify transform
+    return '0.0.1';
+  }
 });
 exports.default = vPlayer;
 
