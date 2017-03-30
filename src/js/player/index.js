@@ -1,12 +1,17 @@
 import utils, { is } from '../utils/util';
 import Player from './player';
 import { defaultConfig as defaults } from '../config';
-
+import Log from '../utils/logger';;
+import flvjs from 'flv.js';
+const pattern = /\.flv\b/;
 class VPlayer {
   constructor(target, options) {
     this.TAG = 'VideoPlayer';
     this._intaface = null;
     this.media = target;
+    if (options.videoType === 'flv' && pattern.test(target.src)) {
+      this.__player = this.__createFlvjs(target);
+    }
     this.options = options;
     this.__setup();
   }
@@ -96,10 +101,10 @@ class VPlayer {
     if ((!intaface.isMuted() && muted) || (intaface.isMuted() && !muted)) {
       intaface.toggleMute(muted);
     }
-    
+
   }
   __setup() {
-    if(this._intaface){
+    if (this._intaface) {
       return;
     }
     const element = this.media;
@@ -113,8 +118,31 @@ class VPlayer {
       return null;
     }
     const player = new Player(element, config);
-    const instance =player.setup();
+    const instance = player.setup();
     this._intaface = instance;
+  }
+  __createFlvjs(target) {
+    const sourceConfig = {
+      isLive: false,
+      type: 'flv',
+      url: target.src
+    }
+    const playerConfig = {
+      enableWorker: false,
+      deferLoadAfterSourceOpen: true,
+      stashInitialSize: 512 * 1024,
+      enableStashBuffer: true
+    }
+    const player = flvjs.createPlayer(sourceConfig, playerConfig)
+    player.on(flvjs.Events.ERROR, function (e, t) {
+      Log.e(this.TAG, '播放器发生错误：' + e + ' - ' + t)
+      player.unload()
+    })
+    player.on(flvjs.Events.STATISTICS_INFO, e => Log.i(this.TAG, parseInt(e.speed * 10) / 10 + 'KB/s'))
+
+    player.attachMediaElement(target)
+    player.load()
+    return player
   }
 }
 export default VPlayer;

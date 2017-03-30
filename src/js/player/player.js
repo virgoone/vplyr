@@ -8,8 +8,6 @@ import { defaultConfig as defaults } from '../config';
 
 class Player {
   constructor(media, config) {
-    console.log(new utils().is);
-
     const browser = utils.browerSniff();
     this.TAG = 'Player';
     this._player = {
