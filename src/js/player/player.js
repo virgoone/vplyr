@@ -52,7 +52,6 @@ class Player {
     Log.i(this.TAG, '' + player.browser.name + ' ' + player.browser.version);
     this._setupMedia();
     if (utils.inArray(config.types.html5, player.type)) {
-      // Setup UI
       this._setupInterface();
 
       this._ready();
