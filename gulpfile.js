@@ -44,7 +44,7 @@ function doBundle(b) {
 gulp.task('scripts', [], function () {
   let b = browserify({
     entries: './src/js/index.js',
-    standalone: 'vplyr.js',
+    standalone: 'vPlayer',
     debug: true,
     transform: ['babelify', 'browserify-versionify'],
     plugin: ['browserify-derequire']

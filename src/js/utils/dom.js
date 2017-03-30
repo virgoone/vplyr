@@ -1,39 +1,59 @@
-import utils from './util';
+import utils,{is} from './util';
 
 class Dom {
-  constructor(){
-    this.toggleClass  = this._toggleClass.bind(this);
-    this.removeElement  = this._removeElement.bind(this);
-    this.hasClass = this._hasClass.bind(this);
-    this.injectScript = this._injectScript.bind(this);
-    this.prependChild = this._prependChild.bind(this);
-    this.setAttributes = this._setAttributes.bind(this);
-    this.insertElement= this._insertElement.bind(this);
-    this.getClassname= this._getClassname.bind(this);
-    this.fullscreen= this._fullscreen.bind(this);
+  static wrap(elements, wrapper) {
+    // Convert `elements` to an array, if necessary.
+    if (!elements.length) {
+      elements = [elements];
+    }
+
+    // Loops backwards to prevent having to clone the wrapper on the
+    // first element (see `child` below).
+    for (var i = elements.length - 1; i >= 0; i--) {
+      var child = (i > 0) ? wrapper.cloneNode(true) : wrapper;
+      var element = elements[i];
+
+      // Cache the current parent and sibling.
+      var parent = element.parentNode;
+      var sibling = element.nextSibling;
+
+      // Wrap the element (is automatically removed from its current
+      // parent).
+      child.appendChild(element);
+
+      // If the element had a sibling, insert the wrapper before
+      // the sibling to maintain the HTML structure; otherwise, just
+      // append it to the parent.
+      if (sibling) {
+        parent.insertBefore(child, sibling);
+      } else {
+        parent.appendChild(child);
+      }
+      return child;
+    }
   }
-  _getClassname(selector) {
+  static getClassname(selector) {
     return selector.replace('.', '');
   }
-  _insertElement(type, parent, attributes) {
+  static insertElement(type, parent, attributes) {
     // Create a new <element>
     var element = document.createElement(type);
 
     // Set all passed attributes
-    _setAttributes(element, attributes);
+    Dom.setAttributes(element, attributes);
 
     // Inject the new element
-    _prependChild(parent, element);
+    Dom.prependChild(parent, element);
   }
-  _setAttributes(element, attributes) {
+  static setAttributes(element, attributes) {
     for (var key in attributes) {
       element.setAttribute(key, (_is.boolean(attributes[key]) && attributes[key]) ? '' : attributes[key]);
     }
   }
-  _prependChild(parent, element) {
+  static prependChild(parent, element) {
     parent.insertBefore(element, parent.firstChild);
   }
-  _injectScript(source) {
+  static injectScript(source) {
     if (document.querySelectorAll('script[src="' + source + '"]').length) {
         return;
     }
@@ -43,7 +63,7 @@ class Dom {
     var firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
   }
-  _hasClass(element, className) {
+  static hasClass(element, className) {
     if (element) {
       if (element.classList) {
           return element.classList.contains(className);
@@ -53,14 +73,14 @@ class Dom {
     }
     return false;
   }
-  _removeElement(element){
+  static removeElement(element){
     if (!element) {
         return;
     }
     element.parentNode.removeChild(element);
   }
   // Toggle class on an element
-  _toggleClass(element, className, state){
+  static toggleClass(element, className, state){
     if (element) {
       if (element.classList) {
         element.classList[state ? 'add' : 'remove'](className);
@@ -70,7 +90,7 @@ class Dom {
       }
     }
   }
-  _fullscreen() {
+  static fullscreen() {
     var fullscreen = {
             supportsFullScreen: false,
             isFullScreen: function() { return false; },
@@ -83,17 +103,17 @@ class Dom {
         browserPrefixes = 'webkit o moz ms khtml'.split(' ');
 
     // Check for native support
-    if (!utils.is.undefined(document.cancelFullScreen)) {
+    if (!is.undefined(document.cancelFullScreen)) {
         fullscreen.supportsFullScreen = true;
     } else {
       // Check for fullscreen support by vendor prefix
       for (var i = 0, il = browserPrefixes.length; i < il; i++ ) {
         fullscreen.prefix = browserPrefixes[i];
 
-        if (!utils.is.undefined(document[fullscreen.prefix + 'CancelFullScreen'])) {
+        if (!is.undefined(document[fullscreen.prefix + 'CancelFullScreen'])) {
           fullscreen.supportsFullScreen = true;
           break;
-        } else if (!utils.is.undefined(document.msExitFullscreen) && document.msFullscreenEnabled) {
+        } else if (!is.undefined(document.msExitFullscreen) && document.msFullscreenEnabled) {
           // Special case for MS (when isn't it?)
           fullscreen.prefix = 'ms';
           fullscreen.supportsFullScreen = true;
@@ -109,7 +129,7 @@ class Dom {
       fullscreen.fullScreenEventName = (fullscreen.prefix === 'ms' ? 'MSFullscreenChange' : fullscreen.prefix + 'fullscreenchange');
 
       fullscreen.isFullScreen = function(element) {
-        if (utils.is.undefined(element)) {
+        if (is.undefined(element)) {
             element = document.body;
         }
         switch (this.prefix) {
@@ -122,7 +142,7 @@ class Dom {
         }
       };
       fullscreen.requestFullScreen = function(element) {
-        if (utils.is.undefined(element)) {
+        if (is.undefined(element)) {
           element = document.body;
         }
         return (this.prefix === '') ? element.requestFullScreen() : element[this.prefix + (this.prefix === 'ms' ? 'RequestFullscreen' : 'RequestFullScreen')]();
@@ -138,4 +158,4 @@ class Dom {
     return fullscreen;
   }
 }
-export default new Dom();
+export default Dom;
