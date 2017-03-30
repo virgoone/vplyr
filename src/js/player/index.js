@@ -8,6 +8,7 @@ class VPlayer {
     this._intaface = null;
     this.media = target;
     this.options = options;
+    this.__setup();
   }
   pause() {
     const intaface = this._intaface;
@@ -97,7 +98,10 @@ class VPlayer {
     }
     
   }
-  setup() {
+  __setup() {
+    if(this._intaface){
+      return;
+    }
     const element = this.media;
     const options = this.options;
     let data = {};
