@@ -13,7 +13,7 @@
     <meta http-equiv="Cache-Control" content="no-siteapp">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../dist/vplyr.min.css">
+    <link rel="stylesheet" href="http://player.cdn.muertv.com/vplyr.min.css">
     <link rel="stylesheet" href="demo.css">
 
 </head>
@@ -22,19 +22,21 @@
 
     <section>
         <div class='js-player'>
-            <video webkit-playsinline playsinline x-webkit-airplay poster="http://videojj-ads.oss-cn-beijing.aliyuncs.com/asset/112.jpg"
-                controls src="http://static.video.muertv.com/5885ba40bb3e2.mp4">
+            <video webkit-playsinline playsinline x-webkit-airplay poster="http://player.cdn.muertv.com/58dc7a59b9465.jpeg"
+                controls src="http://player.cdn.muertv.com/58dc7a6043f59.mp4">
             </video>
         </div>
 
     </section>
 
     <!-- vPlyr core script -->
-    <script src="../dist/vplyr.min.js"></script>
+    <script src="http://player.cdn.muertv.com/vplyr.min.js"></script>
     <script>
-        const v = new vPlayer(document.querySelector('video'), { debug: false });
-        window.v = v;
-        console.log(v);
+        if (window.vPlayer) {
+            const v = new vPlayer(document.querySelector('video'), { debug: false });
+            window.v = v;
+            console.log(v);
+        }
     </script>
 </body>
 

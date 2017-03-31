@@ -7,7 +7,7 @@ A simple, HTML5, FLV media player.
 ## Thanks
 
 - [Plyr](https://github.com/selz/plyr)
-- [Flv.js](ttps://github.com/Bilibili/flv.js)
+- [Flv.js](https://github.com/Bilibili/flv.js)
 
 ## Copyright and License
 [The MIT license](license.md).
