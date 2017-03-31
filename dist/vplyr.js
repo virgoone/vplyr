@@ -11783,6 +11783,19 @@ var VPlayer = function () {
       return intaface.getType;
     }
   }, {
+    key: 'poster',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.getPoster();
+    },
+    set: function set(source) {
+      if (!_util.is.string(source)) {
+        return;
+      }
+      var intaface = this._intaface;
+      intaface.updatePoster(source);
+    }
+  }, {
     key: 'volume',
     get: function get() {
       var intaface = this._intaface;
@@ -11805,6 +11818,7 @@ var VPlayer = function () {
       return intaface.getCurrentTime();
     },
     set: function set(value) {
+      var intaface = this._intaface;
       intaface.seek(value);
     }
   }, {
@@ -11942,7 +11956,6 @@ var Player = function () {
       _logger2.default.i(this.TAG, '' + player.browser.name + ' ' + player.browser.version);
       this._setupMedia();
       if (_util2.default.inArray(config.types.html5, player.type)) {
-        // Setup UI
         this._setupInterface();
 
         this._ready();
@@ -11962,6 +11975,10 @@ var Player = function () {
         toggleMute: this._toggleMute.bind(this),
         toggleFullscreen: this._toggleFullscreen.bind(this),
         toggleControls: this._toggleControls.bind(this),
+        updatePoster: this._updatePoster.bind(this),
+        getPoster: function getPoster() {
+          return player.media.getAttribute('poster');
+        },
         isFullscreen: function isFullscreen() {
           return player.isFullscreen || false;
         },
@@ -12136,6 +12153,20 @@ var Player = function () {
       _events2.default.onEvent(media, 'waiting canplay seeked', this._checkLoading.bind(this));
 
       _events2.default.onEvent(media, 'volumechange', this._updateVolume.bind(this));
+    }
+  }, {
+    key: '_updateSource',
+    value: function _updateSource(source) {}
+  }, {
+    key: '_updatePoster',
+    value: function _updatePoster(source) {
+      var player = this._player;
+      var media = player.media,
+          type = player.type;
+
+      if (type === 'video') {
+        media.setAttribute('poster', source);
+      }
     }
   }, {
     key: '_updateVolume',

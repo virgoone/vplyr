@@ -52,6 +52,10 @@ class VPlayer {
     const intaface = this._intaface;
     return intaface.getType;
   }
+  get poster() {
+    const intaface = this._intaface;
+    return intaface.getPoster();
+  }
   get volume() {
     const intaface = this._intaface;
     return intaface.getVolume();
@@ -91,7 +95,15 @@ class VPlayer {
     return intaface.setVolume(value);
   }
   set currentTime(value) {
+    const intaface = this._intaface;
     intaface.seek(value);
+  }
+  set poster(source) {
+    if (!is.string(source)) {
+      return;
+    }
+    const intaface = this._intaface;
+    intaface.updatePoster(source);
   }
   set muted(muted) {
     if (!is.boolean(muted)) {
