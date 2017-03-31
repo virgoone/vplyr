@@ -11479,6 +11479,7 @@ exports.createDefaultConfig = createDefaultConfig;
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var defaultConfig = exports.defaultConfig = {
+    clickToPlay: true,
     enabled: true,
     debug: true,
     autoplay: false,
@@ -11567,6 +11568,7 @@ var defaultConfig = exports.defaultConfig = {
     events: ['ready', 'ended', 'progress', 'stalled', 'playing', 'waiting', 'canplay', 'canplaythrough', 'loadstart', 'loadeddata', 'loadedmetadata', 'timeupdate', 'volumechange', 'play', 'pause', 'error', 'seeking', 'seeked', 'emptied'],
     // Logging
     logPrefix: '[VPlyr]'
+
 };
 function createDefaultConfig() {
     return Object.assign({}, defaultConfig);
@@ -11595,6 +11597,11 @@ var buildControls = exports.buildControls = function buildControls(config) {
   var controls = config.controls;
 
   var html = ['<div class="vplyr-video-loader-container">', '<div class="vplyr-video-loader">', '<div class="loader-inner one"></div>', '<div class="loader-inner two"></div>', '<div class="loader-inner three"></div>', '</div>', '</div><div class="vplyr-gradient-bottom"></div>'];
+  html.push('<svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg">', '<defs>', '<symbol id="vplyr-muted" viewBox="0 0 32 32">', '<title>volume-off</title>', '<path d="M25.87 15.63l3.432 3.431c0.277 0.278 0.277 0.726 0 1.003s-0.726 0.277-1.003 0l-3.432-3.431-3.418 3.418c-0.278 0.278-0.728 0.278-1.006 0s-0.277-0.727 0-1.006l3.418-3.418-3.396-3.396c-0.277-0.277-0.277-0.726 0-1.003s0.726-0.277 1.003 0l3.396 3.396 3.431-3.431c0.278-0.278 0.727-0.278 1.006 0s0.278 0.727 0 1.005l-3.431 3.431zM14.161 27.297l-5.884-5.611h-3.653c-1.407 0-2.133-0.792-2.133-2.133v-7.111c0-1.363 0.703-2.133 2.133-2.133h3.653l5.884-5.611c1.546-1.449 3.263-0.853 3.263 1.629v19.341c0 2.458-1.686 3.109-3.263 1.63zM16.001 6.774c0-1.682-0.718-1.254-1.444-0.543-1.407 1.377-3.803 3.703-5.654 5.498h-3.568c-1.060 0-1.422 0.385-1.422 1.422v5.689c0 1.060 0.341 1.422 1.422 1.422h3.786c1.82 1.935 4.086 4.32 5.43 5.646 0.734 0.725 1.451 0.991 1.451-0.624 0-3.403 0-15.036 0-18.51z"></path>', '</symbol>', '<symbol id="vplyr-volume" viewBox="0 0 32 32">', '<title>volume-on</title>', '<path d="M15.913 5.241l-6.951 5.761c-0.522 0.433-1.349 0.731-2.028 0.731h-1.599c-0.001 0-0.001 0-0.002 0-0.736 0-1.333 0.596-1.333 1.332v5.857c0 0.733 0.599 1.332 1.335 1.332h1.598c0.681 0 1.505 0.298 2.028 0.731l6.951 5.76v-21.504zM8.111 22.013c-0.283-0.235-0.805-0.425-1.177-0.425h-1.598c-1.473-0-2.667-1.193-2.669-2.666v-5.857c0.001-1.472 1.194-2.665 2.667-2.665 0.001 0 0.001 0 0.002 0h1.598c0.368 0 0.895-0.19 1.177-0.425l8.112-6.722c0.565-0.469 1.023-0.255 1.023 0.481v24.52c0 0.734-0.459 0.949-1.023 0.481l-8.111-6.723zM21.739 21.863c-0.111 0.086-0.253 0.138-0.407 0.138-0.368 0-0.667-0.299-0.667-0.667 0-0.215 0.101-0.406 0.259-0.528 1.471-1.135 2.409-2.897 2.409-4.878 0-0.002 0-0.004 0-0.007 0-1.794-0.915-3.51-2.421-4.738-0.15-0.123-0.245-0.309-0.245-0.517 0-0.368 0.298-0.667 0.667-0.667 0.16 0 0.308 0.057 0.422 0.151 1.8 1.468 2.911 3.552 2.911 5.771 0 2.355-1.095 4.531-2.927 5.94zM23.739 27.196c-0.111 0.086-0.253 0.138-0.407 0.138-0.368 0-0.667-0.299-0.667-0.667 0-0.215 0.101-0.406 0.259-0.528 3.1-2.392 5.076-6.107 5.076-10.282 0-0.004 0-0.009 0-0.013 0-3.801-1.928-7.417-5.088-9.994-0.15-0.123-0.245-0.309-0.245-0.517 0-0.368 0.298-0.667 0.667-0.667 0.16 0 0.308 0.057 0.422 0.151 3.453 2.817 5.578 6.8 5.578 11.027 0 0.004 0 0.009 0 0.013 0 4.604-2.178 8.7-5.56 11.313z"></path>', '</symbol > ', '<symbol id="vplyr-exit-fullscreen" viewBox="0 0 32 32">', '< title > fullscreen - off</title >', '<path d="M31.23 0c-0.199 0-0.398 0-0.398 0.199l-11.13 11.13 0.596-5.963c0-0.397-0.199-0.596-0.596-0.795 0 0 0 0 0 0-0.398 0-0.596 0.199-0.596 0.596l-0.994 7.95c0 0.199 0 0.398 0.199 0.596s0.398 0.199 0.596 0.199l7.752-0.994c0.398 0 0.596-0.398 0.596-0.795s-0.398-0.596-0.795-0.596l-5.764 0.596 11.13-11.13c0.199-0.199 0.199-0.596 0-0.994-0.398 0.199-0.596 0-0.596 0v0zM0.621 0.199c0.199 0 0.398 0 0.398 0.199l11.13 11.13-0.795-5.963c0-0.397 0.199-0.596 0.596-0.795 0 0 0 0 0 0 0.398 0 0.596 0.199 0.596 0.596l1.391 7.752c0 0.199 0 0.398-0.199 0.596s-0.398 0.199-0.596 0.199l-7.752-0.994c-0.397 0-0.596-0.398-0.596-0.795s0.397-0.596 0.795-0.596l5.963 0.596-11.329-10.932c-0.199-0.199-0.199-0.596 0-0.994 0.199 0 0.199 0 0.397 0v0zM0.621 31.801c0.199 0 0.398 0 0.398-0.199l11.13-11.13-0.795 5.764c0 0.398 0.199 0.596 0.596 0.795 0 0 0 0 0 0 0.398 0 0.596-0.199 0.596-0.596l1.391-7.752c0-0.199 0-0.398-0.199-0.596-0.199 0-0.398-0.199-0.596 0l-7.752 0.795c-0.397 0-0.596 0.398-0.596 0.795s0.397 0.596 0.795 0.596l5.963-0.596-11.13 11.13c-0.199 0.199-0.199 0.596 0 0.994 0-0.199 0.199 0 0.199 0v0zM31.23 31.801c-0.199 0-0.398 0-0.398-0.199l-11.13-11.13 0.596 5.764c0 0.398-0.199 0.596-0.596 0.795 0 0 0 0 0 0-0.398 0-0.596-0.199-0.596-0.596l-0.994-7.752c0-0.199 0-0.398 0.199-0.596 0.199 0 0.398-0.199 0.596 0l7.752 0.994c0.398 0 0.596 0.398 0.596 0.795s-0.398 0.596-0.795 0.596l-5.764-0.596 11.13 11.13c0.199 0.199 0.199 0.596 0 0.994-0.398-0.398-0.398-0.199-0.596-0.199v0z"></path>', '</symbol >', '<symbol id="vplyr-enter-fullscreen" viewBox="0 0 32 32">', '<title>fullscreen-on</title>', '<path d="M12.862 18.276l-10.024 10.024 0.625-5.298c0.039-0.33-0.197-0.627-0.526-0.666-0.328-0.042-0.627 0.197-0.666 0.526l-0.827 7.015c-0.022 0.182 0.042 0.365 0.171 0.494 0.114 0.114 0.266 0.176 0.424 0.176 0.023 0 0.047-0.001 0.070-0.004l7.015-0.827c0.329-0.038 0.565-0.337 0.526-0.666s-0.336-0.568-0.666-0.526l-5.298 0.625 10.024-10.024c0.234-0.234 0.234-0.614 0-0.849s-0.613-0.234-0.847 0.001z"></path>', '<path d="M3.686 3.146l5.298 0.625c0.331 0.044 0.627-0.197 0.666-0.526s-0.197-0.627-0.526-0.666l-7.016-0.827c-0.183-0.024-0.365 0.041-0.494 0.171s-0.194 0.312-0.171 0.494l0.827 7.015c0.036 0.305 0.295 0.53 0.595 0.53 0.023 0 0.047-0.001 0.071-0.004 0.329-0.038 0.565-0.337 0.526-0.666l-0.626-5.298 10.024 10.024c0.117 0.117 0.27 0.176 0.424 0.176s0.307-0.058 0.424-0.176c0.234-0.234 0.234-0.614 0-0.849l-10.023-10.023z"></path>', '<path d="M28.702 22.335c-0.329 0.038-0.565 0.337-0.526 0.666l0.625 5.298-10.024-10.024c-0.234-0.234-0.614-0.234-0.849 0s-0.234 0.614 0 0.849l10.024 10.024-5.298-0.625c-0.332-0.042-0.627 0.197-0.666 0.526s0.197 0.627 0.526 0.666l7.015 0.827c0.023 0.003 0.047 0.004 0.070 0.004 0.158 0 0.311-0.062 0.424-0.176 0.13-0.13 0.193-0.312 0.171-0.494l-0.827-7.015c-0.037-0.33-0.339-0.569-0.665-0.526z"></path>', '<path d="M18.353 14.194c0.154 0 0.307-0.058 0.424-0.176l10.024-10.024-0.625 5.298c-0.039 0.33 0.197 0.627 0.526 0.666 0.024 0.003 0.048 0.004 0.071 0.004 0.3 0 0.559-0.225 0.595-0.53l0.827-7.015c0.022-0.182-0.042-0.365-0.171-0.494s-0.314-0.195-0.494-0.171l-7.015 0.827c-0.329 0.038-0.565 0.337-0.526 0.666s0.334 0.568 0.666 0.526l5.298-0.625-10.024 10.024c-0.234 0.234-0.234 0.614 0 0.849 0.116 0.116 0.27 0.174 0.423 0.174z"></path>', '</symbol>', '</defs >', '</svg > ');
+  if (_util2.default.inArray(controls, 'play-large')) {
+    html.push('<div class="vplyr-large-button" data-video="play">', '<div class="btn-controls">', '<div class="btn-wrap">', '<div class="play"></div>', '<div class="pause"></div>', '</div>', '</div>', '</div>');
+  }
+
   html.push('<div class="vplyr-bottom-container">');
   if (_util2.default.inArray(controls, 'progress')) {
     html.push('<div class="vplyr-progress-bar-container">', '<input id="seek{id}" type="range" min="0" max="100" value="0" step="0.1" class="vplyr-progress-bar" data-video="seek"/>', '<progress class="vplyr-progress-played" max="100" role="presentation"></progress>', '<progress class="vplyr-progress-buffer" max="100" value="100">', '<span>100.00</span>% buffered', '</progress>', '</div>');
@@ -11645,6 +11652,10 @@ var _player = _dereq_('./player');
 
 var _player2 = _interopRequireDefault(_player);
 
+var _events = _dereq_('../utils/events');
+
+var _events2 = _interopRequireDefault(_events);
+
 var _config = _dereq_('../config');
 
 var _logger = _dereq_('../utils/logger');
@@ -11661,6 +11672,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 ;
 
+
 var pattern = /\.flv\b/;
 
 var VPlayer = function () {
@@ -11670,7 +11682,7 @@ var VPlayer = function () {
     this.TAG = 'VideoPlayer';
     this._intaface = null;
     this.media = target;
-    if (options.videoType === 'flv' && pattern.test(target.src)) {
+    if (pattern.test(target.src)) {
       this.__player = this.__createFlvjs(target);
     }
     this.options = options;
@@ -11693,8 +11705,12 @@ var VPlayer = function () {
     key: 'stop',
     value: function stop() {
       var intaface = this._intaface;
-      intaface.pause();
-      intaface.seek();
+      if (this.__player) {
+        this.__player.unload();
+        this.__player.detachMediaElement();
+        this.__player = null;
+      }
+      intaface.stop();
     }
   }, {
     key: 'togglePlay',
@@ -11727,17 +11743,23 @@ var VPlayer = function () {
       }
       var player = new _player2.default(element, config);
       var instance = player.setup();
+      if (config.debug) {
+        var events = config.events.concat(['input', 'setup', 'statechange', 'enterfullscreen', 'exitfullscreen', 'captionsenabled', 'captionsdisabled']);
+        _events2.default.onEvent(instance.getContainer(), events.join(' '), function (event) {
+          _logger2.default.i(this.TAG, [config.logPrefix, 'event:', event.type].join(' '));
+        });
+      }
       this._intaface = instance;
     }
   }, {
     key: '__createFlvjs',
-    value: function __createFlvjs(target) {
+    value: function __createFlvjs(src) {
       var _this = this;
 
       var sourceConfig = {
         isLive: false,
         type: 'flv',
-        url: target.src
+        url: src
       };
       var playerConfig = {
         enableWorker: false,
@@ -11754,7 +11776,7 @@ var VPlayer = function () {
         return _logger2.default.i(_this.TAG, parseInt(e.speed * 10) / 10 + 'KB/s');
       });
 
-      player.attachMediaElement(target);
+      player.attachMediaElement(this.media);
       player.load();
       return player;
     }
@@ -11853,6 +11875,24 @@ var VPlayer = function () {
       }
     }
   }, {
+    key: 'src',
+    get: function get() {
+      var intaface = this._intaface;
+      return intaface.getSource();
+    },
+    set: function set(source) {
+      if (this.__player) {
+        this.__player.unload();
+        this.__player.detachMediaElement();
+        this.__player = null;
+      }
+      var intaface = this._intaface;
+      intaface.updateSource(source);
+      if (pattern.test(source)) {
+        this.__player = this.__createFlvjs(source);
+      }
+    }
+  }, {
     key: 'paused',
     get: function get() {
       var intaface = this._intaface;
@@ -11865,7 +11905,7 @@ var VPlayer = function () {
 
 exports.default = VPlayer;
 
-},{"../config":2,"../utils/logger":10,"../utils/util":11,"./player":6,"flv.js":1}],6:[function(_dereq_,module,exports){
+},{"../config":2,"../utils/events":9,"../utils/logger":10,"../utils/util":11,"./player":6,"flv.js":1}],6:[function(_dereq_,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11923,8 +11963,6 @@ var Player = function () {
   _createClass(Player, [{
     key: 'setup',
     value: function setup() {
-      var _this = this;
-
       var config = this._config;
       var player = this._player;
       var storage = this._storage;
@@ -11962,13 +12000,12 @@ var Player = function () {
       }
       this.__init__ = true;
       api = {
+        __init__: this.__init__,
         getType: player.type,
         getDuration: this._getDuration.bind(this),
         play: this._play.bind(this),
         pause: this._pause.bind(this),
-        stop: function stop() {
-          _this._pause().bind(_this);_this._seek().bind(_this);
-        },
+        stop: this._stop.bind(this),
         seek: this._seek.bind(this),
         setVolume: this._setVolume.bind(this),
         togglePlay: this._togglePlay.bind(this),
@@ -11976,6 +12013,10 @@ var Player = function () {
         toggleFullscreen: this._toggleFullscreen.bind(this),
         toggleControls: this._toggleControls.bind(this),
         updatePoster: this._updatePoster.bind(this),
+        updateSource: this._updateSource.bind(this),
+        getSource: function getSource() {
+          return player.media.src;
+        },
         getPoster: function getPoster() {
           return player.media.getAttribute('poster');
         },
@@ -12008,14 +12049,21 @@ var Player = function () {
         },
         on: function on(event, callback) {
           _events2.default.onEvent(player.container, event, callback);return this;
-        }
+        },
+        destroy: this._destroy.bind(this)
       };
       return api;
     }
   }, {
+    key: '_stop',
+    value: function _stop() {
+      this._pause();
+      this._seek();
+    }
+  }, {
     key: '_ready',
     value: function _ready() {
-      var _this2 = this;
+      var _this = this;
 
       var config = this._config;
       var player = this._player;
@@ -12025,7 +12073,7 @@ var Player = function () {
       // Ready event at end of execution stack
 
       window.setTimeout(function () {
-        _this2._triggerEvent(media, 'ready');
+        _this._triggerEvent(media, 'ready');
       }, 0);
 
       // Set class hook on media element
@@ -12138,10 +12186,22 @@ var Player = function () {
   }, {
     key: '_mediaListeners',
     value: function _mediaListeners() {
-      var player = this._player;
-      var media = player.media;
-      // Time change on media
+      var _this2 = this;
 
+      var player = this._player;
+      var config = this._config;
+
+      var media = player.media,
+          browser = player.browser,
+          container = player.container;
+
+      var _getElements = function _getElements(selector) {
+        return container.querySelectorAll(selector);
+      };
+      var _getElement = function _getElement(selector) {
+        return _getElements(selector)[0];
+      };
+      // Time change on media
       _events2.default.onEvent(media, 'timeupdate seeking', this._timeUpdate.bind(this));
 
       _events2.default.onEvent(media, 'durationchange loadedmetadata', this._displayDuration.bind(this));
@@ -12153,10 +12213,86 @@ var Player = function () {
       _events2.default.onEvent(media, 'waiting canplay seeked', this._checkLoading.bind(this));
 
       _events2.default.onEvent(media, 'volumechange', this._updateVolume.bind(this));
+      if (config.clickToPlay) {
+        var videoWrapper = _getElement('.' + config.classes.videoWrapper);
+        if (!videoWrapper) {
+          return;
+        }
+        videoWrapper.style.cursor = "pointer";
+        _events2.default.onEvent(videoWrapper, 'click', function () {
+          // Touch devices will just show controls (if we're hiding controls)
+          if (config.hideControls && browser.isTouch && !media.paused) {
+            return;
+          }
+
+          if (media.paused) {
+            _this2._play();
+          } else if (media.ended) {
+            _this2._seek();
+            _this2._play();
+          } else {
+            _this2._pause();
+          }
+        });
+      }
+      if (config.disableContextMenu) {
+        _events2.default.onEvent(media, 'contextmenu', function (event) {
+          event.preventDefault();
+        });
+      }
+      _events2.default.onEvent(media, config.events.concat(['keyup', 'keydown', 'input']).join(' '), function (event) {
+        _this2._triggerEvent(container, event.type, true);
+      });
+    }
+  }, {
+    key: '_destroy',
+    value: function _destroy(callback, restore) {
+      var player = this._player;
+      var original = this._original;
+
+      if (!this.__init__) {
+        return null;
+      }
+      this._toggleNativeControls(true);
+      clearTimeout(this._timers.cleanUp);
+
+      if (!_util.is.boolean(restore)) {
+        restore = true;
+      }
+
+      // Callback
+      if (_util.is.function(callback)) {
+        callback.call(original);
+      }
+
+      // Bail if we don't need to restore the original element
+      if (!restore) {
+        return;
+      }
+
+      // Remove init flag
+      this.__init__ = false;
+      player.container.parentNode.replaceChild(original, player.container);
+      document.body.style.overflow = '';
+
+      this._triggerEvent(original, 'destroyed', true);
     }
   }, {
     key: '_updateSource',
-    value: function _updateSource(source) {}
+    value: function _updateSource(source) {
+      var player = this._player;
+      var config = this._config;
+      var media = player.media;
+
+      if (!source || !_util.is.string(source)) {
+        return;
+      }
+      this._stop();
+      this._updateSeekDisplay();
+      // Reset buffer progress
+      this._setProgress();
+      media.src = source;
+    }
   }, {
     key: '_updatePoster',
     value: function _updatePoster(source) {
@@ -12852,6 +12988,41 @@ var Player = function () {
       }
     }
   }, {
+    key: '_focusTrap',
+    value: function _focusTrap() {
+      var config = this._config;
+      var player = this._player;
+      var container = player.container;
+
+      var _getElements = function _getElements(selector) {
+        return container.querySelectorAll(selector);
+      };
+      var _getElement = function _getElement(selector) {
+        return _getElements(selector)[0];
+      };
+      var tabbables = _getElements('input:not([disabled]), button:not([disabled])'),
+          first = tabbables[0],
+          last = tabbables[tabbables.length - 1];
+
+      function _checkFocus(event) {
+        // If it is TAB
+        if (event.which === 9 && isFullscreen) {
+          if (event.target === last && !event.shiftKey) {
+            // Move focus to first element that can be tabbed if Shift isn't used
+            event.preventDefault();
+            first.focus();
+          } else if (event.target === first && event.shiftKey) {
+            // Move focus to last element that can be tabbed if Shift is used
+            event.preventDefault();
+            last.focus();
+          }
+        }
+      }
+
+      // Bind the handler
+      _events2.default.onEvent(container, 'keydown', _checkFocus);
+    }
+  }, {
     key: '_saveScrollPosition',
     value: function _saveScrollPosition() {
       scroll = {
@@ -13283,7 +13454,6 @@ var Event = function () {
       if (!_util.is.boolean(useCapture)) {
         useCapture = false;
       }
-
       // If a nodelist is passed, call itself on each node
       if (element instanceof NodeList) {
         for (var x = 0; x < element.length; x++) {

@@ -1,15 +1,17 @@
 import utils, { is } from '../utils/util';
 import Player from './player';
+import Event from '../utils/events';
 import { defaultConfig as defaults } from '../config';
 import Log from '../utils/logger';;
 import flvjs from 'flv.js';
+
 const pattern = /\.flv\b/;
 class VPlayer {
   constructor(target, options) {
     this.TAG = 'VideoPlayer';
     this._intaface = null;
     this.media = target;
-    if (options.videoType === 'flv' && pattern.test(target.src)) {
+    if (pattern.test(target.src)) {
       this.__player = this.__createFlvjs(target);
     }
     this.options = options;
@@ -25,8 +27,12 @@ class VPlayer {
   }
   stop() {
     const intaface = this._intaface;
-    intaface.pause();
-    intaface.seek();
+    if (this.__player) {
+      this.__player.unload()
+      this.__player.detachMediaElement()
+      this.__player = null
+    }
+    intaface.stop();
   }
   togglePlay() {
     const intaface = this._intaface;
@@ -76,9 +82,25 @@ class VPlayer {
     const intaface = this._intaface;
     return intaface.isMuted();
   }
+  get src() {
+    const intaface = this._intaface;
+    return intaface.getSource();
+  }
   get paused() {
     const intaface = this._intaface;
     return intaface.isPaused;
+  }
+  set src(source) {
+    if (this.__player) {
+      this.__player.unload()
+      this.__player.detachMediaElement()
+      this.__player = null
+    }
+    const intaface = this._intaface;
+    intaface.updateSource(source);
+    if (pattern.test(source)) {
+      this.__player = this.__createFlvjs(source);
+    }
   }
   set fullscreen(fullscreen) {
     if (!is.boolean(fullscreen)) {
@@ -131,13 +153,19 @@ class VPlayer {
     }
     const player = new Player(element, config);
     const instance = player.setup();
+    if (config.debug) {
+      const events = config.events.concat(['input','setup', 'statechange', 'enterfullscreen', 'exitfullscreen', 'captionsenabled', 'captionsdisabled']);
+      Event.onEvent(instance.getContainer(), events.join(' '), function (event) {
+        Log.i(this.TAG,[config.logPrefix, 'event:', event.type].join(' '));
+      });
+    }
     this._intaface = instance;
   }
-  __createFlvjs(target) {
+  __createFlvjs(src) {
     const sourceConfig = {
       isLive: false,
       type: 'flv',
-      url: target.src
+      url: src
     }
     const playerConfig = {
       enableWorker: false,
@@ -152,7 +180,7 @@ class VPlayer {
     })
     player.on(flvjs.Events.STATISTICS_INFO, e => Log.i(this.TAG, parseInt(e.speed * 10) / 10 + 'KB/s'))
 
-    player.attachMediaElement(target)
+    player.attachMediaElement(this.media)
     player.load()
     return player
   }

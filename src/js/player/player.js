@@ -58,19 +58,22 @@ class Player {
     }
     this.__init__ = true;
     api = {
+      __init__: this.__init__,
       getType: player.type,
       getDuration: this._getDuration.bind(this),
       play: this._play.bind(this),
       pause: this._pause.bind(this),
-      stop: () => { this._pause().bind(this); this._seek().bind(this); },
+      stop: this._stop.bind(this),
       seek: this._seek.bind(this),
       setVolume: this._setVolume.bind(this),
       togglePlay: this._togglePlay.bind(this),
       toggleMute: this._toggleMute.bind(this),
       toggleFullscreen: this._toggleFullscreen.bind(this),
       toggleControls: this._toggleControls.bind(this),
-      updatePoster:this._updatePoster.bind(this),
-      getPoster:function(){return player.media.getAttribute('poster')},
+      updatePoster: this._updatePoster.bind(this),
+      updateSource: this._updateSource.bind(this),
+      getSource: function () { return player.media.src },
+      getPoster: function () { return player.media.getAttribute('poster') },
       isFullscreen: function () { return player.isFullscreen || false; },
       getContainer: function () { return player.container },
       getMedia: function () { return player.media; },
@@ -81,8 +84,13 @@ class Player {
       isLoading: function () { return $.hasClass(player.container, config.classes.loading); },
       isPaused: function () { return player.media.paused; },
       on: function (event, callback) { Event.onEvent(player.container, event, callback); return this; },
+      destroy: this._destroy.bind(this)
     }
     return api;
+  }
+  _stop() {
+    this._pause();
+    this._seek();
   }
   _ready() {
     const config = this._config;
@@ -184,7 +192,15 @@ class Player {
   }
   _mediaListeners() {
     const player = this._player;
-    const { media } = player;
+    const config = this._config;
+
+    const { media, browser, container } = player;
+    const _getElements = (selector) => {
+      return container.querySelectorAll(selector);
+    }
+    const _getElement = (selector) => {
+      return _getElements(selector)[0];
+    }
     // Time change on media
     Event.onEvent(media, 'timeupdate seeking', this._timeUpdate.bind(this));
 
@@ -197,16 +213,86 @@ class Player {
     Event.onEvent(media, 'waiting canplay seeked', this._checkLoading.bind(this));
 
     Event.onEvent(media, 'volumechange', this._updateVolume.bind(this));
+    if (config.clickToPlay) {
+      const videoWrapper = _getElement('.' + config.classes.videoWrapper);
+      if (!videoWrapper) {
+        return;
+      }
+      videoWrapper.style.cursor = "pointer";
+      Event.onEvent(videoWrapper, 'click', () => {
+        // Touch devices will just show controls (if we're hiding controls)
+        if (config.hideControls && browser.isTouch && !media.paused) {
+          return;
+        }
+
+        if (media.paused) {
+          this._play();
+        } else if (media.ended) {
+          this._seek();
+          this._play();
+        } else {
+          this._pause();
+        }
+      });
+    }
+    if (config.disableContextMenu) {
+      Event.onEvent(media, 'contextmenu', function (event) { event.preventDefault(); });
+    }
+    Event.onEvent(media, config.events.concat(['keyup', 'keydown','input']).join(' '),  (event)=> {
+      this._triggerEvent(container, event.type, true);
+    });
 
   }
-  _updateSource(source){
-    
-  }
-  _updatePoster(source){
+  _destroy(callback, restore) {
     const player = this._player;
-    const { media ,type } = player;
-    if(type === 'video'){
-      media.setAttribute('poster',source);
+    const original = this._original;
+
+    if (!this.__init__) {
+      return null;
+    }
+    this._toggleNativeControls(true);
+    clearTimeout(this._timers.cleanUp);
+
+    if (!is.boolean(restore)) {
+      restore = true;
+    }
+
+    // Callback
+    if (is.function(callback)) {
+      callback.call(original);
+    }
+
+    // Bail if we don't need to restore the original element
+    if (!restore) {
+      return;
+    }
+
+    // Remove init flag
+    this.__init__ = false;
+    player.container.parentNode.replaceChild(original, player.container);
+    document.body.style.overflow = '';
+
+    this._triggerEvent(original, 'destroyed', true);
+
+  }
+  _updateSource(source) {
+    const player = this._player;
+    const config = this._config;
+    const { media } = player;
+    if (!source || !is.string(source)) {
+      return;
+    }
+    this._stop();
+    this._updateSeekDisplay();
+    // Reset buffer progress
+    this._setProgress();
+    media.src = source;
+  }
+  _updatePoster(source) {
+    const player = this._player;
+    const { media, type } = player;
+    if (type === 'video') {
+      media.setAttribute('poster', source);
     }
   }
   _updateVolume() {
@@ -798,6 +884,38 @@ class Player {
     if (!player.isFullscreen && nativeSupport) {
       this._restoreScrollPosition();
     }
+  }
+  _focusTrap() {
+    const config = this._config;
+    const player = this._player;
+    const { container } = player;
+    const _getElements = (selector) => {
+      return container.querySelectorAll(selector);
+    }
+    const _getElement = (selector) => {
+      return _getElements(selector)[0];
+    }
+    var tabbables = _getElements('input:not([disabled]), button:not([disabled])'),
+      first = tabbables[0],
+      last = tabbables[tabbables.length - 1];
+
+    function _checkFocus(event) {
+      // If it is TAB
+      if (event.which === 9 && isFullscreen) {
+        if (event.target === last && !event.shiftKey) {
+          // Move focus to first element that can be tabbed if Shift isn't used
+          event.preventDefault();
+          first.focus();
+        } else if (event.target === first && event.shiftKey) {
+          // Move focus to last element that can be tabbed if Shift is used
+          event.preventDefault();
+          last.focus();
+        }
+      }
+    }
+
+    // Bind the handler
+    Event.onEvent(container, 'keydown', _checkFocus);
   }
   _saveScrollPosition() {
     scroll = {

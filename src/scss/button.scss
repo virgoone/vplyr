@@ -8,36 +8,53 @@
     position: relative;
     width: 18px;
     height: 20px;
-    [data-video='play'],[data-video='pause']{
+    .play,.pause{
+      width:100%;
+      height:100%;
       position: absolute;
-      left: 0;
-      top: 0;
-      border: 0 solid transparent;
-      border-width: 5px 0 5px 10px;
-      border-left-color: #fff;
-      width: 0;
-      height: 0;
-      @include transition(all 0.2s linear);
+      top:0px;
+      left:0px;
+      &::before{
+        content:'';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border: 0 solid transparent;
+        border-width: 5px 0 5px 10px;
+        border-left-color: #fff;
+        width: 0;
+        height: 0;
+        @include transition(all 0.2s linear);
+      }
+    }
+    .play{
+      &::before{
+        height: 10px;
+      }
+    }
+    .pause{
+      &::before{
+        left: 10px;
+		    top: 5px;
+      }
       
-    }
-    [data-video='play']{
-      height: 10px;
-    }
-    [data-video='pause']{
-      left: 10px;
-		  top: 5px;
     }
   }
 }
 @mixin vplyr-play-btn-plying{
   .btn-wrap{
-    [data-video='play'],[data-video='pause']{
-      border-width: 0 0 0 5px;
-			height: 100%;
+    .play,.pause{
+      &::before{
+        border-width: 0 0 0 5px;
+			  height: 100%;
+      }
     }
-    [data-video='pause'] {
-			left: 10px;
-			top: 0;
+    .pause {
+			&::before{
+        left: 10px;
+			  top: 0;
+      }
 		}
   }
 }
