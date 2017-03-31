@@ -1,23 +1,23 @@
 {
   "name": "vplyr",
-  "version": "0.0.1",
-  "description": "vplyr frontend ",
+  "version": "1.0.0",
+  "description": "a html video player ",
   "main": "src/js/vplyr.js",
   "scripts": {
-    "build": "gulp"
+    "dev": "gulp",
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/virgoone/vplyr.git"
   },
   "keywords": [
-    "html player"
+    "html player, html5 player"
   ],
   "engines": {
     "node": ">=5.4.1"
   },
-  "private": true,
-  "author": "virgo",
+  "author": "me@virgo.one",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/virgoone/vplyr/issues"
