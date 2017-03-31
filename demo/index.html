@@ -13,13 +13,13 @@
     <meta http-equiv="Cache-Control" content="no-siteapp">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="../dist/vplyr.css">
+    <link rel="stylesheet" href="../dist/vplyr.min.css">
     <link rel="stylesheet" href="demo.css">
 
 </head>
 
 <body>
-    
+
     <section>
         <div class='js-player'>
             <video webkit-playsinline playsinline x-webkit-airplay poster="http://videojj-ads.oss-cn-beijing.aliyuncs.com/asset/112.jpg"
@@ -30,9 +30,9 @@
     </section>
 
     <!-- vPlyr core script -->
-    <script src="../dist/vplyr.js"></script>
+    <script src="../dist/vplyr.min.js"></script>
     <script>
-        const v = new vPlayer(document.querySelector('video'),{videoType:'mp4'});
+        const v = new vPlayer(document.querySelector('video'), { debug: false });
         window.v = v;
         console.log(v);
     </script>
