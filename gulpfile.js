@@ -36,7 +36,7 @@ function doBundle(b) {
     .on('error', console.error.bind(console))
     .pipe(source('vplyr.js')) //将常规流转换为包含Stream的vinyl对象，并且重命名
     .pipe(buffer())
-    .pipe($.sourcemaps.init({loadMaps: true}))
+    .pipe($.sourcemaps.init({ loadMaps: true }))
     .pipe($.sourcemaps.write('./'))
     .pipe(gulp.dest(clientDistFolder))
     .pipe($.connect.reload())
@@ -60,4 +60,42 @@ gulp.task('watch', [], () => {
   gulp.watch(['src/scss/**/*.scss'], ['scss'])
 
 })
-gulp.task('default', ['clean','scss','scripts', 'watch']);
+gulp.task('default', ['clean', 'scss', 'scripts', 'watch']);
+
+gulp.task('build:minify:js', () => {
+  let options = {
+    sourceMap: true,
+    sourceMapIncludeSources: true,
+    sourceMapRoot: './src/',
+    mangle: true,
+    compress: {
+      sequences: true,
+      dead_code: true,
+      conditionals: true,
+      booleans: true,
+      unused: true,
+      if_return: true,
+      join_vars: true
+    }
+  };
+
+  return gulp.src('dist/vplyr.js')
+    .pipe($.rename({ extname: '.min.js' }))
+    .pipe($.sourcemaps.init({ loadMaps: true }))
+    .pipe($.uglify(options))
+    .on('error', console.error.bind(console))
+    .pipe($.sourcemaps.write('./'))
+    .pipe(gulp.dest('./dist/'));
+})
+gulp.task('build:minify:css', () => {
+  return gulp.src(['dist/vplyr.css'])
+    .pipe($.rename({ extname: '.min.css' }))
+    .pipe($.cleanCss({
+      advanced: false,
+      compatibility: 'ie7',
+    }))
+    .pipe(gulp.dest('./dist/'));
+})
+gulp.task('build', ['clean', 'scss', 'scripts'], function () {
+  runSequence('build:minify:js', 'build:minify:css');
+});

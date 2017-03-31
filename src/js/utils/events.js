@@ -34,7 +34,6 @@ class Event {
     if (!is.boolean(useCapture)) {
       useCapture = false;
     }
-
     // If a nodelist is passed, call itself on each node
     if (element instanceof NodeList) {
       for (var x = 0; x < element.length; x++) {

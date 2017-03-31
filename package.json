@@ -51,6 +51,9 @@
     "babelify": "^7.3.0",
     "es6-promise": "^4.1.0",
     "flv.js": "^1.2.0",
+    "gulp-clean-css": "^3.0.4",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.1.2",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0"
   }
