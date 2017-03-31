@@ -70,7 +70,7 @@
     position: absolute;
     background-repeat: repeat-x;
     background-image: dataShape();
-    @include transition(opacity .25s cubic-bezier(0.0,0.0,0.2,1));
+    @include transition(transform .25s cubic-bezier(0.0,0.0,0.2,1));
   }
   .vplyr-controls{
     height: 36px;
@@ -89,7 +89,7 @@
     direction: ltr;
     position: absolute;
     text-shadow: 0 0 2px rgba(0,0,0,.5);
-    @include transition(opacity .34s cubic-bezier(0.4,0.0,1,1));
+    @include transition(transform .25s cubic-bezier(0.4,0.0,1,1));
   }
   .vplyr-progress-bar-container{
     display: block;

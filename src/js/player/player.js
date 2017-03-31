@@ -8,8 +8,6 @@ import { defaultConfig as defaults } from '../config';
 
 class Player {
   constructor(media, config) {
-    console.log(new utils().is);
-
     const browser = utils.browerSniff();
     this.TAG = 'Player';
     this._player = {
@@ -54,7 +52,6 @@ class Player {
     Log.i(this.TAG, '' + player.browser.name + ' ' + player.browser.version);
     this._setupMedia();
     if (utils.inArray(config.types.html5, player.type)) {
-      // Setup UI
       this._setupInterface();
 
       this._ready();
@@ -72,6 +69,8 @@ class Player {
       toggleMute: this._toggleMute.bind(this),
       toggleFullscreen: this._toggleFullscreen.bind(this),
       toggleControls: this._toggleControls.bind(this),
+      updatePoster:this._updatePoster.bind(this),
+      getPoster:function(){return player.media.getAttribute('poster')},
       isFullscreen: function () { return player.isFullscreen || false; },
       getContainer: function () { return player.container },
       getMedia: function () { return player.media; },
@@ -199,6 +198,16 @@ class Player {
 
     Event.onEvent(media, 'volumechange', this._updateVolume.bind(this));
 
+  }
+  _updateSource(source){
+    
+  }
+  _updatePoster(source){
+    const player = this._player;
+    const { media ,type } = player;
+    if(type === 'video'){
+      media.setAttribute('poster',source);
+    }
   }
   _updateVolume() {
     const config = this._config;

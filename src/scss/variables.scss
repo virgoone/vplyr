@@ -30,9 +30,9 @@ $vplyr-video-control-color-hover:        #fff !default;
 $vplyr-video-control-bg-hover:           $vplyr-color-main !default;
 
 // Range sliders
-$vplyr-range-track-height:               5px !default;
-$vplyr-range-thumb-height:               floor($vplyr-range-track-height * 2) !default;
-$vplyr-range-thumb-width:                floor($vplyr-range-track-height * 2) !default;
+$vplyr-range-track-height:               3px !default;
+$vplyr-range-thumb-height:               floor($vplyr-range-track-height * 3) !default;
+$vplyr-range-thumb-width:                floor($vplyr-range-track-height * 3) !default;
 $vplyr-range-thumb-bg:                   $vplyr-color-main !default;
 $vplyr-range-thumb-border:               0px solid transparent !default;
 $vplyr-range-thumb-shadow:               0 1px 1px transparentize($vplyr-video-controls-bg, .85), 0 0 0 1px transparentize(#000, .85) !default;

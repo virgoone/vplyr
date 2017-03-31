@@ -33,6 +33,29 @@
 @mixin transition-delay($delay...) {
    @include css3-prefix( 'transition-delay',$delay);
 }
+// translate
+@mixin translate ($x, $y) {
+   @include transform(translate($x, $y));
+}
+/// Transform
+/// @param {List} $params - Params
+/// @require {mixin} css3-prefix
+@mixin transform($params) {
+   @include css3-prefix( 'transform', $params);
+}
+/// Transform-Origin
+/// @param {List} $params - Params
+/// @require {mixin} css3-prefix
+@mixin transform-origin($params) {
+   @include css3-prefix( 'transform-origin', $params);
+}
+// Transform-Style
+/// @param {List} $params - Params
+/// @require {mixin} css3-prefix
+@mixin transform-style($style: preserve-3d) {
+   @include css3-prefix( 'transform-style', $style);
+}
+
 /// Flex
 /// @param {*} $orient [center] - justify
 /// @param {*} $pack [center] - Pack
@@ -64,9 +87,10 @@
   background: $vplyr-range-thumb-bg;
   border: $vplyr-range-thumb-border;
   border-radius: 100%;
-  transition: background .2s ease, border .2s ease, transform .2s ease;
   box-shadow: $vplyr-range-thumb-shadow;
-  transform: scale($vplyr-range-thumb-scale);
+  transform: scale(1.2);
+  opacity: 1;
+  @include transition(background .2s ease, border .2s ease, transform .2s ease,opacity .35s ease-in-out);
 }
 @mixin plyr-range-thumb-active() {
   background: $vplyr-range-thumb-active-bg;
@@ -76,4 +100,8 @@
 
 @function dataShape() {
   @return url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAADGCAYAAAAT+OqFAAAAdklEQVQoz42QQQ7AIAgEF/T/D+kbq/RWAlnQyyazA4aoAB4FsBSA/bFjuF1EOL7VbrIrBuusmrt4ZZORfb6ehbWdnRHEIiITaEUKa5EJqUakRSaEYBJSCY2dEstQY7AuxahwXFrvZmWl2rh4JZ07z9dLtesfNj5q0FU3A5ObbwAAAABJRU5ErkJggg==');
+}
+@mixin hide-plyr-range-thumb(){
+  opacity: 0;
+  @include transition(background .2s ease, border .2s ease, transform .2s ease,opacity .35s ease-in-out .3s);
 }

@@ -117,12 +117,24 @@
   }
   &.vplyr-hide-controls{
     .vplyr-gradient-bottom{
-      opacity: 0;
-      @include transition(opacity .1s cubic-bezier(0.4,0.0,1,1));
+      @include translate(0,50px);
+      @include transition(transform .2s cubic-bezier(0.4,0.0,1,1) .4s);
     }
     .vplyr-bottom-container{
-      opacity: 0;
-      @include transition(opacity .1s cubic-bezier(0.4,0.0,1,1));
+      @include translate(0,33px);
+      @include transition(transform .2s cubic-bezier(0.4,0.0,1,1) .4s);
+      input[type=range]{
+        &::-webkit-slider-thumb {
+           @include hide-plyr-range-thumb();
+        }
+        &::-moz-range-thumb {
+          @include hide-plyr-range-thumb();
+        }
+        &::-ms-thumb {
+          @include hide-plyr-range-thumb();
+          margin-top: 0;
+        }
+      }
     }
   }
 }
