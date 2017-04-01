@@ -34,6 +34,24 @@ class VPlayer {
     }
     intaface.stop();
   }
+  destroy(){
+    const intaface = this._intaface;
+    if (this.__player) {
+      this.__player.unload()
+      this.__player.detachMediaElement()
+      this.__player = null
+    }
+    intaface.destroy();
+  }
+  playing(cb){
+    if(!is.function(cb)){
+      return;
+    }
+    const intaface = this._intaface;
+    intaface.on('timeupdate',function(intaface){
+      cb(intaface.getCurrentTime());
+    })
+  }
   togglePlay() {
     const intaface = this._intaface;
     intaface.togglePlay();
