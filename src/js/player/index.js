@@ -48,8 +48,8 @@ class VPlayer {
       return;
     }
     const intaface = this._intaface;
-    intaface.on('timeupdate',function(intaface){
-      cb(intaface.getCurrentTime());
+    intaface.on('timeupdate',()=>{
+      cb(this);
     })
   }
   togglePlay() {
