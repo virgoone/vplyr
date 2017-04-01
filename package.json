@@ -2,7 +2,7 @@
   "name": "vplyr",
   "version": "1.0.0",
   "description": "a html video player ",
-  "main": "src/js/vplyr.js",
+  "main": "./dist/vplyr.js",
   "scripts": {
     "dev": "gulp",
     "build": "gulp build"
@@ -26,8 +26,12 @@
     "node": true,
     "es6": true
   },
-  "homepage": "https://github.com/virgoone/vplyr#README",
+  "homepage": "http://vplyr.marryto.me",
   "dependencies": {
+    "es6-promise": "^4.1.0"
+  },
+  "devDependencies": {
+    "babelify": "^7.3.0",
     "babel-preset-es2015": "^6.24.0",
     "browserify": "^13.1.1",
     "browserify-derequire": "^0.9.4",
@@ -45,11 +49,6 @@
     "gulp-util": "^3.0.7",
     "path": "^0.12.7",
     "run-sequence": "^1.2.2",
-    "webworkify": "^1.4.0"
-  },
-  "devDependencies": {
-    "babelify": "^7.3.0",
-    "es6-promise": "^4.1.0",
     "flv.js": "^1.2.0",
     "gulp-clean-css": "^3.0.4",
     "gulp-rename": "^1.2.2",
