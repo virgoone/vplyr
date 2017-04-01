@@ -245,7 +245,7 @@ class Player {
   }
   _destroy(callback, restore) {
     const player = this._player;
-    const original = this._original;
+    const original = this.__original;
 
     if (!this.__init__) {
       return null;
