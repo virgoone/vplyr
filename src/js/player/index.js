@@ -34,14 +34,14 @@ class VPlayer {
     }
     intaface.stop();
   }
-  destroy(){
+  destroy(cb){
     let intaface = this._intaface;
     if (this.__player) {
       this.__player.unload()
       this.__player.detachMediaElement()
       this.__player = null
     }
-    intaface.destroy();
+    intaface.destroy(cb);
     intaface = null;
   }
   playing(cb){
