@@ -5,6 +5,8 @@
 
 A simple, HTML5, FLV media player.
 
+[Checkout the demo](http://vplyr.marryto.me)
+
 ## Using package managers
 
 ### npm
