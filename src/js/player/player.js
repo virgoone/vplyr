@@ -238,7 +238,7 @@ class Player {
     if (config.disableContextMenu) {
       Event.onEvent(media, 'contextmenu', function (event) { event.preventDefault(); });
     }
-    Event.onEvent(media, config.events.concat(['keyup', 'keydown','input']).join(' '),  (event)=> {
+    Event.onEvent(media, config.events.concat(['keyup', 'keydown', 'input']).join(' '), (event) => {
       this._triggerEvent(container, event.type, true);
     });
 
@@ -246,7 +246,7 @@ class Player {
   _destroy(callback, restore) {
     const player = this._player;
     const original = this.__original;
-
+    const { media } = player;
     if (!this.__init__) {
       return null;
     }

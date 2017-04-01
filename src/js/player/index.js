@@ -35,13 +35,14 @@ class VPlayer {
     intaface.stop();
   }
   destroy(){
-    const intaface = this._intaface;
+    let intaface = this._intaface;
     if (this.__player) {
       this.__player.unload()
       this.__player.detachMediaElement()
       this.__player = null
     }
     intaface.destroy();
+    intaface = null;
   }
   playing(cb){
     if(!is.function(cb)){
