@@ -107,7 +107,7 @@ class VPlayer {
   }
   get paused() {
     const intaface = this._intaface;
-    return intaface.isPaused;
+    return intaface.isPaused();
   }
   set src(source) {
     if (this.__player) {

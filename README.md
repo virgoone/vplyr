@@ -1,7 +1,5 @@
 # vPlyr
-[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php)
-
-[![NPM version](https://badge.fury.io/js/vplyr.svg)](http://badge.fury.io/js/vplyr)
+[![MIT Licence](https://badges.frapsoft.com/os/mit/mit.svg?v=103)](https://opensource.org/licenses/mit-license.php) [![NPM version](https://badge.fury.io/js/vplyr.svg)](http://badge.fury.io/js/vplyr) [![npm](https://img.shields.io/npm/dt/vplyr.svg)](https://www.npmjs.com/package/vplyr)
 
 A simple, HTML5, FLV media player.
 
