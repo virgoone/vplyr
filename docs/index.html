@@ -33,8 +33,7 @@
 
     <section>
         <div class='js-player'>
-            <video webkit-playsinline playsinline x-webkit-airplay poster="http://player.cdn.muertv.com/tianfuzhen.jpg.hebe" controls
-                src="http://player.cdn.muertv.com/renjian.flv">
+            <video webkit-playsinline playsinline x-webkit-airplay poster="http://player.cdn.muertv.com/tianfuzhen.jpg.hebe" controls>
             </video>
         </div>
 
@@ -48,6 +47,7 @@
         if (window.vPlayer) {
             const v = new vPlayer(document.querySelector('video'), { debug: false });
             window.v = v;
+            v.src = 'http://player.cdn.muertv.com/renjian.flv'
             console.log(v);
         }
     </script>
