@@ -13,7 +13,7 @@ function install() {
 
   CustomEvent.prototype = window.Event.prototype;
   window.CustomEvent = CustomEvent;
-
+  window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 }
 install();
 let vPlayer = Player;

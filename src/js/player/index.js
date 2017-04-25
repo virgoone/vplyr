@@ -1,7 +1,11 @@
-import utils, { is } from '../utils/util';
+import utils, {
+  is
+} from '../utils/util';
 import Player from './player';
 import Event from '../utils/events';
-import { defaultConfig as defaults } from '../config';
+import {
+  defaultConfig as defaults
+} from '../config';
 import Log from '../utils/logger';;
 import flvjs from 'flv.js';
 
@@ -11,6 +15,7 @@ class VPlayer {
     this.TAG = 'VideoPlayer';
     this._intaface = null;
     this.media = target;
+    this.UUID = null;
     if (pattern.test(target.src)) {
       this.__player = this.__createFlvjs(target);
     }
@@ -34,7 +39,7 @@ class VPlayer {
     }
     intaface.stop();
   }
-  destroy(cb){
+  destroy(cb) {
     let intaface = this._intaface;
     if (this.__player) {
       this.__player.unload()
@@ -44,14 +49,26 @@ class VPlayer {
     intaface.destroy(cb);
     intaface = null;
   }
-  playing(cb){
-    if(!is.function(cb)){
+  playing(cb) {
+    if (!is.function(cb)) {
       return;
     }
     const intaface = this._intaface;
-    intaface.on('timeupdate',()=>{
-      cb(this);
+    intaface.on('play', () => {
+      const draw = () => {
+        cb(this);
+        this.UUID = window.requestAnimationFrame(draw);
+      }
+      draw();
     })
+    intaface.on('pause', () => {
+      if (this.UUID) {
+        Log.i(this.TAG, 'cancelAnimationFrame', this.UUID);
+        window.cancelAnimationFrame(this.UUID);
+        this.UUID = null;
+      }
+    })
+
   }
   togglePlay() {
     const intaface = this._intaface;
@@ -164,8 +181,9 @@ class VPlayer {
     const options = this.options;
     let data = {};
 
-    try { data = JSON.parse(element.getAttribute('data-vplyr')); }
-    catch (e) { }
+    try {
+      data = JSON.parse(element.getAttribute('data-vplyr'));
+    } catch (e) {}
     const config = utils.extend({}, defaults, options, data);
     if (!config.enabled) {
       return null;
@@ -173,9 +191,9 @@ class VPlayer {
     const player = new Player(element, config);
     const instance = player.setup();
     if (config.debug) {
-      const events = config.events.concat(['input','setup', 'statechange', 'enterfullscreen', 'exitfullscreen', 'captionsenabled', 'captionsdisabled']);
+      const events = config.events.concat(['input', 'setup', 'statechange', 'enterfullscreen', 'exitfullscreen', 'captionsenabled', 'captionsdisabled']);
       Event.onEvent(instance.getContainer(), events.join(' '), function (event) {
-        Log.i(this.TAG,[config.logPrefix, 'event:', event.type].join(' '));
+        Log.i(this.TAG, [config.logPrefix, 'event:', event.type].join(' '));
       });
     }
     this._intaface = instance;

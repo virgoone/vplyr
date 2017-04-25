@@ -41,14 +41,17 @@
     </section>
 
     <!-- vPlyr core script -->
-    <script src="http://player.cdn.muertv.com/vplyr.min.js"></script>
-    <!--<script src="../dist/vplyr.js"></script>-->
+    <!--<script src="http://player.cdn.muertv.com/vplyr.min.js"></script>-->
+    <script src="../dist/vplyr.js"></script>
     
     <script>
         if (window.vPlayer) {
             const v = new vPlayer(document.querySelector('video'), { debug: false });
             window.v = v;
             console.log(v);
+            v.playing(function(t){
+             console.log('time',t.currentTime);
+            })
         }
     </script>
 </body>
