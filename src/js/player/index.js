@@ -16,8 +16,13 @@ class VPlayer {
     this._intaface = null;
     this.media = target;
     this.UUID = null;
+    if (this.__player) {
+      this.__player.unload()
+      this.__player.detachMediaElement()
+      this.__player = null
+    }
     if (pattern.test(target.src)) {
-      this.__player = this.__createFlvjs(target);
+      this.__player = this.__createFlvjs(target.src);
     }
     this.options = options;
     this.__setup();
