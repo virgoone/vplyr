@@ -33,8 +33,9 @@
 
     <section>
         <div class='js-player'>
-            <video webkit-playsinline playsinline x-webkit-airplay poster="http://player.cdn.muertv.com/tianfuzhen.jpg.hebe" controls src='http://player.cdn.muertv.com/renjian.flv' preload='none'>
+            <video webkit-playsinline playsinline x-webkit-airplay controls src='http://player.cdn.muertv.com/renjian.flv' preload='none'>
             </video>
+            <!--poster="http://player.cdn.muertv.com/tianfuzhen.jpg.hebe" -->
         </div>
 
     </section>
@@ -49,6 +50,9 @@
             window.v = v;
             // v.src = 'http://player.cdn.muertv.com/renjian.flv'
             console.log(v);
+            // v.playing(function(t){
+            //     console.log(t);
+            // })
         }
     </script>
 </body>
