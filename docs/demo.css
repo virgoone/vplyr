@@ -1,178 +1,252 @@
 /*! normalize.css v2.1.3 | MIT License | git.io/normalize */
-a.logo,img,legend {
-    border: 0
+
+a.logo,
+img,
+legend {
+  border: 0
 }
 
-a,h1,h2 {
-    color: #3498db
+a,
+h1,
+h2 {
+  color: #3498db
 }
 
-article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,small,summary {
-    display: block
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section,
+small,
+summary {
+  display: block
 }
 
-body,figure,li,ul {
-    margin: 0
+body,
+figure,
+li,
+ul {
+  margin: 0
 }
 
-[hidden],template {
-    display: none
+[hidden],
+template {
+  display: none
 }
 
-li,nav ul,ul {
-    list-style: none;
-    padding: 0
+li,
+nav ul,
+ul {
+  list-style: none;
+  padding: 0
 }
 
-legend,li,nav ul,ul {
-    padding: 0
+legend,
+li,
+nav ul,
+ul {
+  padding: 0
 }
 
-.btn__bar,sub,sup {
-    position: relative
+.btn__bar,
+sub,
+sup {
+  position: relative
 }
 
-audio,canvas,video {
-    display: inline-block
+audio,
+canvas,
+video {
+  display: inline-block
 }
 
 audio:not([controls]) {
-    display: none;
-    height: 0
+  display: none;
+  height: 0
 }
 
 html {
-    font-family: sans-serif;
-    -ms-text-size-adjust: 100%;
-    -webkit-text-size-adjust: 100%
+  font-family: sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%
 }
 
-a {
-    background: 0 0;
-    text-decoration: none;
-    border-bottom: 1px dotted currentColor;
-    transition: background .3s ease,color .3s ease,border .3s ease
-}
-
-a:active,a:hover {
-    outline: 0
+a:active,
+a:hover {
+  outline: 0
 }
 
 abbr[title] {
-    border-bottom: 1px dotted
+  border-bottom: 1px dotted
 }
 
-b,strong {
-    font-weight: 700
+b,
+strong {
+  font-weight: 700
 }
 
 dfn {
-    font-style: italic
+  font-style: italic
 }
 
 hr {
-    box-sizing: content-box;
-    height: 0
+  box-sizing: content-box;
+  height: 0
 }
 
 mark {
-    background: #ff0;
-    color: #000
+  background: #ff0;
+  color: #000
 }
 
-code,kbd,pre,samp {
-    font-family: monospace,serif;
-    font-size: 1em
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, serif;
+  font-size: 1em
 }
 
 pre {
-    white-space: pre-wrap
+  white-space: pre-wrap
 }
 
-.btn__bar,nav li {
-    white-space: nowrap
+.btn__bar,
+nav li {
+  white-space: nowrap
 }
 
 q {
-    quotes: "\201C" "\201D" "\2018" "\2019"
+  quotes: "\201C" "\201D" "\2018" "\2019"
 }
 
-sub,sup {
-    font-size: 75%;
-    line-height: 0;
-    vertical-align: baseline
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  vertical-align: baseline
 }
 
 sup {
-    top: -.5em
+  top: -.5em
 }
 
 sub {
-    bottom: -.25em
+  bottom: -.25em
 }
 
 svg:not(:root) {
-    overflow: hidden
+  overflow: hidden
 }
 
 fieldset {
-    border: 1px solid silver;
-    margin: 0 2px;
-    padding: .35em .625em .75em
+  border: 1px solid silver;
+  margin: 0 2px;
+  padding: .35em .625em .75em
 }
 
-button,input,select,textarea {
-    font-family: inherit;
-    font-size: 100%;
-    margin: 0
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  margin: 0
 }
 
-button,input {
-    line-height: normal
+button,
+input {
+  line-height: normal
 }
 
-button,select {
-    text-transform: none
+button,
+select {
+  text-transform: none
 }
 
-button,html input[type=button],input[type=reset],input[type=submit] {
-    -webkit-appearance: button;
-    cursor: pointer
+button,
+html input[type=button],
+input[type=reset],
+input[type=submit] {
+  -webkit-appearance: button;
+  cursor: pointer
 }
 
-button[disabled],html input[disabled] {
-    cursor: default
+button[disabled],
+html input[disabled] {
+  cursor: default
 }
 
-input[type=checkbox],input[type=radio] {
-    box-sizing: border-box;
-    padding: 0
+input[type=checkbox],
+input[type=radio] {
+  box-sizing: border-box;
+  padding: 0
 }
 
 input[type=search] {
-    -webkit-appearance: textfield;
-    box-sizing: content-box
+  -webkit-appearance: textfield;
+  box-sizing: content-box
 }
 
-input[type=search]::-webkit-search-cancel-button,input[type=search]::-webkit-search-decoration {
-    -webkit-appearance: none
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-decoration {
+  -webkit-appearance: none
 }
 
-button::-moz-focus-inner,input::-moz-focus-inner {
-    border: 0;
-    padding: 0
+button::-moz-focus-inner,
+input::-moz-focus-inner {
+  border: 0;
+  padding: 0
 }
 
 textarea {
-    overflow: auto;
-    vertical-align: top
+  overflow: auto;
+  vertical-align: top
 }
 
 table {
-    border-collapse: collapse;
-    border-spacing: 0
+  border-collapse: collapse;
+  border-spacing: 0
 }
-section{
-  max-width: 1200px;
-  margin: 30px auto 20px;
+
+.container .logo {
+  font-size: 30px;
+  font-weight: 400;
+  color: #E30B6C;
+  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.content {
+  max-width: 960px;
+  margin: 0px auto;
+  padding-top: 30px;
+}
+
+@media (max-width:960px) {
+  .content {
+    padding: 1rem;
+  }
+}
+
+.btn-box {
+  margin: 2rem auto;
+}
+
+.btn-box .control {
+  max-width: 200px;
+}
+
+.footer {
+  background: #fff;
+}
+
+.modal-close-trigger {
+  /*position: absolute;*/
+  /*top: -999px;*/
 }

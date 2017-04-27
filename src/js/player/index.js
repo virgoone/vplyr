@@ -35,13 +35,12 @@ class VPlayer {
     const intaface = this._intaface;
     intaface.play();
   }
+  on(event,callback){
+    const intaface = this._intaface;
+    intaface.on(event,callback);
+  }
   stop() {
     const intaface = this._intaface;
-    if (this.__player) {
-      this.__player.unload()
-      this.__player.detachMediaElement()
-      this.__player = null
-    }
     intaface.stop();
   }
   destroy(cb) {

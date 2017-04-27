@@ -10,7 +10,7 @@
     border-radius: 100%;
     top: calc(50% - 25px);
     left:calc(50% - 25px);
-    z-index:65;
+    z-index:10;
     transition: transform .35s cubic-bezier(0.4,0.0,1,1),opacity .3s cubic-bezier(0.4,0.0,1,1);
     transform-origin: 50% 50%;
     .btn-controls{
