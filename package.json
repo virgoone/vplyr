@@ -1,6 +1,6 @@
 {
   "name": "vplyr",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "a html video player ",
   "main": "./dist/vplyr.js",
   "scripts": {
