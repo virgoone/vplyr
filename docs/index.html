@@ -83,7 +83,7 @@
     <main class="content">
       <div class="field is-grouped">
         <p class="control is-expanded">
-          <input class="input" type="text" placeholder="输入一个视频地址" id='input-url'>
+          <input value = "http://player.cdn.muertv.com/yinyuetai.mp4" class="input" type="text" placeholder="输入一个视频地址" id='input-url'>
         </p>
         <p class="control">
           <a class="button is-info" id='control-play'>播放</a>
@@ -152,15 +152,6 @@
         v.on('play', function () {
           gaEventTrigger('Videos', 'VPlyr-Play', 'Videos Event', 1)
         })
-        v.on('pause', function () {
-          gaEventTrigger('Videos', 'VPlyr-Pause', 'Videos Event', 1)
-        })
-        v.on('stop', function () {
-          gaEventTrigger('Videos', 'VPlyr-Stop', 'Videos Event', 1)
-        })
-        v.on('load', function () {
-          gaEventTrigger('Videos', 'VPlyr-Load', 'Videos Event', 1)
-        })
         window.v = v;
         // v.src = 'http://player.cdn.muertv.com/renjian.flv'
         console.log(v);
@@ -197,6 +188,8 @@
             return;
           }
           v.src = url;
+          v.play();
+          gaEventTrigger('Videos', 'VPlyr-URL-Play', 'Videos Event', 1)
         })
         $('.modal-background, .modal-close').click(function () {
           $('html').removeClass('is-clipped');

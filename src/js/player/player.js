@@ -284,10 +284,11 @@ class Player {
       return;
     }
     this._stop();
+    media.src = source;
+    media.load();
     this._updateSeekDisplay();
     // Reset buffer progress
     this._setProgress();
-    media.src = source;
   }
   _updatePoster(source) {
     const player = this._player;
