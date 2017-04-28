@@ -2,22 +2,22 @@
 <html lang="zh-cn">
 
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8">
   <title>VPlyr - 一个可以播放MP4和FLV的h5视频播放器</title>
   <meta name="description" content="使用b站flvjs做flv转码支持,是一个可以播放MP4和FLV的h5视频播放器">
   <meta name="keywords" content="视频播放器,h5,Video,B站,FLVjs,前端,Node,Blog,博客,技术,前端开发,工程师,Front">
   <meta name="author" content="virgoone">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
   <meta http-equiv="Cache-Control" content="no-transform">
   <meta http-equiv="Cache-Control" content="no-siteapp">
-
+  <link rel="canonical" href="http://vplyr.marryto.me">
   <!-- Styles -->
   <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.bootcss.com/bulma/0.4.1/css/bulma.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/vplyr/dist/vplyr.min.css">
-  <!--<link rel="stylesheet" href="../dist/vplyr.css">-->
+  <!--<link rel="stylesheet" href="https://unpkg.com/vplyr/dist/vplyr.min.css">-->
+  <link rel="stylesheet" href="../dist/vplyr.css">
   <link rel="stylesheet" href="demo.css">
   <link rel="shortcut icon" type="image/png" href="favico.png">
   <script>
@@ -108,7 +108,9 @@
     <div class="container">
       <div class="content has-text-centered">
         <p>
-          <strong>VPlyr</strong> by <a href="https://blog.marryto.me">Koya</a>. The source code is licensed
+          <strong>VPlyr</strong> by <a href="https://blog.marryto.me">Koya</a>. 
+          <br/>
+          The source code is licensed
           <a href="http://opensource.org/licenses/mit-license.php">MIT</a>.
         </p>
       </div>
@@ -131,8 +133,8 @@
 
   <!-- vPlyr core script -->
   <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://unpkg.com/vplyr/dist/vplyr.min.js"></script>
-  <!--<script src="../dist/vplyr.js"></script>-->
+  <!--<script src="https://unpkg.com/vplyr/dist/vplyr.min.js"></script>-->
+  <script src="../dist/vplyr.js"></script>
 
   <script>
     $(function () {
@@ -143,6 +145,10 @@
         const v = new vPlayer(document.querySelector('video'), {
           debug: false
         });
+        if(/\.flv/.test(v.src) && !v.support.flvSupport){
+          $('.message-body').html(`${v.brower.name}不支持MSE转码<br/>请更换视频地址`)
+          $('.modal').addClass('is-active');
+        }
         v.on('play', function () {
           gaEventTrigger('Videos', 'VPlyr-Play', 'Videos Event', 1)
         })
@@ -177,11 +183,18 @@
           const url = $('#input-url').val();
           if (!url) {
             $('.message-body').html('请输入视频地址')
-            $('.modal').toggleClass('is-active');
+            $('.modal').addClass('is-active');
+            return;
           }
           if (!/\.(mp|MP)4|\.m3u8|\.flv|\.webm|\.ogg/.test(url)) {
             $('.message-body').html('请输入一个可以播放的视频地址')
-            $('.modal').toggleClass('is-active');
+            $('.modal').addClass('is-active');
+            return;
+          }
+          if(/\.flv/.test(url) && !v.support.flvSupport){
+            $('.message-body').html(`${v.brower.name}不支持MSE转码<br/>请更换视频地址`)
+            $('.modal').addClass('is-active');
+            return;
           }
           v.src = url;
         })

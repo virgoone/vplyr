@@ -246,7 +246,8 @@ table {
   background: #fff;
 }
 
-.modal-close-trigger {
+.modal {
   /*position: absolute;*/
   /*top: -999px;*/
+  z-index: 999;
 }

@@ -60,6 +60,7 @@ class Player {
     api = {
       __init__: this.__init__,
       getType: player.type,
+      getBrower:player.browser,
       getDuration: this._getDuration.bind(this),
       play: this._play.bind(this),
       pause: this._pause.bind(this),

@@ -22,7 +22,11 @@ class VPlayer {
       this.__player = null
     }
     if (pattern.test(target.src)) {
-      this.__player = this.__createFlvjs(target.src);
+      if(!flvjs.isSupported()){
+        console.error('浏览器不支持MSE转码');
+      }else{
+        this.__player = this.__createFlvjs(target.src);
+      }
     }
     this.options = options;
     this.__setup();
@@ -81,6 +85,15 @@ class VPlayer {
   toggleControls() {
     const intaface = this._intaface;
     intaface.toggleControls();
+  }
+  get support(){
+    return {
+      flvSupport:flvjs.isSupported()
+    };
+  }
+  get brower(){
+    const intaface = this._intaface;
+    return intaface.getBrower;
   }
   get loadingState() {
     const intaface = this._intaface;
