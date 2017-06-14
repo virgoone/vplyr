@@ -1,0 +1,79 @@
+@mixin vplyr-play-btn() {
+  display: flex;
+  width: 40px;
+  @include flex();
+  .btn-wrap{
+    
+    flex-direction:row;
+    position: relative;
+    width: 18px;
+    height: 20px;
+    .play,.pause{
+      width:100%;
+      height:100%;
+      position: absolute;
+      top:0px;
+      left:0px;
+      &::before{
+        content:'';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border: 0 solid transparent;
+        border-width: 5px 0 5px 10px;
+        border-left-color: #fff;
+        width: 0;
+        height: 0;
+        @include transition(all 0.2s linear);
+      }
+    }
+    .play{
+      &::before{
+        height: 10px;
+      }
+    }
+    .pause{
+      &::before{
+        left: 10px;
+		    top: 5px;
+      }
+      
+    }
+  }
+}
+@mixin vplyr-play-btn-plying{
+  .btn-wrap{
+    .play,.pause{
+      &::before{
+        border-width: 0 0 0 5px;
+			  height: 100%;
+      }
+    }
+    .pause {
+			&::before{
+        left: 10px;
+			  top: 0;
+      }
+		}
+  }
+}
+@mixin vplyr-time-mod(){
+  @include flex();
+  flex-direction:row;
+  position: relative;
+  position: relative;
+  height: 100%;
+  >div{
+    font-size: 12px;
+    display: inline-block;
+    color: rgba(255,255,255,1);
+    &.control-separator{
+      margin: 0 1px;
+      color: rgba(255,255,255,.7);
+    }
+    &.control-duration{
+      color: rgba(255,255,255,.7);
+    }
+  }
+}

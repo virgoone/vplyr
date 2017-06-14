@@ -1,0 +1,83 @@
+
+.vplyr-video{
+  input[type=range]{
+    position: relative;
+    z-index: 2;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    height: 5px;
+    background: 0,0;
+    // WebKit
+    &::-webkit-slider-runnable-track {
+        @include plyr-range-track();
+    }
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        margin-top: -(($vplyr-range-thumb-height - $vplyr-range-track-height) / 2);
+        @include plyr-range-thumb();
+        
+    }
+    
+    // Mozilla
+    &::-moz-range-track {
+        @include plyr-range-track();
+    }
+    &::-moz-range-thumb {
+        @include plyr-range-thumb();
+    }
+
+    // Microsoft
+    &::-ms-track {
+        height: $vplyr-range-track-height;
+        background: transparent;
+        border: 0;
+        color: transparent;
+    }
+    &::-ms-fill-upper {
+        @include plyr-range-track();
+    }
+    &::-ms-fill-lower {
+        @include plyr-range-track();
+        background: $vplyr-range-selected-bg;
+    }
+    &::-ms-thumb {
+        @include plyr-range-thumb();
+        // For some reason, Edge uses the -webkit margin above
+        margin-top: 0;
+    }
+    &::-ms-tooltip {
+        display: none;
+    }
+
+    // Focus styles
+    &:focus {
+        outline: 0;
+    }
+    &::-moz-focus-outer {
+        border: 0;
+    }
+    &.tab-focus:focus {
+        outline-offset: 3px;
+    }
+
+    // Pressed styles
+    &:active {
+      &::-webkit-slider-thumb {
+          @include plyr-range-thumb-active();
+      }
+      &::-moz-range-thumb {
+          @include plyr-range-thumb-active();
+      }
+      &::-ms-thumb {
+          @include plyr-range-thumb-active();
+      }
+    }
+    &:hover{
+      &::-webkit-slider-thumb{
+        opacity: 1;
+      }
+    }
+    // background-color: rgba(255,53,127,1);
+
+  }
+}

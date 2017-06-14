@@ -1,0 +1,107 @@
+@import 'variables.scss';
+@import 'mixins.scss';
+@import 'range.scss';
+@import 'progress.scss';
+@import 'controls.scss';
+@import 'loader.scss';
+@import 'fullscreen.scss';
+
+.vplyr{
+  position: relative;
+  direction: ltr;
+  font-family: $vplyr-font-family;
+  max-width: 100%;
+  min-width: 200px;
+  overflow: hidden;
+  .vplyr-video-container{
+    position: relative;
+    background: #000;
+    border-radius: inherit;
+    video{
+      object-fit: fill;
+      pointer-events: none;
+      width: 100%;
+      height: auto;
+      vertical-align: middle;
+      border-radius: inherit;
+    }
+  }
+  & ::-webkit-media-controls {
+    display: none;
+  }
+  
+  // outline
+  &,& *,&:focus{
+    outline: 0;
+  }
+  & a,& button,& input ,& label{
+    touch-action: manipulation;
+  } 
+  & , & *, & ::after,& ::before{
+    // box-sizing: border-box;
+    box-sizing: content-box;
+  }
+  input[type=range] {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    border: none;
+    background: 0 0;
+  }
+  
+}
+
+.vplyr-controls{
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  line-height: 1;
+  text-align: center;
+}
+.vplyr-video {
+  .vplyr-gradient-bottom{
+    height: 98px;
+    width: 100%;
+    position: absolute;
+    background-repeat: repeat-x;
+    background-image: dataShape();
+    @include transition(transform .25s cubic-bezier(0.0,0.0,0.2,1));
+  }
+  .vplyr-controls{
+    height: 36px;
+    line-height: 36px;
+    font-size: 109%;
+    text-align: left;
+    direction: ltr;
+  }
+  .vplyr-bottom-container{
+    bottom: 0;
+    height: 36px;
+    width: 100%;
+    z-index: 61;
+    padding-top: 5px;
+    text-align: left;
+    direction: ltr;
+    position: absolute;
+    text-shadow: 0 0 2px rgba(0,0,0,.5);
+    @include transition(transform .25s cubic-bezier(0.4,0.0,1,1));
+  }
+  .vplyr-progress-bar-container{
+    display: block;
+    width: 100%;
+    position: absolute;
+    bottom:36px;
+  }
+  &.active{
+    .vplyr-gradient-bottom{
+      bottom: 0;
+      z-index: 22;
+      background-position: bottom;
+    }
+  }
+}

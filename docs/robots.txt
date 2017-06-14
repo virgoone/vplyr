@@ -1,0 +1,4 @@
+# robots.txt
+User-agent: *
+Crawl-delay:10
+Sitemap: http://vplyr.marryto.me/sitemap.xml

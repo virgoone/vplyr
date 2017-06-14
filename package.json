@@ -1,0 +1,59 @@
+{
+  "name": "vplyr",
+  "version": "1.0.15",
+  "description": "a html video player ",
+  "main": "./dist/vplyr.js",
+  "scripts": {
+    "dev": "gulp",
+    "build": "gulp build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/virgoone/vplyr.git"
+  },
+  "keywords": [
+    "html player, html5 player"
+  ],
+  "engines": {
+    "node": ">=5.4.1"
+  },
+  "author": "me@virgo.one",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/virgoone/vplyr/issues"
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "homepage": "http://vplyr.marryto.me",
+  "dependencies": {
+    "es6-promise": "^4.1.0"
+  },
+  "devDependencies": {
+    "babelify": "^7.3.0",
+    "babel-preset-es2015": "^6.24.0",
+    "browserify": "^13.1.1",
+    "browserify-derequire": "^0.9.4",
+    "browserify-versionify": "^1.0.6",
+    "del": "^2.2.2",
+    "fs": "0.0.2",
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.1",
+    "gulp-changed": "^1.3.2",
+    "gulp-connect": "^5.0.0",
+    "gulp-load-plugins": "^1.2.4",
+    "gulp-plumber": "^1.1.0",
+    "gulp-sass": "^2.3.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.7",
+    "path": "^0.12.7",
+    "run-sequence": "^1.2.2",
+    "flv.js": "^1.2.0",
+    "gulp-clean-css": "^3.0.4",
+    "gulp-rename": "^1.2.2",
+    "gulp-uglify": "^2.1.2",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}

@@ -1,0 +1,107 @@
+@charset "UTF-8";
+// Adds a browser prefix to the property
+/// @param {*} $property Property
+/// @param {*} $value Value
+@mixin css3-prefix($property, $value) {
+  #{$property}: #{$value};
+  -o-#{$property}: #{$value};
+  -ms-#{$property}: #{$value};
+  -moz-#{$property}: #{$value};
+  -khtml-#{$property}: #{$value};
+  -webkit-#{$property}: #{$value};
+}
+/// Transition
+/// @param {List} $properties - Properties
+/// @require {mixin} css3-prefix
+@mixin transition($properties...) {
+   @if length($properties) >= 1{
+    @include css3-prefix( 'transition', $properties);
+  }
+  @else {
+     @include css3-prefix('transition',  "all 0.35s ease-in-out 0s");
+  }
+}
+@mixin transition-property($property...) {
+   @include css3-prefix( 'transition-property',$property);
+}
+@mixin transition-duration($duration...) {
+   @include css3-prefix( 'transition-duration',$duration);
+}
+@mixin transition-timing-function($timing...) {
+   @include css3-prefix( 'transition-timing-function',$timing);
+}
+@mixin transition-delay($delay...) {
+   @include css3-prefix( 'transition-delay',$delay);
+}
+// translate
+@mixin translate ($x, $y) {
+   @include transform(translate($x, $y));
+}
+/// Transform
+/// @param {List} $params - Params
+/// @require {mixin} css3-prefix
+@mixin transform($params) {
+   @include css3-prefix( 'transform', $params);
+}
+/// Transform-Origin
+/// @param {List} $params - Params
+/// @require {mixin} css3-prefix
+@mixin transform-origin($params) {
+   @include css3-prefix( 'transform-origin', $params);
+}
+// Transform-Style
+/// @param {List} $params - Params
+/// @require {mixin} css3-prefix
+@mixin transform-style($style: preserve-3d) {
+   @include css3-prefix( 'transform-style', $style);
+}
+
+/// Flex
+/// @param {*} $orient [center] - justify
+/// @param {*} $pack [center] - Pack
+/// @param {*} $align [center] - Align
+/// @require {mixin} css3-prefix
+@mixin flex($pack: center, $align: center,$justify:center,$items:center) {
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: flex;
+  @include css3-prefix( 'box-pack', $pack);
+  @include css3-prefix( 'box-align', $align);
+  @include css3-prefix( 'justify-content', $justify);
+  @include css3-prefix( 'align-items', $items);
+}
+
+// <input type="range"> styling
+@mixin plyr-range-track() {
+  height: $vplyr-range-track-height;
+  background: transparent;
+  border: 0;
+  border-radius: ($vplyr-range-track-height / 2);
+  user-select: none;
+}
+@mixin plyr-range-thumb() {
+  position: relative;
+  height: $vplyr-range-thumb-height;
+  width: $vplyr-range-thumb-width;
+  background: $vplyr-range-thumb-bg;
+  border: $vplyr-range-thumb-border;
+  border-radius: 100%;
+  box-shadow: $vplyr-range-thumb-shadow;
+  transform: scale(1.2);
+  opacity: 1;
+  @include transition(background .2s ease, border .2s ease, transform .2s ease,opacity .35s ease-in-out);
+}
+@mixin plyr-range-thumb-active() {
+  background: $vplyr-range-thumb-active-bg;
+  border-color: $vplyr-range-thumb-active-border-color;
+  transform: scale($vplyr-range-thumb-active-scale);
+}
+
+@function dataShape() {
+  @return url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAADGCAYAAAAT+OqFAAAAdklEQVQoz42QQQ7AIAgEF/T/D+kbq/RWAlnQyyazA4aoAB4FsBSA/bFjuF1EOL7VbrIrBuusmrt4ZZORfb6ehbWdnRHEIiITaEUKa5EJqUakRSaEYBJSCY2dEstQY7AuxahwXFrvZmWl2rh4JZ07z9dLtesfNj5q0FU3A5ObbwAAAABJRU5ErkJggg==');
+}
+@mixin hide-plyr-range-thumb(){
+  opacity: 0;
+  @include transition(background .2s ease, border .2s ease, transform .2s ease,opacity .35s ease-in-out .3s);
+}
