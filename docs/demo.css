@@ -234,6 +234,18 @@ table {
   }
 }
 
+@media(min-width:960px) {
+  .js-player {
+    width: 960px;
+    height: 540px;
+  }
+}
+.vplyr,.vplyr-video-container{
+  height:100% !important;
+}
+.vplyr-video-container video{
+  height: 100% !important;
+}
 .btn-box {
   margin: 2rem auto;
 }

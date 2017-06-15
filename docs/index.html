@@ -149,6 +149,11 @@
           $('.message-body').html(`${v.brower.name}不支持MSE转码<br/>请更换视频地址`)
           $('.modal').addClass('is-active');
         }
+        v.on('error', function(){
+          $('.message-body').html(`${v.brower.name}不支持此视频地址<br/>请更换`)
+          $('.modal').addClass('is-active');
+          gaEventTrigger('Videos', 'VPlyr-Play-Error', 'Videos Event', 1)
+        })
         v.on('play', function () {
           gaEventTrigger('Videos', 'VPlyr-Play', 'Videos Event', 1)
         })
@@ -174,11 +179,6 @@
           const url = $('#input-url').val();
           if (!url) {
             $('.message-body').html('请输入视频地址')
-            $('.modal').addClass('is-active');
-            return;
-          }
-          if (!/\.(mp|MP)4|\.m3u8|\.flv|\.webm|\.ogg/.test(url)) {
-            $('.message-body').html('请输入一个可以播放的视频地址')
             $('.modal').addClass('is-active');
             return;
           }
