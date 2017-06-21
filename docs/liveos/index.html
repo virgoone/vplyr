@@ -3,9 +3,9 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>VPlyr - 一个可以播放MP4和FLV的h5视频播放器</title>
-  <meta name="description" content="使用b站flvjs做flv转码支持,是一个可以播放MP4和FLV的h5视频播放器">
-  <meta name="keywords" content="视频播放器,h5,Video,B站,FLVjs,前端,Node,Blog,博客,技术,前端开发,工程师,Front">
+  <title>Liveos 演示</title>
+  <meta name="description" content="Video++ liveOS演示">
+  <meta name="keywords" content="Video++,视频播放器,h5,Video,B站,FLVjs,前端,Node,Blog,博客,技术,前端开发,工程师,Front">
   <meta name="author" content="virgoone">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -18,8 +18,8 @@
   <link rel="stylesheet" href="https://cdn.bootcss.com/bulma/0.4.1/css/bulma.min.css">
   <link rel="stylesheet" href="https://unpkg.com/vplyr@1.0.16/dist/vplyr.min.css">
   <!--<link rel="stylesheet" href="../dist/vplyr.css">-->
-  <link rel="stylesheet" href="demo.css">
-  <link rel="shortcut icon" type="image/png" href="favico.png">
+  <link rel="stylesheet" href="/demo.css">
+  <link rel="shortcut icon" type="image/png" href="/favico.png">
   <script>
     (function (i, s, o, g, r, a, m) {
       i['GoogleAnalyticsObject'] = r;
@@ -43,7 +43,7 @@
   <section class="container">
     <nav class="nav">
       <div class="nav-left">
-        <a class="nav-item">
+        <a class="nav-item" href='/'>
           <span class='logo'>VPlyr</span>
         </a>
       </div>
@@ -83,7 +83,7 @@
     <main class="content">
       <div class="field is-grouped">
         <p class="control is-expanded">
-          <input value = "http://player.cdn.muertv.com/yinyuetai.mp4" class="input" type="text" placeholder="输入一个视频地址" id='input-url'>
+          <input value="http://player.cdn.muertv.com/yinyuetai.mp4" class="input" type="text" placeholder="输入一个视频地址" id='input-url'>
         </p>
         <p class="control">
           <a class="button is-info" id='control-play'>播放</a>
@@ -91,16 +91,9 @@
       </div>
 
       <div class='js-player' id="liveos-root">
-        <video webkit-playsinline playsinline x-webkit-airplay controls src='http://player.cdn.muertv.com/renjian.flv' preload='none'>
+        <video webkit-playsinline playsinline x-webkit-airplay controls src='http://player.cdn.muertv.com/yinyuetai.mp4' loop preload='none'>
         </video>
         <!--poster="http://player.cdn.muertv.com/tianfuzhen.jpg.hebe" -->
-      </div>
-      <div class="btn-box has-text-centered">
-        <a class="button vplyr-docs-play">播放</a>
-        <a class="button vplyr-docs-pause">暂停</a>
-        <a class="button vplyr-docs-fullscreen">全屏</a>
-        <a class="button vplyr-docs-muted">切换静音</a>
-        <a class="button vplyr-docs-stop">停止播放</a>
       </div>
     </main>
   </section>
@@ -108,9 +101,8 @@
     <div class="container">
       <div class="content has-text-centered">
         <p>
-          <strong>VPlyr</strong> by <a href="https://blog.marryto.me">Koya</a>. 
-          <br/>
-          The source code is licensed
+          <strong>VPlyr</strong> by <a href="https://blog.marryto.me">Koya</a>.
+          <br/> The source code is licensed
           <a href="http://opensource.org/licenses/mit-license.php">MIT</a>.
         </p>
       </div>
@@ -124,7 +116,7 @@
           VPlyr Error
         </div>
         <div class="message-body">
-          
+
         </div>
       </div>
     </div>
@@ -132,7 +124,6 @@
   </div>
 
   <!-- vPlyr core script -->
-  <script src="https://sdkcdn.videojj.com/liveOS/asserts/dat.gui/dat.gui.js"></script>
   <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://unpkg.com/vplyr@1.0.16/dist/vplyr.min.js"></script>
   <script src="https://sdkcdn.videojj.com/liveos-sdk/test/liveos.js"></script>
@@ -147,11 +138,11 @@
         const v = new vPlayer(document.querySelector('video'), {
           debug: false
         });
-        if(/\.flv/.test(v.src) && !v.support.flvSupport){
+        if (/\.flv/.test(v.src) && !v.support.flvSupport) {
           $('.message-body').html(`${v.brower.name}不支持MSE转码<br/>请更换视频地址`)
           $('.modal').addClass('is-active');
         }
-        v.on('error', function(){
+        v.on('error', function () {
           $('.message-body').html(`${v.brower.name}不支持此视频地址<br/>请更换`)
           $('.modal').addClass('is-active');
           gaEventTrigger('Videos', 'VPlyr-Play-Error', 'Videos Event', 1)
@@ -162,21 +153,7 @@
         window.v = v;
         // v.src = 'http://player.cdn.muertv.com/renjian.flv'
         console.log(v);
-        $('.vplyr-docs-play').on('click', function () {
-          v.play();
-        })
-        $('.vplyr-docs-pause').on('click', function () {
-          v.pause();
-        })
-        $('.vplyr-docs-stop').on('click', function () {
-          v.stop();
-        })
-        $('.vplyr-docs-muted').on('click', function () {
-          v.muted = !v.muted;
-        })
-        $('.vplyr-docs-fullscreen').on('click', function () {
-          v.fullscreen = true;
-        })
+
         $('#control-play').on('click', function () {
           const url = $('#input-url').val();
           if (!url) {
@@ -184,7 +161,7 @@
             $('.modal').addClass('is-active');
             return;
           }
-          if(/\.flv/.test(url) && !v.support.flvSupport){
+          if (/\.flv/.test(url) && !v.support.flvSupport) {
             $('.message-body').html(`${v.brower.name}不支持MSE转码<br/>请更换视频地址`)
             $('.modal').addClass('is-active');
             return;
@@ -209,6 +186,21 @@
             $('.modal').removeClass('is-active');
           }
         });
+        let LiveOSInstance;
+        const platformId = '556c38e7ec69d5bf655a0fb2';
+        const platformUserId = '81';
+
+        if (window.__LiveOS__) {
+          if (LiveOSInstance) {
+            LiveOSInstance.destroy();
+          }
+          LiveOSInstance = new __LiveOS__('#liveos-root', {
+            platformId,
+            platformUserId,
+            player: v.media,
+          });
+          window.__INSTANCE__ = LiveOSInstance;
+        }
 
       }
     })
